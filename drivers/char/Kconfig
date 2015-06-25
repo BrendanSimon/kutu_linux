@@ -394,6 +394,14 @@ config XILINX_DEVCFG
 	  This option enables support for the Xilinx device configuration driver.
 	  If unsure, say N
 
+config ad7193_UART
+	tristate "ad7193 & UART support"
+	depends on ARCH_ZYNQ || MICROBLAZE || COMPILE_TEST
+	depends on HAS_IOMEM
+	select GENERIC_IRQ_CHIP
+	help
+	  Choose this if you have a ad7193_UART system.
+
 config HAWK_FOS
 	tristate "Hawk FOS support"
 	depends on ARCH_ZYNQ || COMPILE_TEST

@@ -17,6 +17,8 @@ obj-$(CONFIG_IBM_BSR)		+= bsr.o
 obj-$(CONFIG_SGI_MBCS)		+= mbcs.o
 obj-$(CONFIG_BFIN_OTP)		+= bfin-otp.o
 
+obj-$(CONFIG_ad7193_UART)	+= ad7193_uart/
+
 obj-$(CONFIG_PRINTER)		+= lp.o
 
 obj-$(CONFIG_APM_EMULATION)	+= apm-emulation.o
