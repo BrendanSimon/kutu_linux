@@ -4067,6 +4067,12 @@ static int ad9361_mcs(struct ad9361_rf_phy *phy, unsigned step)
 
 	switch (step) {
 	case 1:
+		/* REVIST:
+		 * POWER_DOWN_TRX_SYNTH and MCS_RF_ENABLE somehow conflict
+		 */
+		ad9361_spi_writef(phy->spi, REG_ENSM_CONFIG_2,
+				  POWER_DOWN_TX_SYNTH | POWER_DOWN_RX_SYNTH, 0);
+
 		ad9361_spi_writef(phy->spi, REG_MULTICHIP_SYNC_AND_TX_MON_CTRL,
 			mcs_mask, MCS_BB_ENABLE | MCS_BBPLL_ENABLE | MCS_RF_ENABLE);
 		ad9361_spi_writef(phy->spi, REG_CP_BLEED_CURRENT,
@@ -4093,12 +4099,6 @@ static int ad9361_mcs(struct ad9361_rf_phy *phy, unsigned step)
 		gpiod_set_value(phy->pdata->sync_gpio, 1);
 		gpiod_set_value(phy->pdata->sync_gpio, 0);
 		break;
-	case 0:
-		/* REVIST:
-		 * POWER_DOWN_TRX_SYNTH and MCS_RF_ENABLE somehow conflict
-		 */
-		ad9361_spi_writef(phy->spi, REG_ENSM_CONFIG_2,
-				  POWER_DOWN_TX_SYNTH | POWER_DOWN_RX_SYNTH, 0);
 	case 5:
 		ad9361_spi_writef(phy->spi, REG_MULTICHIP_SYNC_AND_TX_MON_CTRL,
 			mcs_mask, MCS_RF_ENABLE);
@@ -5817,6 +5817,7 @@ enum ad9361_iio_dev_attr {
 	AD9361_QUAD_ENABLE,
 	AD9361_DCXO_TUNE_COARSE,
 	AD9361_DCXO_TUNE_FINE,
+	AD9361_MCS_SYNC,
 };
 
 static ssize_t ad9361_phy_store(struct device *dev,
@@ -6018,6 +6019,12 @@ static ssize_t ad9361_phy_store(struct device *dev,
 		ret = ad9361_set_dcxo_tune(phy, phy->pdata->dcxo_coarse,
 					   phy->pdata->dcxo_fine);
 		break;
+	case AD9361_MCS_SYNC:
+		ret = kstrtol(buf, 10, &readin);
+		if (ret)
+			break;
+		ret = ad9361_mcs(phy, readin);
+		break;
 	default:
 		ret = -EINVAL;
 	}
@@ -6215,6 +6222,11 @@ static IIO_DEVICE_ATTR(dcxo_tune_fine, S_IRUGO | S_IWUSR,
 			ad9361_phy_store,
 			AD9361_DCXO_TUNE_FINE);
 
+static IIO_DEVICE_ATTR(multichip_sync, S_IWUSR,
+			NULL,
+			ad9361_phy_store,
+			AD9361_MCS_SYNC);
+
 static struct attribute *ad9361_phy_attributes[] = {
 	&iio_dev_attr_in_voltage_filter_fir_en.dev_attr.attr,
 	&iio_dev_attr_out_voltage_filter_fir_en.dev_attr.attr,
@@ -6234,6 +6246,7 @@ static struct attribute *ad9361_phy_attributes[] = {
 	&iio_dev_attr_in_voltage_quadrature_tracking_en.dev_attr.attr,
 	&iio_dev_attr_dcxo_tune_coarse.dev_attr.attr,
 	&iio_dev_attr_dcxo_tune_fine.dev_attr.attr,
+	&iio_dev_attr_multichip_sync.dev_attr.attr,
 	NULL,
 };
 
