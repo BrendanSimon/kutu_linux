@@ -282,9 +282,11 @@ static long fos_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          printk(KERN_DEBUG "<%s> : started dma \n",MODULE_NAME);
 
          s2mm_status = fosdma_read_reg(fos,S2MM_DMASR);
-         while(!(s2mm_status & 1<<12) || !(s2mm_status & 1<<1)){
+         while(!(s2mm_status & 1<<12) && !(s2mm_status & 1<<1) && !(s2mm_status & 1<<0)){
             s2mm_status = fosdma_read_reg(fos,S2MM_DMASR);
          }
+
+         printk(KERN_DEBUG "<%s> :  dma status = 0x%x\n",MODULE_NAME,s2mm_status);
 
          // set configuration back to original state
          fos_write_reg(fos, R_CONFIG, fos->config_state);
