@@ -410,6 +410,14 @@ config HAWK_FOS
 	help
 	  Choose this if you have a Hawk FOS system.
 
+config GR1000
+	tristate "GPSat GR1000 support"
+	depends on ARCH_ZYNQ || COMPILE_TEST
+	depends on HAS_IOMEM
+	select GENERIC_IRQ_CHIP
+	help
+	  Choose this if you have a GR1000 system.
+
 config R3964
 	tristate "Siemens R3964 line discipline"
 	depends on TTY
