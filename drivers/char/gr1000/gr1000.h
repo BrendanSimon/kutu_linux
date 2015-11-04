@@ -46,6 +46,7 @@ enum gr1000_user_cmds
    GR1000_USER_DMA_TEST,
    GR1000_USER_TRIG_PPS,
    GR1000_USER_SPI_WRITE,
+   GR1000_USER_STATUS,
    GR1000_USER_REG_DEBUG
 };
 
@@ -124,6 +125,7 @@ struct GR1000_debug_struct {
 #define GR1000_USER_DMA_TEST           _IOWR(GR1000_IOCTL_BASE, 0x85, struct GR1000_cmd_struct)
 #define GR1000_USER_TRIG_PPS           _IOWR(GR1000_IOCTL_BASE, 0x86, struct GR1000_cmd_struct)
 #define GR1000_USER_SPI_WRITE          _IOWR(GR1000_IOCTL_BASE, 0x87, struct GR1000_cmd_struct)
-#define GR1000_USER_REG_DEBUG          _IOWR(GR1000_IOCTL_BASE, 0x88, struct GR1000_cmd_struct)
+#define GR1000_USER_STATUS             _IOWR(GR1000_IOCTL_BASE, 0x88, struct GR1000_cmd_struct)
+#define GR1000_USER_REG_DEBUG          _IOWR(GR1000_IOCTL_BASE, 0x89, struct GR1000_cmd_struct)
 
 #endif /* _GR1000_H */

@@ -178,8 +178,8 @@ static long gr1000_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          return 0;
 
       case GR1000_USER_SET_MODE:
-//         ret = GR1000_Set_Pulse(gr1000, arg_ptr);
-//         return ret;
+         ret = GR1000_Set_User_Mode(gr1000, arg);
+         return ret;
 
       case GR1000_USER_RUN_SCAN:
 //         ret = GR1000_Run_Test(gr1000, arg_ptr);
@@ -227,6 +227,13 @@ static long gr1000_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
       case GR1000_USER_SPI_WRITE:
          ret = GR1000_SPI_Write(gr1000, arg_ptr);
          return ret;
+
+      case GR1000_USER_STATUS:
+         ret = GR1000_Status(gr1000);
+         if (copy_to_user(arg_ptr, &ret, sizeof(u32))) {
+            return -EFAULT;
+         }
+         return 0;
 
       case GR1000_USER_REG_DEBUG:
 /*
@@ -492,5 +499,5 @@ static struct platform_driver gr1000_driver = {
 module_platform_driver(gr1000_driver);
 
 MODULE_AUTHOR("Greg Smart <Greg.Smart@kutu.com.au>");
-MODULE_DESCRIPTION("Hawk GR1000 Linux driver");
+MODULE_DESCRIPTION("GPSat GR1000 Linux driver");
 MODULE_LICENSE("GPL v2");

@@ -49,6 +49,23 @@ u32 GR1000_Status(struct gr1000_drvdata *gr1000)
 }
 
 //
+// GR1000_Set_User_Mode()
+//
+// Set the user operation mode
+//
+int GR1000_Set_User_Mode(struct gr1000_drvdata *gr1000, u32 arg)
+{
+   if (arg & (~(ADC_TEST_DATA|PPS_DEBUG_MODE|DMA_DEBUG_MODE))) {
+      printk(KERN_DEBUG "GR1000_USER_SET_MODE: invalid argument\n");
+      return -EFAULT;
+   }
+
+   gr1000_write_reg(gr1000, R_MODE_CONFIG_ADDR, arg);
+
+   return 0;
+}
+
+//
 // GR1000_SPI_Write()
 //
 // Write a command to SPI port

@@ -222,11 +222,11 @@ u32 GR1000_Open(u32 init_fpga);
 u32 GR1000_Close(int fd);
 
 //
-// GR1000_Set_Pulse()
+// GR1000_Set_User_Mode()
 //
-// Setup the pulse generator
+// Setup the system configuration
 //
-int GR1000_Set_Pulse(struct gr1000_drvdata *gr1000, void *user_ptr);
+int GR1000_Set_User_Mode(struct gr1000_drvdata *gr1000, u32 arg);
 
 //
 // GR1000_Set_Adc_Offset()
