@@ -16,6 +16,7 @@
 */
 #define GENERATE_PPS             0x01
 #define DEBUG_START_DMA          0x02
+#define FPGA_RESET               0x10
 #define ADC_TEST_DATA            0x20
 #define PPS_DEBUG_MODE           0x40
 #define DMA_DEBUG_MODE           0x80

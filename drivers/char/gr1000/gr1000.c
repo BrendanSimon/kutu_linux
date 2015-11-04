@@ -154,13 +154,13 @@ static long gr1000_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 
    switch (cmd) {
       case GR1000_USER_RESET:
-//         if (arg & FPGA_RESET) {
-//            gr1000_write_reg(gr1000, R_RUN_TEST, FPGA_RESET);
-//            gr1000->config_state = FPGA_RESET;
-//         } else {
-//            gr1000_write_reg(gr1000, R_RUN_TEST, 0);
-//            gr1000->config_state = 0;
-//         }
+         if (arg == FPGA_RESET) {
+            gr1000_write_reg(gr1000, R_MODE_CONFIG_ADDR, FPGA_RESET);
+            gr1000->config_state = FPGA_RESET;
+         } else {
+            gr1000_write_reg(gr1000, R_MODE_CONFIG_ADDR, 0);
+            gr1000->config_state = 0;
+         }
          return 0;
 
       case GR1000_USER_SET_CLK:
