@@ -6,9 +6,9 @@
 		ranges;
 
 
-		axi4_fos_controller_0: axi4_fos_controller@43c00000 {
-			compatible = "kutu,axi4-fos-controller-1.00-a";
-		   reg = <0x43c00000 0x20000>;
+		axi4_gr1000_controller_0: axi4_gr1000_controller@43c00000 {
+			compatible = "kutu,axi4-gr1000-controller-1.00-a";
+		   reg = <0x43c00000 0x10000>;
 			#clock-cells = <0>;
 			clocks = <&clkc 16>;
 		   interrupt-parent = <&gic>;
@@ -20,6 +20,5 @@
 			xlnx,sys-addr-width = <0xe>;
 		   xlnx,use-wstrb = <0x0>;
 	   } ;
-
 	};
 };
