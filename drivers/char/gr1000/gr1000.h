@@ -36,6 +36,10 @@
 
 #define DMA_LENGTH	(64*1024*1024)
 
+#define GR1000_DEBUG_READ        1
+#define GR1000_DEBUG_WRITE       2
+#define GR1000_DEBUG_DMA_READ    3
+#define GR1000_DEBUG_DMA_WRITE   4
 
 enum gr1000_user_cmds
 {

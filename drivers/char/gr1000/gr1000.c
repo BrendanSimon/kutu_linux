@@ -148,7 +148,7 @@ static long gr1000_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
    long  ret = 0;
 //   unsigned int s2mm_status;
 //   struct GR1000_read_data_struct read_cmd;
-//   struct GR1000_debug_struct debug_cmd;
+   struct GR1000_debug_struct debug_cmd;
 
    //printk(KERN_DEBUG "<%s> ioctl: entered gr1000_ioctl\n", MODULE_NAME);
 
@@ -236,7 +236,7 @@ static long gr1000_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          return 0;
 
       case GR1000_USER_REG_DEBUG:
-/*
+
          if (copy_from_user(&debug_cmd, arg_ptr, sizeof(debug_cmd))) {
             printk(KERN_DEBUG "GR1000_REG_DEBUG: copy failed\n");
 
@@ -248,21 +248,13 @@ static long gr1000_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
             return 0;
          }
 
-         if (debug_cmd.cmd == GR1000_DEBUG_DMA_WRITE) {
-            gr1000dma_write_reg(gr1000, debug_cmd.reg, debug_cmd.data);
-            return 0 ;
-         }
-
          if (debug_cmd.cmd == GR1000_DEBUG_READ)
             debug_cmd.data = gr1000_read_reg(gr1000, debug_cmd.reg);
-
-         if (debug_cmd.cmd == GR1000_DEBUG_DMA_READ)
-            debug_cmd.data = gr1000dma_read_reg(gr1000, debug_cmd.reg);
 
          if (copy_to_user(arg_ptr, &debug_cmd, sizeof(debug_cmd))) {
             return -EFAULT;
          }
-*/
+
          return 0;
 
       default:
