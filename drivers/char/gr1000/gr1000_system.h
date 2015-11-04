@@ -20,116 +20,79 @@
 
 /* general register memory location */
 
-#define GR1000_BASE                 0x43C00000
+#define GR1000_BASE              0x43C00000
 
-#define R_GR1000_FIFO_BASE          0x0800
-#define R_GR1000_SWEEP_RAM_BASE     0x1000
-#define R_GR1000_DAC_LOOKUP_BASE    0x2000
-#define R_FREQUENCY_STATUS       0x3000
+#define R_GR1000_REG_BASE        0x0000
+#define R_GR1000_FIFO_BASE       0x0800
+#define R_GR1000_BRAM_BASE       0x1000
 
-#define R_PULSE_RATE             0x0000
-#define R_PULSE_WIDTH            0x0004
-#define R_RUN_TEST               0x0008
-#define R_CONFIG                 0x000C
+#define R_GR1000_STATUS          0x0000
 
-#define R_DATA_READ_ADDR         0x0010   // read address on 64 byte boundaries
-#define R_DATA_READ_STRIDE       0x0014
-#define R_DATA_READ_COL_COUNT    0x0018
-#define R_DATA_READ_ROW_COUNT    0x001C
+#define R_DMA_WRITE_ADDR         0x0000
+#define R_DMA_READ_ADDR          0x0004
+#define R_MODE_CONFIG_ADDR       0x0008
+#define R_INTERRUPT_ADDR         0x000C
 
-#define R_DATA_READ_START        0x0020   // read address on 64 byte boundaries
-#define R_MEM_STRIDE             0x0024   // Write number of 256byte blocks to read
-#define R_SPI_PORT_SPEED         0x0028   // Set SPI port speed
+#define R_SPI_DATA_ADDR          0x0010   // read address on 64 byte boundaries
+#define R_SPI_DEVICE_ADDR        0x0014
 
-#define R_BOTDA_START_FREQ       0x002C   // Write start frequency of BOTDA scan
-#define R_BOTDA_END_FREQ         0x0030   // Write end frequency of BOTDA scan
-#define R_ADC_COUNT              0x0034   // Write number of ADC samples to store * 16
-#define R_BOTDA_COUNT            0x0038   // Write number of accumulations to perform
-#define R_ADC_OFFSET             0x003C   // Write adc offset value to remove
+#define GR1000_REG_BASE          (GR1000_BASE + R_GR1000_REG_BASE)
+#define GR1000_FIFO_BASE         (GR1000_BASE + R_GR1000_FIFO_BASE)
+#define GR1000_BRAM_BASE         (GR1000_BASE + R_GR1000_BRAM_BASE)
 
-#define R_SPI0                   0x0040
-#define R_SPI1                   0x0044
-#define R_SPI2                   0x0048
-#define R_SPI3                   0x004C
-#define R_SPI4                   0x0050
-#define R_SPI5                   0x0054   // SPI 5 is a 24 bit SPI word
-#define R_SPI6                   0x0058
-#define R_SPI7                   0x005C   // This register doesn't exist
+#define GR1000_STATUS            (GR1000_BASE + R_GR1000_STATUS)
 
-#define R_DATA_WRITE             0x0060   // WRITE address on 64 byte boundaries
-#define R_DATA_WRITE_STRIDE      0x0064
-#define R_DATA_WRITE_COL_COUNT   0x0068
-#define R_DATA_WRITE_ROW_COUNT   0x006C
-#define R_DATA_WRITE_START       0x0070   // write address on 64 byte boundaries
-
-#define R_DMA_SIZE               0x0074   // size of DMA transfers
-
-#define R_RUN_STATUS             0x0000   // read status
-
-#define GR1000_FIFO_BASE            (GR1000_BASE + R_GR1000_FIFO_BASE)
-#define GR1000_SWEEP_RAM_BASE       (GR1000_BASE + R_GR1000_SWEEP_RAM_BASE)
-#define GR1000_DAC_LOOKUP_BASE      (GR1000_BASE + R_GR1000_DAC_LOOKUP_BASE)
-
-#define PULSE_RATE_ADDR          (GR1000_BASE + R_PULSE_RATE)
-#define PULSE_WIDTH_ADDR         (GR1000_BASE + R_PULSE_WIDTH)
-#define RUN_TEST_ADDR            (GR1000_BASE + R_RUN_TEST)
-#define CONFIG_ADDR              (GR1000_BASE + R_CONFIG)
-#
-#define DATA_READ_ADDR           (GR1000_BASE + R_DATA_READ_ADDR)
-#define DATA_READ_STRIDE_ADDR    (GR1000_BASE + R_DATA_READ_STRIDE)
-#define DATA_READ_COL_COUNT_ADDR (GR1000_BASE + R_DATA_READ_COL_COUNT)
-#define DATA_READ_ROW_COUNT_ADDR (GR1000_BASE + R_DATA_READ_ROW_COUNT)
-
-#define DATA_READ_START_ADDR     (GR1000_BASE + R_DATA_READ_START)  // read address on 64 byte boundaries
-#define MEM_STRIDE_ADDR          (GR1000_BASE + R_MEM_STRIDE)  // Write number of 256byte blocks to read
-#define SPI_PORT_SPEED_ADDR      (GR1000_BASE + R_SPI_PORT_SPEED) // Set SPI port speed
-
-#define BOTDA_START_FREQ_ADDR    (GR1000_BASE + R_BOTDA_START_FREQ)  // Write start frequency of BOTDA scan
-#define BOTDA_END_FREQ_ADDR      (GR1000_BASE + R_BOTDA_END_FREQ)  // Write end frequency of BOTDA scan
-
-#define ADC_COUNT_ADDR           (GR1000_BASE + R_ADC_COUNT)  // Write number of ADC samples to store * 16
-
-#define BOTDA_COUNT_ADDR         (GR1000_BASE + R_BOTDA_COUNT)  // Write number of accumulations to perform
-
-#define ADC_OFFSET_ADDR          (GR1000_BASE + R_ADC_OFFSET)  // Write adc offset value to remove
-
-#define SPI_ADDR_BASE            (GR1000_BASE + R_SPI0)
-#define SPI0_ADDR                (GR1000_BASE + R_SPI0)
-#define SPI1_ADDR                (GR1000_BASE + R_SPI1)
-#define SPI2_ADDR                (GR1000_BASE + R_SPI2)
-#define SPI3_ADDR                (GR1000_BASE + R_SPI3)
-#define SPI4_ADDR                (GR1000_BASE + R_SPI4)
-#define SPI5_ADDR                (GR1000_BASE + R_SPI5)  // SPI 5 is a 24 bit SPI word
-#define SPI6_ADDR                (GR1000_BASE + R_SPI6)
-#define SPI7_ADDR                (GR1000_BASE + R_SPI7)  // This register doesn't exist
-
-#define COUNT_STATUS_ADDR        (GR1000_BASE + R_COUNT_STATUS)   // SPI 5 is a 24 bit SPI word
-#define FREQUENCY_STATUS_ADDR    (GR1000_BASE + R_FREQUENCY_STATUS)
-#define RUN_STATUS_ADDR          (GR1000_BASE + R_RUN_STATUS)     // This register doesn't exist
+#define DMA_WRITE_ADDR           (GR1000_BASE + R_DMA_WRITE_ADDR)
+#define DMA_READ_ADDR            (GR1000_BASE + R_DMA_READ_ADDR)
+#define MODE_CONFIG_ADDR         (GR1000_BASE + R_MODE_CONFIG_ADDR)
+#define INTERRUPT_ADDR           (GR1000_BASE + R_INTERRUPT_ADDR)
+#define SPI_DATA_ADDR            (GR1000_BASE + R_SPI_DATA_ADDR)
+#define SPI_DEVICE_ADDR          (GR1000_BASE + R_SPI_DEVICE_ADDR)
 
 /*
-** Sweep constants
+** configuration constants
 */
-#define DATA_SWEEP               0x100
-#define FULL_SWEEP               0x00
+#define GENERATE_PPS             0x01
+#define DEBUG_START_DMA          0x02
+#define PPS_DEBUG_MODE           0x40
+#define DMA_DEBUG_MODE           0x80
 
-#define SWEEP_TYPE               0x01
-#define TEST_SWEEP_ENABLE        0x02
-#define OUTPUT_SWEEP_CLK_ENABLE  0x04
-#define RUN_SWEEP_ENABLE         0x08
+#define MODE_NORMAL              0x00
+#define MODE_DMA_DEBUG           (DMA_DEBUG_MODE)
+#define MODE_TRIGGER_DMA         (DMA_DEBUG_MODE|DEBUG_START_DMA)
+#define MODE_PPS_DEBUG           (PPS_DEBUG_MODE)
+#define MODE_TRIGGER_PPS         (PPS_DEBUG_MODE|GENERATE_PPS)
 
 /*
- * DMA register constants
+ * interrupt constants
  */
-#define MM2S_DMACR	0x00
-#define MM2S_DMASR	0x04
-#define MM2S_SA	   0x18
-#define MM2S_LENGTH	0x28
+#define ENABLE_INTERRUPT         0x01
+#define DISABLE_INTERRUPT        0x02
+#define CLEAR_INTERRUPT          0x03
 
-#define S2MM_DMACR	0x30
-#define S2MM_DMASR	0x34
-#define S2MM_DA	   0x48
-#define S2MM_LENGTH	0x58
+/*
+** SPI constants
+*/
+#define SPI_PORT_LOW             0x01
+#define SPI_PORT_HIGH            0x02
+#define SPI_PORT_BOTH            0x03
+
+/*
+** Status constants
+*/
+#define BIT_SPI_BUSY             0x01
+#define BIT_S2MM_ERR             0x02
+#define BIT_MM2S_RD_CMPLT        0x04
+#define BIT_MM2S_ERR             0x08
+#define BIT_SPI_ERR              0x10
+#define BIT_INTERRUPT_ACTIVE     0x20
+#define BIT_S2MM_ERR_STATUS      0x40
+#define BIT_MM2S_RD_CMPLT_STATUS 0x80
+#define BIT_MM2S_ERR_STATUS      0x100
+
+#define SPI_MAX_WAIT_COUNT 1000000
+#define MAX_WAIT_COUNT     10000
+
 
 /*
  *  struct GR1000_axi_lite_base.
@@ -138,9 +101,8 @@
 
 struct GR1000_axi_lite_base {
    u32                           registers[512];
-   u32                           ddr3_fifo[512];
-   u32                           sweep_ram[1024];
-   u32                           dac_lookup[1024];
+   u32                           fifo[512];
+   u32                           bram[1024];
 } ;
 
 /*
@@ -155,35 +117,6 @@ struct GR1000_registers {
    u32                           run_test;            // 0xC
    u32                           data_read_addr;      // 0x10
    u32                           data_read_stride;    // 0x14
-   u32                           data_read_col_count; // 0x18
-   u32                           data_read_row_count; // 0x1C
-   u32                           data_read_start;     // 0x20
-   u32                           mem_stride;          // 0x24
-   u32                           spi_port_speed;      // 0x28
-   u32                           botda_start_freq;    // 0x2C
-   u32                           botda_end_freq;      // 0x30
-   u32                           adc_count;           // 0x34
-   u32                           botda_count;         // 0x38
-   u32                           adc_offset;          // 0x3C
-   u32                           spi0;                // 0x40
-   u32                           spi1;                // 0x44
-   u32                           spi2;                // 0x48
-   u32                           spi3;                // 0x4C
-   u32                           spi4;                // 0x50
-   u32                           spi5;                // 0x54
-   u32                           spi6;                // 0x58
-   u32                           spi7;                // 0x5C
-   u32                           data_write_addr;      // 0x60
-   u32                           data_write_stride;    // 0x64
-   u32                           data_write_col_count; // 0x68
-   u32                           data_write_row_count; // 0x6C
-   u32                           data_write_start;     // 0x70
-   u32                           unused1;             // 0x74
-   u32                           unused2;             // 0x78
-   u32                           unused3;             // 0x7C
-   u32                           count_status;        // 0x80
-   u32                           frequency_status;    // 0x84
-   u32                           run_status;          // 0x88
 } ;
 
 #define MAX_DEVICES     4

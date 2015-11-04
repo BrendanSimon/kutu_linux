@@ -70,8 +70,8 @@ static int gr1000_release(struct inode *i, struct file *f)
 
    gr1000 = container_of(i->i_cdev, struct gr1000_drvdata, cdev);
 
-   gr1000_write_reg(gr1000, R_RUN_TEST, STOP_TEST);
-   gr1000_write_reg(gr1000, R_BOTDA_END_FREQ, 0);
+//   gr1000_write_reg(gr1000, R_RUN_TEST, STOP_TEST);
+//   gr1000_write_reg(gr1000, R_BOTDA_END_FREQ, 0);
 
    printk(KERN_DEBUG "<%s> file: close()\n", MODULE_NAME);
    return 0;
@@ -146,154 +146,90 @@ static long gr1000_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
    //   int __user *ip = (int __user *)arg;
    void  *arg_ptr = (void *)arg;
    long  ret = 0;
-   unsigned int s2mm_status;
-   struct GR1000_read_data_struct read_cmd;
-   struct GR1000_debug_struct debug_cmd;
+//   unsigned int s2mm_status;
+//   struct GR1000_read_data_struct read_cmd;
+//   struct GR1000_debug_struct debug_cmd;
 
    //printk(KERN_DEBUG "<%s> ioctl: entered gr1000_ioctl\n", MODULE_NAME);
 
    switch (cmd) {
       case GR1000_USER_RESET:
-         if (arg & FPGA_RESET) {
-            gr1000_write_reg(gr1000, R_RUN_TEST, FPGA_RESET);
-            gr1000->config_state = FPGA_RESET;
-         } else {
-            gr1000_write_reg(gr1000, R_RUN_TEST, 0);
-            gr1000->config_state = 0;
-         }
+//         if (arg & FPGA_RESET) {
+//            gr1000_write_reg(gr1000, R_RUN_TEST, FPGA_RESET);
+//            gr1000->config_state = FPGA_RESET;
+//         } else {
+//            gr1000_write_reg(gr1000, R_RUN_TEST, 0);
+//            gr1000->config_state = 0;
+//         }
          return 0;
 
       case GR1000_USER_SET_CLK:
-         if ((arg != 200)&&(arg != 400))
-            return -1;
-
-         if (arg == 200)
-            gr1000->config_state |= CLK_200_MODE;
-         else
-            gr1000->config_state &= ~CLK_200_MODE;
-
-         gr1000_write_reg(gr1000, R_CONFIG, gr1000->config_state);
-
-         return ret;
-
-      case GR1000_USER_SET_PULSE:
-         ret = GR1000_Set_Pulse(gr1000, arg_ptr);
-         return ret;
-
-      case GR1000_USER_SET_ADC_OFFSET:
-         gr1000_write_reg(gr1000, R_ADC_OFFSET, arg);
+//         if ((arg != 200)&&(arg != 400))
+//            return -1;
+//
+//         if (arg == 200)
+//            gr1000->config_state |= CLK_200_MODE;
+//         else
+//            gr1000->config_state &= ~CLK_200_MODE;
+//
+//         gr1000_write_reg(gr1000, R_CONFIG, gr1000->config_state);
+//
+//         return ret;
          return 0;
 
-      case GR1000_USER_SET_ROW_STRIDE:
-         gr1000_write_reg(gr1000, R_MEM_STRIDE, arg);
+      case GR1000_USER_SET_MODE:
+//         ret = GR1000_Set_Pulse(gr1000, arg_ptr);
+//         return ret;
+
+      case GR1000_USER_RUN_SCAN:
+//         ret = GR1000_Run_Test(gr1000, arg_ptr);
+//         return ret;
+
+      case GR1000_USER_DMA_TEST:
+//         if (arg >= 0x800000)
+//            return -EFAULT;
+
+         // set dma into loopback mode
+//         gr1000_write_reg(gr1000, R_CONFIG, (gr1000->config_state|DMA_DEBUG));
+
+         // start read from memory
+//         gr1000dma_write_reg(gr1000, MM2S_DMACR, 1);
+//         gr1000dma_write_reg(gr1000, MM2S_SA, gr1000->dma_handle);
+//         gr1000dma_write_reg(gr1000, MM2S_LENGTH, arg);
+
+         // start write to memory
+//         gr1000dma_write_reg(gr1000, S2MM_DMACR, 1);
+//         gr1000dma_write_reg(gr1000, S2MM_DA, (gr1000->dma_handle + (DMA_LENGTH/2)));
+//         gr1000dma_write_reg(gr1000, S2MM_LENGTH, arg);
+
+//         printk(KERN_DEBUG "<%s> : started dma \n",MODULE_NAME);
+
+//         s2mm_status = gr1000dma_read_reg(gr1000,S2MM_DMASR);
+
+//         while(!(s2mm_status & 1<<12) && !(s2mm_status & 1<<1) && !(s2mm_status & 1<<0)) {
+//            s2mm_status = gr1000dma_read_reg(gr1000,S2MM_DMASR);
+//         }
+
+         // set configuration back to original state
+//         gr1000_write_reg(gr1000, R_CONFIG, gr1000->config_state);
+
          return 0;
 
-      case GR1000_USER_RUN_TEST:
-         ret = GR1000_Run_Test(gr1000, arg_ptr);
-         return ret;
+      case GR1000_USER_TRIG_PPS:
+//         if ((arg != MODE_TRIGGER_PPS)&&(arg != GENERATE_PPS))
+//            return -1;
 
-      case GR1000_USER_STATUS:
-         ret = GR1000_Status(gr1000);
-         if (copy_to_user(arg_ptr, &ret, sizeof(u32))) {
-            return -EFAULT;
-         }
+//         gr1000_write_reg(gr1000, R_CONFIG, arg);
+
+//         return ret;
          return 0;
-
-      case GR1000_USER_READ_DATA:
-
-         if (copy_from_user(&read_cmd, arg_ptr, sizeof(read_cmd))) {
-            printk(KERN_DEBUG "GR1000_USER_READ_DATA: copy failed\n");
-
-            return -EFAULT;
-         }
-         ret = GR1000_Read_Data(gr1000, &read_cmd);
-         return ret;
-
-      case GR1000_USER_READ_FREQUENCY:
-         ret = GR1000_Read_Frequency(gr1000, arg_ptr);
-         return ret;
 
       case GR1000_USER_SPI_WRITE:
          ret = GR1000_SPI_Write(gr1000, arg_ptr);
          return ret;
 
-      case GR1000_USER_CONFIG_SWEEP:
-         if ((arg == FREQUENCY_COUNTER_ACTIVE)||(arg == FREQUENCY_TEST_ACTIVE)||(arg == EOM_ACTIVE)) {
-            gr1000->config_state &= ~(SWEEP_TEST_MODE|TEST_CLK_SELECT);
-            gr1000->config_state |= arg;
-            gr1000_write_reg(gr1000, R_CONFIG, gr1000->config_state);
-            return 0;
-         } else {
-            return -1;
-         }
-
-      case GR1000_USER_RUN_SWEEP:
-         ret = GR1000_Run_Sweep(gr1000, arg_ptr);
-         return ret;
-
-      case GR1000_USER_READ_DAC_TABLE:
-         ret =  GR1000_Read_DAC_Table(gr1000, (u32 *)arg_ptr);
-         return ret;
-
-      case GR1000_USER_WRITE_DAC_TABLE:
-         ret = GR1000_Write_DAC_Table(gr1000, (u32 *)arg_ptr);
-         return ret;
-
-      case GR1000_INTERRUPT_COUNT:
-         if (copy_to_user(arg_ptr, &gr1000->irq_count, sizeof(u32))) {
-            return -EFAULT;
-         }
-         return 0;
-
-      case GR1000_DMA_BLOCK_COUNT:
-         if (copy_to_user(arg_ptr, &gr1000->dma_block_count, sizeof(u32))) {
-            return -EFAULT;
-         }
-         return 0;
-
-      case GR1000_CONTINUOUS_SCAN:
-         ret = GR1000_Continuous_Scan(gr1000, arg_ptr);
-         return ret;
-
-      case GR1000_DMA_STATUS:
-         s2mm_status = gr1000dma_read_reg(gr1000,S2MM_DMASR);
-         if (copy_to_user(arg_ptr, &s2mm_status, sizeof(u32))) {
-            return -EFAULT;
-         }
-         return 0;
-
-      case GR1000_DMA_TEST:
-         if (arg >= 0x800000)
-            return -EFAULT;
-
-         // set dma into loopback mode
-         gr1000_write_reg(gr1000, R_CONFIG, (gr1000->config_state|DMA_DEBUG));
-
-         // start read from memory
-         gr1000dma_write_reg(gr1000, MM2S_DMACR, 1);
-         gr1000dma_write_reg(gr1000, MM2S_SA, gr1000->dma_handle);
-         gr1000dma_write_reg(gr1000, MM2S_LENGTH, arg);
-
-         // start write to memory
-         gr1000dma_write_reg(gr1000, S2MM_DMACR, 1);
-         gr1000dma_write_reg(gr1000, S2MM_DA, (gr1000->dma_handle + (DMA_LENGTH/2)));
-         gr1000dma_write_reg(gr1000, S2MM_LENGTH, arg);
-
-         printk(KERN_DEBUG "<%s> : started dma \n",MODULE_NAME);
-
-         s2mm_status = gr1000dma_read_reg(gr1000,S2MM_DMASR);
-
-         while(!(s2mm_status & 1<<12) && !(s2mm_status & 1<<1) && !(s2mm_status & 1<<0)) {
-            s2mm_status = gr1000dma_read_reg(gr1000,S2MM_DMASR);
-         }
-
-         // set configuration back to original state
-         gr1000_write_reg(gr1000, R_CONFIG, gr1000->config_state);
-
-         return 0;
-
-      case GR1000_REG_DEBUG:
-
+      case GR1000_USER_REG_DEBUG:
+/*
          if (copy_from_user(&debug_cmd, arg_ptr, sizeof(debug_cmd))) {
             printk(KERN_DEBUG "GR1000_REG_DEBUG: copy failed\n");
 
@@ -319,6 +255,7 @@ static long gr1000_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          if (copy_to_user(arg_ptr, &debug_cmd, sizeof(debug_cmd))) {
             return -EFAULT;
          }
+*/
          return 0;
 
       default:
@@ -337,13 +274,13 @@ static long gr1000_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 static irqreturn_t gr1000_isr(int irq, void *data)
 {
    struct gr1000_drvdata *gr1000 = data;
-   u32   dma_block,current_row;
+//   u32   dma_block,current_row;
    struct GR1000_read_data_struct *read_cmd;
 
    spin_lock(&gr1000->lock);
 
    // clear interrupt
-   gr1000_write_reg(gr1000, R_BOTDA_END_FREQ, REPEAT_LOOP|INTERRUPT_ACTIVE|REPEAT_COUNT);
+   gr1000_write_reg(gr1000, R_INTERRUPT_ADDR,CLEAR_INTERRUPT);
 
    gr1000->irq_count++;
 
@@ -352,23 +289,23 @@ static irqreturn_t gr1000_isr(int irq, void *data)
 //   gr1000->dma_block_count++;
 //   dma_block = gr1000->dma_block_count & 0x7;
 
-   current_row = gr1000_read_reg(gr1000,R_FREQUENCY_STATUS);
+//   current_row = gr1000_read_reg(gr1000,R_FREQUENCY_STATUS);
 
-   dma_block = current_row >> 7;
+//   dma_block = current_row >> 7;
 
-   gr1000->dma_block_count = dma_block;
+//   gr1000->dma_block_count = dma_block;
 
-   printk(KERN_DEBUG "<%s> :  interrupt : current_row = %d, current_block = %d\n",MODULE_NAME,current_row,dma_block);
+//   printk(KERN_DEBUG "<%s> :  interrupt : current_row = %d, current_block = %d\n",MODULE_NAME,current_row,dma_block);
 
    // set rows to read
-   read_cmd->row = 128 * dma_block;
+//   read_cmd->row = 128 * dma_block;
 
    // set address offset in command
-   read_cmd->dma_addr_offset = dma_block * (DMA_LENGTH>>3);
-   if (GR1000_Read_Data(gr1000, read_cmd)) {
+//   read_cmd->dma_addr_offset = dma_block * (DMA_LENGTH>>3);
+//   if (GR1000_Read_Data(gr1000, read_cmd)) {
       // failed so shut off interrupt
-      gr1000_write_reg(gr1000, R_BOTDA_END_FREQ, REPEAT_COUNT);
-   }
+      gr1000_write_reg(gr1000, R_INTERRUPT_ADDR,DISABLE_INTERRUPT);
+//   }
 
    spin_unlock(&gr1000->lock);
 
