@@ -43,7 +43,7 @@ u32 GR1000_Status(struct gr1000_drvdata *gr1000)
    u32 status;
 
    status = gr1000_read_reg(gr1000, R_GR1000_STATUS);
-   status &= 0x000001ff;
+//   status &= 0x000001ff;
 
    return status;
 }

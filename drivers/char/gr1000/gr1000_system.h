@@ -30,11 +30,12 @@
 
 #define R_DMA_WRITE_ADDR         0x0000
 #define R_DMA_READ_ADDR          0x0004
-#define R_MODE_CONFIG_ADDR       0x0008
-#define R_INTERRUPT_ADDR         0x000C
+#define R_DMA_SIZE_ADDR          0x0008
+#define R_MODE_CONFIG_ADDR       0x000C
+#define R_INTERRUPT_ADDR         0x0010
 
-#define R_SPI_DATA_ADDR          0x0010   // read address on 64 byte boundaries
-#define R_SPI_DEVICE_ADDR        0x0014
+#define R_SPI_DATA_ADDR          0x0014   // read address on 64 byte boundaries
+#define R_SPI_DEVICE_ADDR        0x0018
 
 #define GR1000_REG_BASE          (GR1000_BASE + R_GR1000_REG_BASE)
 #define GR1000_FIFO_BASE         (GR1000_BASE + R_GR1000_FIFO_BASE)

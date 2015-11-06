@@ -146,7 +146,7 @@ static long gr1000_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
    //   int __user *ip = (int __user *)arg;
    void  *arg_ptr = (void *)arg;
    long  ret = 0;
-//   unsigned int s2mm_status;
+   unsigned int s2mm_status;
 //   struct GR1000_read_data_struct read_cmd;
    struct GR1000_debug_struct debug_cmd;
 
@@ -186,32 +186,29 @@ static long gr1000_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 //         return ret;
 
       case GR1000_USER_DMA_TEST:
-//         if (arg >= 0x800000)
-//            return -EFAULT;
+         if (arg >= 0x800000)
+            return -EFAULT;
 
          // set dma into loopback mode
-//         gr1000_write_reg(gr1000, R_CONFIG, (gr1000->config_state|DMA_DEBUG));
+         gr1000_write_reg(gr1000, R_MODE_CONFIG_ADDR, (gr1000->config_state|MODE_TRIGGER_DMA));
 
          // start read from memory
-//         gr1000dma_write_reg(gr1000, MM2S_DMACR, 1);
-//         gr1000dma_write_reg(gr1000, MM2S_SA, gr1000->dma_handle);
-//         gr1000dma_write_reg(gr1000, MM2S_LENGTH, arg);
+         gr1000dma_write_reg(gr1000, R_DMA_READ_ADDR, gr1000->dma_handle);
 
          // start write to memory
-//         gr1000dma_write_reg(gr1000, S2MM_DMACR, 1);
-//         gr1000dma_write_reg(gr1000, S2MM_DA, (gr1000->dma_handle + (DMA_LENGTH/2)));
-//         gr1000dma_write_reg(gr1000, S2MM_LENGTH, arg);
+         gr1000dma_write_reg(gr1000, R_DMA_WRITE_ADDR, (gr1000->dma_handle + (DMA_LENGTH/2)));
+         gr1000dma_write_reg(gr1000, R_DMA_SIZE_ADDR, arg);
 
-//         printk(KERN_DEBUG "<%s> : started dma \n",MODULE_NAME);
+         printk(KERN_DEBUG "<%s> : started dma \n",MODULE_NAME);
 
-//         s2mm_status = gr1000dma_read_reg(gr1000,S2MM_DMASR);
+         s2mm_status = gr1000dma_read_reg(gr1000,R_GR1000_STATUS);
 
-//         while(!(s2mm_status & 1<<12) && !(s2mm_status & 1<<1) && !(s2mm_status & 1<<0)) {
-//            s2mm_status = gr1000dma_read_reg(gr1000,S2MM_DMASR);
-//         }
+         while(!(s2mm_status & BIT_MM2S_RD_CMPLT_STATUS)) {
+            s2mm_status = gr1000dma_read_reg(gr1000,R_GR1000_STATUS);
+         }
 
          // set configuration back to original state
-//         gr1000_write_reg(gr1000, R_CONFIG, gr1000->config_state);
+         gr1000_write_reg(gr1000, R_MODE_CONFIG_ADDR, gr1000->config_state);
 
          return 0;
 
