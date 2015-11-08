@@ -61,39 +61,8 @@ enum gr1000_user_cmds
  */
 
 struct GR1000_cmd_struct {
-   __u32                           config;
-   __u32                           run_test;
-   __u32                           botda_start_freq;
-   __u32                           botda_end_freq;
-   __u32                           adc_count;
-   __u32                           botda_count;
-   __u32                           row_stride;
-} ;
-
-struct GR1000_continuous_cmd_struct {
-   __u32                           config;
-   __u32                           run_test;
-   __u32                           start_column;
-   __u32                           end_column;
-   __u32                           adc_count;
-   __u32                           row_stride;
-} ;
-
-
-struct GR1000_pulse_struct {
-   __u32                           pulse_width_AOM;
-   __u32                           pulse_width_EOM;
-   __u32                           pulse_width_gain;
-   __u32                           pulse_rate;
-   __u32                           pulse_delay;
-} ;
-
-struct GR1000_sweep_cmd_struct {
-   __u32                           run_test;
-   __u32                           initial_dac_value;
-   __u32                           final_dac_value;
-   __u32                           dac_step_size;
-   __u32                           *sweep_data;
+   __u32                            config;
+   __u32                            address;
 } ;
 
 struct GR1000_spi_cmd_struct {
@@ -101,18 +70,6 @@ struct GR1000_spi_cmd_struct {
    __u32                           port_addr[16];
    __u32                           port_data[16];
    __u32                           num_spi_writes;
-} ;
-
-struct GR1000_read_data_struct {
-   __u32                         *data;
-   __u32                         column;
-   __u32                         row;
-   __u32                         num_columns;
-   __u32                         num_rows;
-   __u32                         row_stride;
-   __u32                         datatype;
-   __u32                         dma_addr_offset;
-   __u32                         dma_active;
 } ;
 
 struct GR1000_debug_struct {

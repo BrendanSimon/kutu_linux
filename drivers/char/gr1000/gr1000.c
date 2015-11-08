@@ -164,17 +164,9 @@ static long gr1000_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          return 0;
 
       case GR1000_USER_SET_CLK:
-//         if ((arg != 200)&&(arg != 400))
-//            return -1;
-//
-//         if (arg == 200)
-//            gr1000->config_state |= CLK_200_MODE;
-//         else
-//            gr1000->config_state &= ~CLK_200_MODE;
-//
-//         gr1000_write_reg(gr1000, R_CONFIG, gr1000->config_state);
-//
-//         return ret;
+         /*
+          * clock control not implemented yet
+          */
          return 0;
 
       case GR1000_USER_SET_MODE:
@@ -182,29 +174,29 @@ static long gr1000_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          return ret;
 
       case GR1000_USER_RUN_SCAN:
-//         ret = GR1000_Run_Test(gr1000, arg_ptr);
-//         return ret;
+         ret = GR1000_Run_Scan(gr1000, arg_ptr);
+         return ret;
 
       case GR1000_USER_DMA_TEST:
          if (arg >= 0x800000)
             return -EFAULT;
 
+         // start read from memory
+         gr1000_write_reg(gr1000, R_DMA_READ_ADDR, gr1000->dma_handle);
+
+         // start write to memory
+         gr1000_write_reg(gr1000, R_DMA_WRITE_ADDR, (gr1000->dma_handle + (DMA_LENGTH/2)));
+         gr1000_write_reg(gr1000, R_DMA_SIZE_ADDR, arg);
+
          // set dma into loopback mode
          gr1000_write_reg(gr1000, R_MODE_CONFIG_ADDR, (gr1000->config_state|MODE_TRIGGER_DMA));
 
-         // start read from memory
-         gr1000dma_write_reg(gr1000, R_DMA_READ_ADDR, gr1000->dma_handle);
-
-         // start write to memory
-         gr1000dma_write_reg(gr1000, R_DMA_WRITE_ADDR, (gr1000->dma_handle + (DMA_LENGTH/2)));
-         gr1000dma_write_reg(gr1000, R_DMA_SIZE_ADDR, arg);
-
          printk(KERN_DEBUG "<%s> : started dma \n",MODULE_NAME);
 
-         s2mm_status = gr1000dma_read_reg(gr1000,R_GR1000_STATUS);
+         s2mm_status = GR1000_Status(gr1000);
 
          while(!(s2mm_status & BIT_MM2S_RD_CMPLT_STATUS)) {
-            s2mm_status = gr1000dma_read_reg(gr1000,R_GR1000_STATUS);
+            s2mm_status = GR1000_Status(gr1000);
          }
 
          // set configuration back to original state
@@ -213,13 +205,12 @@ static long gr1000_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          return 0;
 
       case GR1000_USER_TRIG_PPS:
-//         if ((arg != MODE_TRIGGER_PPS)&&(arg != GENERATE_PPS))
-//            return -1;
+         if ((arg != MODE_TRIGGER_PPS)&&(arg != GENERATE_PPS))
+            return -1;
 
-//         gr1000_write_reg(gr1000, R_CONFIG, arg);
+         gr1000_write_reg(gr1000, R_MODE_CONFIG_ADDR, (gr1000->config_state|arg));
 
-//         return ret;
-         return 0;
+         return ret;
 
       case GR1000_USER_SPI_WRITE:
          ret = GR1000_SPI_Write(gr1000, arg_ptr);
@@ -270,8 +261,6 @@ static long gr1000_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 static irqreturn_t gr1000_isr(int irq, void *data)
 {
    struct gr1000_drvdata *gr1000 = data;
-//   u32   dma_block,current_row;
-   struct GR1000_read_data_struct *read_cmd;
 
    spin_lock(&gr1000->lock);
 
@@ -280,28 +269,7 @@ static irqreturn_t gr1000_isr(int irq, void *data)
 
    gr1000->irq_count++;
 
-   read_cmd = &gr1000->repeat_read_cmd;
-   // Start DMA read
-//   gr1000->dma_block_count++;
-//   dma_block = gr1000->dma_block_count & 0x7;
-
-//   current_row = gr1000_read_reg(gr1000,R_FREQUENCY_STATUS);
-
-//   dma_block = current_row >> 7;
-
-//   gr1000->dma_block_count = dma_block;
-
-//   printk(KERN_DEBUG "<%s> :  interrupt : current_row = %d, current_block = %d\n",MODULE_NAME,current_row,dma_block);
-
-   // set rows to read
-//   read_cmd->row = 128 * dma_block;
-
-   // set address offset in command
-//   read_cmd->dma_addr_offset = dma_block * (DMA_LENGTH>>3);
-//   if (GR1000_Read_Data(gr1000, read_cmd)) {
-      // failed so shut off interrupt
-      gr1000_write_reg(gr1000, R_INTERRUPT_ADDR,DISABLE_INTERRUPT);
-//   }
+   gr1000_write_reg(gr1000, R_INTERRUPT_ADDR,DISABLE_INTERRUPT);
 
    spin_unlock(&gr1000->lock);
 
@@ -347,7 +315,6 @@ static int gr1000_probe(struct platform_device *pdev)
 
    mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
    gr1000->base = devm_ioremap_resource(&pdev->dev, mem);
-   gr1000->dma_base = gr1000->base + 0x10000;
 
    if (IS_ERR(gr1000->base))
       return PTR_ERR(gr1000->base);
@@ -422,9 +389,7 @@ static int gr1000_probe(struct platform_device *pdev)
    gr1000->dma_addr = dma_alloc_coherent(NULL, DMA_LENGTH, &gr1000->dma_handle, GFP_KERNEL);
 
    dev_info(&pdev->dev, "dma_addr = 0x%x, dma_handle = 0x%x\n",(u32)gr1000->dma_addr,(u32)gr1000->dma_handle);
-   dev_info(&pdev->dev, "gr1000 base = 0x%x, dma base = 0x%x\n",(u32)gr1000->base,(u32)gr1000->dma_base);
-
-
+   dev_info(&pdev->dev, "gr1000 base = 0x%x\n",(u32)gr1000->base);
 
    if (!gr1000->dma_addr) {
       printk(KERN_ERR "<%s> Error: allocating dma memory failed\n", MODULE_NAME);

@@ -31,22 +31,6 @@
 #include <linux/iio/buffer.h>
 
 #define DEBUG
-//
-// GR1000_Status()
-//
-// read the FOS status registers
-//
-// status if system is running test, sweep or is idle
-//
-u32 GR1000_Status(struct gr1000_drvdata *gr1000)
-{
-   u32 status;
-
-   status = gr1000_read_reg(gr1000, R_GR1000_STATUS);
-//   status &= 0x000001ff;
-
-   return status;
-}
 
 //
 // GR1000_Set_User_Mode()
@@ -60,7 +44,8 @@ int GR1000_Set_User_Mode(struct gr1000_drvdata *gr1000, u32 arg)
       return -EFAULT;
    }
 
-   gr1000_write_reg(gr1000, R_MODE_CONFIG_ADDR, arg);
+   gr1000->config_state |= arg;
+   gr1000_write_reg(gr1000, R_MODE_CONFIG_ADDR, gr1000->config_state);
 
    return 0;
 }
@@ -113,5 +98,33 @@ int GR1000_SPI_Write(struct gr1000_drvdata *gr1000, void *user_ptr)
          i++;
 
    }
+   return 0;
+}
+
+//
+// GR1000_Run_Scan()
+//
+// Set the user operation mode
+//
+int GR1000_Run_Scan(struct gr1000_drvdata *gr1000, void *user_ptr)
+{
+   struct GR1000_cmd_struct   cmd;
+   u32                        config;
+
+   if (copy_from_user(&cmd, user_ptr, sizeof(cmd))) {
+      printk(KERN_DEBUG "GR1000_Set_Run_Scan: copy failed\n");
+
+      return -EFAULT;
+   }
+
+   // set mode (dma_debug and reset disabled)
+   config = cmd.config & (ADC_TEST_DATA|PPS_DEBUG_MODE);
+
+   gr1000->config_state = config;
+   gr1000_write_reg(gr1000, R_MODE_CONFIG_ADDR, config);
+
+   gr1000_write_reg(gr1000, R_DMA_READ_ADDR, cmd.address);
+
+
    return 0;
 }

@@ -36,6 +36,7 @@
 
 #define R_SPI_DATA_ADDR          0x0014   // read address on 64 byte boundaries
 #define R_SPI_DEVICE_ADDR        0x0018
+#define R_CAPTURE_COUNT_ADDR     0x001C
 
 #define GR1000_REG_BASE          (GR1000_BASE + R_GR1000_REG_BASE)
 #define GR1000_FIFO_BASE         (GR1000_BASE + R_GR1000_FIFO_BASE)
@@ -49,6 +50,7 @@
 #define INTERRUPT_ADDR           (GR1000_BASE + R_INTERRUPT_ADDR)
 #define SPI_DATA_ADDR            (GR1000_BASE + R_SPI_DATA_ADDR)
 #define SPI_DEVICE_ADDR          (GR1000_BASE + R_SPI_DEVICE_ADDR)
+#define SPI_CAPTURE_COUNT_ADDR   (GR1000_BASE + R_SPI_DEVICE_ADDR)
 
 /*
 ** configuration constants
@@ -157,12 +159,9 @@ struct gr1000_drvdata {
    struct mutex mutex;
    spinlock_t lock;
    void __iomem *base;
-   void __iomem *dma_base;
    uint32_t config_state;
    char *dma_addr;
    dma_addr_t dma_handle;
-   struct GR1000_read_data_struct repeat_read_cmd;
-
 	struct list_head dev_list;
 };
 
@@ -176,14 +175,21 @@ static inline uint32_t gr1000_read_reg(struct gr1000_drvdata *gr1000, unsigned i
 	return(readl(gr1000->base + reg));
 }
 
-static inline void gr1000dma_write_reg(struct gr1000_drvdata *gr1000, unsigned int reg, uint32_t val)
+//
+// GR1000_Status()
+//
+// read the FOS status registers
+//
+// status if system is running test, sweep or is idle
+//
+static inline u32 GR1000_Status(struct gr1000_drvdata *gr1000)
 {
-	writel(val, gr1000->dma_base + reg);
-}
+   u32 status;
 
-static inline uint32_t gr1000dma_read_reg(struct gr1000_drvdata *gr1000, unsigned int reg)
-{
-	return(readl(gr1000->dma_base + reg));
+   status = gr1000_read_reg(gr1000, R_GR1000_STATUS);
+//   status &= 0x000001ff;
+
+   return status;
 }
 
 //
@@ -196,14 +202,6 @@ static inline uint32_t gr1000dma_read_reg(struct gr1000_drvdata *gr1000, unsigne
 //
 //
 //
-//
-//
-//
-//
-//
-//
-
-u32 GR1000_Status(struct gr1000_drvdata *gr1000);
 
 //
 // GR1000_Open()
@@ -229,19 +227,6 @@ u32 GR1000_Close(int fd);
 //
 int GR1000_Set_User_Mode(struct gr1000_drvdata *gr1000, u32 arg);
 
-//
-// GR1000_Set_Adc_Offset()
-//
-// Set the ADC DC offset
-//
-u32 GR1000_Set_Adc_Offset(int arg1);
-
-//
-// GR1000_Set_Row_Stride()
-//
-// Set the memory row stride
-//
-u32 GR1000_Set_Row_Stride(int arg1);
 
 //
 // GR1000_Run Test()
@@ -251,61 +236,7 @@ u32 GR1000_Set_Row_Stride(int arg1);
 // Function will return immediately after initiating test
 // before test completion
 //
-int GR1000_Run_Test(struct gr1000_drvdata *gr1000, void *user_ptr);
-
-//
-// GR1000_Continuous_Scan()
-//
-// Initiate a continuous COTDR test
-//
-// Function will return immediately after initiating test
-//
-// Continuous scan uses 1024 scans looping around continually
-// For default setup of 1Mbyte row_stride this means it will work
-// with 1Gbyte of DDR3 memory
-//
-// Can support either 1 or 2 adc channels, at this point support 1 only
-// until further testing.
-//
-// This command sets up a looping test.  Every 128 scans an interrupt is
-// generated. The ISR calls GR1000_Read_data which initiates a DMA transfer
-// of the selected column block to system memory. Only one data block is
-// currently supported.
-//
-// After the command is initiated, the write_block counter is incremented
-// There are 8 memory blocks (8Mbytes each).  For a single channel transfer
-// the maximum nuber of columns is (32768 - 32).  The column number must be
-// on a boundary of 32 in increments of 32.
-//
-// Once started, the user only has to monitor the write_block counter to check
-// when a new block is available.
-//
-int GR1000_Continuous_Scan(struct gr1000_drvdata *gr1000, void *user_ptr);
-
-//
-// GR1000_Status()
-//
-// read the GR1000 status registers
-//
-// status if system is running test, sweep or is idle
-//
-//static inline u32 GR1000_Status(struct gr1000_drvdata *gr1000);
-
-//
-// GR1000_Read_Data()
-//
-// Read a 2-dimensional block of data from test
-// data is available immediately
-// -1 is returned if error, number of bytes is returned if ok.
-//
-int GR1000_Read_Data(struct gr1000_drvdata *gr1000, struct GR1000_read_data_struct *cmd);
-
-//
-// GR1000_Read_Frequency()
-//
-// Read frequency of index (-1 if error)
-//
-int GR1000_Read_Frequency(struct gr1000_drvdata *gr1000, void *arg_ptr);
+int GR1000_Run_Scan(struct gr1000_drvdata *gr1000, void *user_ptr);
 
 //
 // GR1000_SPI_Write()
@@ -314,31 +245,5 @@ int GR1000_Read_Frequency(struct gr1000_drvdata *gr1000, void *arg_ptr);
 //
 int GR1000_SPI_Write(struct gr1000_drvdata *gr1000, void *user_ptr);
 
-//
-// GR1000_Run_Sweep()
-//
-// Run a frequency sweep
-// cmd determines number of dac values to sweep.
-// This is normally 800,65536,or 262144
-//
-int GR1000_Run_Sweep(struct gr1000_drvdata *gr1000, void *arg_ptr);
-
-//
-// GR1000_Read_Dac_Table()
-//
-// This function reads the DAC table back from the
-// FPGA.  It is useful for comparing table values to
-// calculated values
-//
-int GR1000_Read_DAC_Table(struct gr1000_drvdata *gr1000, u32 *read_data);
-
-//
-// GR1000_Write_Dac_Table()
-//
-// This function writes the DAC table to the FPGA.
-// Table values are 20 bit words.  Values > 2^20 are
-// written as 0xFFFFF,
-//
-int GR1000_Write_DAC_Table(struct gr1000_drvdata *gr1000, u32 *write_data);
 
 #endif /* _GR1000_SYSTEM_H */
