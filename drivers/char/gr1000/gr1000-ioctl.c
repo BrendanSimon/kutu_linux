@@ -84,9 +84,8 @@ int GR1000_SPI_Write(struct gr1000_drvdata *gr1000, void *user_ptr)
 #ifdef DEBUG
       printk(KERN_DEBUG "Looped through SPI wait %d times\n",i);
 #endif
-      if (cmd.port_addr[j] > 6)
+      if (cmd.port_addr[j] > 16)
          return -EFAULT;
-
 
       data =  (cmd.port_addr[j] << 28)|(cmd.port_data[j]&0x0fffffff);
       gr1000_write_reg(gr1000, R_SPI_DATA_ADDR, data);
