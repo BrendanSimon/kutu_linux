@@ -146,7 +146,7 @@ static long gr1000_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
    //   int __user *ip = (int __user *)arg;
    void  *arg_ptr = (void *)arg;
    long  ret = 0;
-   unsigned int s2mm_status;
+   unsigned int s2mm_status, timeout;
 //   struct GR1000_read_data_struct read_cmd;
    struct GR1000_debug_struct debug_cmd;
 
@@ -189,14 +189,19 @@ static long gr1000_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          gr1000_write_reg(gr1000, R_DMA_SIZE_ADDR, arg);
 
          // set dma into loopback mode
-         gr1000_write_reg(gr1000, R_MODE_CONFIG_ADDR, (gr1000->config_state|MODE_TRIGGER_DMA));
+         gr1000_write_reg(gr1000, R_MODE_CONFIG_ADDR, MODE_DMA_DEBUG);
+
+         // set dma into loopback mode
+         gr1000_write_reg(gr1000, R_MODE_CONFIG_ADDR, MODE_TRIGGER_DMA);
 
          printk(KERN_DEBUG "<%s> : started dma \n",MODULE_NAME);
 
          s2mm_status = GR1000_Status(gr1000);
 
-         while(!(s2mm_status & BIT_MM2S_RD_CMPLT_STATUS)) {
+         timeout = 0;
+         while (((s2mm_status & (BIT_MM2S_RD_CMPLT_STATUS|BIT_S2MM_ERR_STATUS|BIT_MM2S_ERR_STATUS)) == 0) && (timeout <MAX_WAIT_COUNT))  {
             s2mm_status = GR1000_Status(gr1000);
+            timeout++;
          }
 
          // set configuration back to original state
