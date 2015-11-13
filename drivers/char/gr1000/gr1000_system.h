@@ -57,6 +57,10 @@
 */
 #define GENERATE_PPS             0x01
 #define DEBUG_START_DMA          0x02
+#define DMA_HALT                 0x04
+#define DMA_RESET                0x08
+#define FPGA_RESET               0x10
+#define ADC_TEST_DATA            0x20
 #define PPS_DEBUG_MODE           0x40
 #define DMA_DEBUG_MODE           0x80
 
@@ -83,15 +87,12 @@
 /*
 ** Status constants
 */
-#define BIT_SPI_BUSY             0x01
-#define BIT_S2MM_ERR             0x02
-#define BIT_MM2S_RD_CMPLT        0x04
-#define BIT_MM2S_ERR             0x08
-#define BIT_SPI_ERR              0x10
-#define BIT_INTERRUPT_ACTIVE     0x20
-#define BIT_S2MM_ERR_STATUS      0x40
-#define BIT_MM2S_RD_CMPLT_STATUS 0x80
-#define BIT_MM2S_ERR_STATUS      0x100
+#define STAT_SPI_BUSY            0x01
+#define STAT_S2MM_ERR            0x02
+#define STAT_MM2S_RD_CMPLT       0x04
+#define STAT_MM2S_ERR            0x08
+#define STAT_SPI_ERR             0x10
+#define STAT_INTERRUPT_ACTIVE    0x20
 
 #define SPI_MAX_WAIT_COUNT 1000000
 #define MAX_WAIT_COUNT     10000

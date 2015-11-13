@@ -16,6 +16,8 @@
 */
 #define GENERATE_PPS             0x01
 #define DEBUG_START_DMA          0x02
+#define DMA_HALT                 0x04
+#define DMA_RESET                0x08
 #define FPGA_RESET               0x10
 #define ADC_TEST_DATA            0x20
 #define PPS_DEBUG_MODE           0x40
@@ -26,6 +28,16 @@
 #define MODE_TRIGGER_DMA         (DMA_DEBUG_MODE|DEBUG_START_DMA)
 #define MODE_PPS_DEBUG           (PPS_DEBUG_MODE)
 #define MODE_TRIGGER_PPS         (PPS_DEBUG_MODE|GENERATE_PPS)
+
+/*
+ * Status Register constants
+ */
+#define STAT_SPI_BUSY            0x01
+#define STAT_S2MM_ERR            0x02
+#define STAT_MM2S_RD_CMPLT       0x04
+#define STAT_MM2S_ERR            0x08
+#define STAT_SPI_ERR             0x10
+#define STAT_INTERRUPT_ACTIVE    0x20
 
 /*
 ** SPI constants

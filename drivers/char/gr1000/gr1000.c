@@ -181,6 +181,20 @@ static long gr1000_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          if (arg >= 0x800000)
             return -EFAULT;
 
+         s2mm_status = GR1000_Status(gr1000);
+         if (s2mm_status & (STAT_S2MM_ERR|STAT_MM2S_ERR)) {
+            // DMA error so reset DMA
+            gr1000_write_reg(gr1000, R_MODE_CONFIG_ADDR, DMA_RESET|MODE_DMA_DEBUG);
+            gr1000_write_reg(gr1000, R_MODE_CONFIG_ADDR, MODE_DMA_DEBUG);
+            printk(KERN_DEBUG "<%s> : clearing dma error\n",MODULE_NAME);
+         }
+
+         if (s2mm_status & STAT_MM2S_RD_CMPLT) {
+            // clear complete bit and ensure interrupt is off
+            gr1000_write_reg(gr1000, R_INTERRUPT_ADDR, DISABLE_INTERRUPT);
+            printk(KERN_DEBUG "<%s> : clearing complete flag\n",MODULE_NAME);
+         }
+
          // start read from memory
          gr1000_write_reg(gr1000, R_DMA_READ_ADDR, gr1000->dma_handle);
 
@@ -199,10 +213,16 @@ static long gr1000_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          s2mm_status = GR1000_Status(gr1000);
 
          timeout = 0;
-         while (((s2mm_status & (BIT_MM2S_RD_CMPLT_STATUS|BIT_S2MM_ERR_STATUS|BIT_MM2S_ERR_STATUS)) == 0) && (timeout <MAX_WAIT_COUNT))  {
+         while (((s2mm_status & (STAT_MM2S_RD_CMPLT|STAT_S2MM_ERR|STAT_MM2S_ERR)) == 0) && (timeout <MAX_WAIT_COUNT))  {
             s2mm_status = GR1000_Status(gr1000);
             timeout++;
          }
+         if (timeout > (MAX_WAIT_COUNT -1))
+            printk(KERN_DEBUG "<%s> : dma timeout\n",MODULE_NAME);
+
+
+         // clear complete bit
+         gr1000_write_reg(gr1000, R_INTERRUPT_ADDR, DISABLE_INTERRUPT);
 
          // set configuration back to original state
          gr1000_write_reg(gr1000, R_MODE_CONFIG_ADDR, gr1000->config_state);

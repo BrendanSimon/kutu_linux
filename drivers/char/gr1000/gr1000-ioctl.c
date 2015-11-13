@@ -79,7 +79,7 @@ int GR1000_SPI_Write(struct gr1000_drvdata *gr1000, void *user_ptr)
       // Wait for SPI access to finish
       //
       i = 0;
-      while ((GR1000_Status(gr1000) & BIT_SPI_BUSY) && (i < MAX_WAIT_COUNT))
+      while ((GR1000_Status(gr1000) & STAT_SPI_BUSY) && (i < MAX_WAIT_COUNT))
          i++;
 #ifdef DEBUG
       printk(KERN_DEBUG "Looped through SPI wait %d times\n",i);
@@ -93,7 +93,7 @@ int GR1000_SPI_Write(struct gr1000_drvdata *gr1000, void *user_ptr)
 
       // wait until SPI write completes
       i = 0;
-      while ((GR1000_Status(gr1000) & BIT_SPI_BUSY) && (i < MAX_WAIT_COUNT))
+      while ((GR1000_Status(gr1000) & STAT_SPI_BUSY) && (i < MAX_WAIT_COUNT))
          i++;
 
    }
