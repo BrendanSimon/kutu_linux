@@ -155,12 +155,17 @@ static long gr1000_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
    switch (cmd) {
       case GR1000_USER_RESET:
          if (arg == FPGA_RESET) {
-            gr1000_write_reg(gr1000, R_MODE_CONFIG_ADDR, FPGA_RESET);
-            gr1000->config_state = FPGA_RESET;
+            gr1000_write_reg(gr1000, R_MODE_CONFIG_ADDR, FPGA_RESET|DMA_RESET);
+            gr1000->config_state = FPGA_RESET|DMA_RESET;
          } else {
             gr1000_write_reg(gr1000, R_MODE_CONFIG_ADDR, 0);
             gr1000->config_state = 0;
          }
+         return 0;
+
+      case GR1000_USER_DMA_RESET:
+         gr1000_write_reg(gr1000, R_MODE_CONFIG_ADDR, gr1000->config_state|DMA_RESET);
+         gr1000_write_reg(gr1000, R_MODE_CONFIG_ADDR, gr1000->config_state);
          return 0;
 
       case GR1000_USER_SET_CLK:
@@ -201,25 +206,23 @@ static long gr1000_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          // start write to memory
          gr1000_write_reg(gr1000, R_DMA_WRITE_ADDR, (gr1000->dma_handle + (DMA_LENGTH/2)));
          gr1000_write_reg(gr1000, R_DMA_SIZE_ADDR, arg);
+         gr1000_write_reg(gr1000, R_CAPTURE_COUNT_ADDR, (arg>>3));
 
-         // set dma into loopback mode
-         gr1000_write_reg(gr1000, R_MODE_CONFIG_ADDR, MODE_DMA_DEBUG);
-
-         // set dma into loopback mode
-         gr1000_write_reg(gr1000, R_MODE_CONFIG_ADDR, MODE_TRIGGER_DMA);
-
-         printk(KERN_DEBUG "<%s> : started dma \n",MODULE_NAME);
+         // start dma into loopback mode
+         gr1000_write_reg(gr1000, R_MODE_CONFIG_ADDR, (DMA_DEBUG_MODE|DEBUG_START_DMA));
 
          s2mm_status = GR1000_Status(gr1000);
+         printk(KERN_DEBUG "<%s> : started dma, status = 0x%x\n",MODULE_NAME,s2mm_status);
 
          timeout = 0;
          while (((s2mm_status & (STAT_MM2S_RD_CMPLT|STAT_S2MM_ERR|STAT_MM2S_ERR)) == 0) && (timeout <MAX_WAIT_COUNT))  {
             s2mm_status = GR1000_Status(gr1000);
             timeout++;
          }
+         printk(KERN_DEBUG "<%s> : dma status = 0x%x\n",MODULE_NAME,s2mm_status);
+
          if (timeout > (MAX_WAIT_COUNT -1))
             printk(KERN_DEBUG "<%s> : dma timeout\n",MODULE_NAME);
-
 
          // clear complete bit
          gr1000_write_reg(gr1000, R_INTERRUPT_ADDR, DISABLE_INTERRUPT);

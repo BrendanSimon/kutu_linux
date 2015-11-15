@@ -95,7 +95,7 @@
 #define STAT_INTERRUPT_ACTIVE    0x20
 
 #define SPI_MAX_WAIT_COUNT 1000000
-#define MAX_WAIT_COUNT     10000
+#define MAX_WAIT_COUNT     1000000
 
 
 /*

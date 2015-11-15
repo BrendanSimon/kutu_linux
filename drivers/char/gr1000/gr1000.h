@@ -57,6 +57,7 @@
 enum gr1000_user_cmds
 {
    GR1000_USER_RESET,
+   GR1000_USER_DMA_RESET,
    GR1000_USER_SET_CLK,
    GR1000_USER_SET_MODE,
    GR1000_USER_RUN_SCAN,
@@ -75,6 +76,7 @@ enum gr1000_user_cmds
 struct GR1000_cmd_struct {
    __u32                            config;
    __u32                            address;
+   __u32                            num_samples;
 } ;
 
 struct GR1000_spi_cmd_struct {
@@ -93,13 +95,14 @@ struct GR1000_debug_struct {
 #define GR1000_IOCTL_BASE	't'
 
 #define GR1000_USER_RESET              _IOWR(GR1000_IOCTL_BASE, 0x81, struct GR1000_cmd_struct)
-#define GR1000_USER_SET_CLK            _IOWR(GR1000_IOCTL_BASE, 0x82, struct GR1000_cmd_struct)
-#define GR1000_USER_SET_MODE           _IOWR(GR1000_IOCTL_BASE, 0x83, struct GR1000_cmd_struct)
-#define GR1000_USER_RUN_SCAN           _IOWR(GR1000_IOCTL_BASE, 0x84, struct GR1000_cmd_struct)
-#define GR1000_USER_DMA_TEST           _IOWR(GR1000_IOCTL_BASE, 0x85, struct GR1000_cmd_struct)
-#define GR1000_USER_TRIG_PPS           _IOWR(GR1000_IOCTL_BASE, 0x86, struct GR1000_cmd_struct)
-#define GR1000_USER_SPI_WRITE          _IOWR(GR1000_IOCTL_BASE, 0x87, struct GR1000_cmd_struct)
-#define GR1000_USER_STATUS             _IOWR(GR1000_IOCTL_BASE, 0x88, struct GR1000_cmd_struct)
-#define GR1000_USER_REG_DEBUG          _IOWR(GR1000_IOCTL_BASE, 0x89, struct GR1000_cmd_struct)
+#define GR1000_USER_DMA_RESET          _IOWR(GR1000_IOCTL_BASE, 0x82, struct GR1000_cmd_struct)
+#define GR1000_USER_SET_CLK            _IOWR(GR1000_IOCTL_BASE, 0x83, struct GR1000_cmd_struct)
+#define GR1000_USER_SET_MODE           _IOWR(GR1000_IOCTL_BASE, 0x84, struct GR1000_cmd_struct)
+#define GR1000_USER_RUN_SCAN           _IOWR(GR1000_IOCTL_BASE, 0x85, struct GR1000_cmd_struct)
+#define GR1000_USER_DMA_TEST           _IOWR(GR1000_IOCTL_BASE, 0x86, struct GR1000_cmd_struct)
+#define GR1000_USER_TRIG_PPS           _IOWR(GR1000_IOCTL_BASE, 0x87, struct GR1000_cmd_struct)
+#define GR1000_USER_SPI_WRITE          _IOWR(GR1000_IOCTL_BASE, 0x88, struct GR1000_cmd_struct)
+#define GR1000_USER_STATUS             _IOWR(GR1000_IOCTL_BASE, 0x89, struct GR1000_cmd_struct)
+#define GR1000_USER_REG_DEBUG          _IOWR(GR1000_IOCTL_BASE, 0x8a, struct GR1000_cmd_struct)
 
 #endif /* _GR1000_H */
