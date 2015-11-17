@@ -123,7 +123,7 @@ int GR1000_Run_Scan(struct gr1000_drvdata *gr1000, void *user_ptr)
    gr1000_write_reg(gr1000, R_MODE_CONFIG_ADDR, config);
 
    // configure dma channel and capture size
-   gr1000_write_reg(gr1000, R_DMA_READ_ADDR, cmd.address);
+   gr1000_write_reg(gr1000, R_DMA_READ_ADDR, gr1000->dma_handle + cmd.addr_offset);
    gr1000_write_reg(gr1000, R_DMA_SIZE_ADDR, cmd.num_samples<<3);
    gr1000_write_reg(gr1000, R_CAPTURE_COUNT_ADDR, cmd.num_samples);
 

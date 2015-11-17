@@ -10,7 +10,6 @@
 #ifndef _GR1000_H
 #define _GR1000_H
 
-
 /*
 ** configuration constants
 */
@@ -34,10 +33,16 @@
  */
 #define STAT_SPI_BUSY            0x01
 #define STAT_S2MM_ERR            0x02
-#define STAT_MM2S_RD_CMPLT       0x04
+#define STAT_S2MM_WR_CMPLT       0x04
 #define STAT_MM2S_ERR            0x08
 #define STAT_SPI_ERR             0x10
 #define STAT_INTERRUPT_ACTIVE    0x20
+#define STAT_FPGA_RESET          0x40
+#define STAT_ADC_TEST_MODE       0x80
+#define STAT_PPS_DEBUG_MODE      0x100
+#define STAT_DMA_RESET           0x200
+#define STAT_DMA_DEBUG           0x400
+#define STAT_INTERRUPT_ENABLE    0x800
 
 /*
 ** SPI constants
@@ -75,7 +80,7 @@ enum gr1000_user_cmds
 
 struct GR1000_cmd_struct {
    __u32                            config;
-   __u32                            address;
+   __u32                            addr_offset;
    __u32                            num_samples;
 } ;
 

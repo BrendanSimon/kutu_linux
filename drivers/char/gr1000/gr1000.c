@@ -162,12 +162,15 @@ static long gr1000_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
             gr1000_write_reg(gr1000, R_MODE_CONFIG_ADDR, 0);
             gr1000->config_state = 0;
          }
+
          return 0;
 
       case GR1000_USER_DMA_RESET:
          gr1000_write_reg(gr1000, R_MODE_CONFIG_ADDR, gr1000->config_state|DMA_RESET);
+         udelay(10);
          gr1000_write_reg(gr1000, R_MODE_CONFIG_ADDR, gr1000->config_state);
-         return 0;
+         udelay(10);
+        return 0;
 
       case GR1000_USER_SET_CLK:
          /*
