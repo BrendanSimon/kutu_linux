@@ -15,6 +15,7 @@
 #include <linux/clk.h>
 #include <linux/init.h>
 #include <linux/interrupt.h>
+#include <linux/delay.h>
 
 #include <asm/uaccess.h>
 #include <linux/dma-mapping.h>
@@ -216,12 +217,13 @@ static long gr1000_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 
          timeout = 0;
          while (((s2mm_status & (STAT_MM2S_RD_CMPLT|STAT_S2MM_ERR|STAT_MM2S_ERR)) == 0) && (timeout <MAX_WAIT_COUNT))  {
+            udelay(100);
             s2mm_status = GR1000_Status(gr1000);
             timeout++;
          }
          printk(KERN_DEBUG "<%s> : dma status = 0x%x\n",MODULE_NAME,s2mm_status);
 
-         if (timeout > (MAX_WAIT_COUNT -1))
+         if (timeout > (MAX_WAIT_COUNT - 10))
             printk(KERN_DEBUG "<%s> : dma timeout\n",MODULE_NAME);
 
          // clear complete bit
