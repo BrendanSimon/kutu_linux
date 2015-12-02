@@ -261,7 +261,7 @@ int FOS_Continuous_Scan(struct fos_drvdata *fos, void *user_ptr)
    read_cmd->column = cmd.start_column;
    read_cmd->num_columns = (cmd.end_column - cmd.start_column);
    read_cmd->row = 0;
-   read_cmd->num_rows = 128;
+   read_cmd->num_rows = 32;
    read_cmd->row_stride = cmd.row_stride;
 
    // write number of 64-bit transfers to dma size register
