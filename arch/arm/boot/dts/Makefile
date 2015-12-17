@@ -616,7 +616,10 @@ dtb-$(CONFIG_ARCH_ZYNQ) += \
 	zynq-zc770-xm012.dtb \
 	zynq-zc770-xm013.dtb \
 	zynq-zed.dtb \
-	zynq-zybo.dtb
+	zynq-zybo.dtb \
+	zynq-zed-adv7511-fmcomms1.dtb \
+	zynq-zed-adv7511-ad9467-fmc-250ebz.dtb \
+	zynq-IND.dtb
 dtb-$(CONFIG_MACH_ARMADA_370) += \
 	armada-370-db.dtb \
 	armada-370-mirabox.dtb \
