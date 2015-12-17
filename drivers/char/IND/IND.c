@@ -163,19 +163,13 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          }
          return 0;
 
-      case IND_USER_SET_CLK:
-         /*
-          * clock control not implemented yet
-          */
-         return 0;
-
-      case IND_USER_SET_MODE:
+       case IND_USER_SET_MODE:
          ret = IND_Set_User_Mode(IND, arg);
          return ret;
 
-      case IND_USER_RUN_SCAN:
-         ret = IND_Run_Scan(IND, arg_ptr);
-         return ret;
+      case IND_USER_SET_ADDRESS:
+         IND_write_reg(IND, R_DMA_WRITE_ADDR, (IND->dma_handle + arg);
+         return 0;
 
       case IND_USER_DMA_TEST:
          if (arg >= 0x800000)
@@ -223,6 +217,37 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          }
          return 0;
 
+      case IND_USER_SET_LEDS:
+         IND->led_status |= arg;
+         IND_write_reg(IND, R_GPIO_LED_ADDR, (IND->led_status));
+         return 0;
+
+      case IND_USER_CLEAR_LEDS:
+         IND->led_status &= ~arg;
+         IND_write_reg(IND, R_GPIO_LED_ADDR, (IND->led_status));
+         return 0;
+
+      case IND_USER_SET_CTRL:
+         IND->ctrl_status |= arg;
+         IND_write_reg(IND, R_GPIO_CTRL_ADDR, (IND->ctrl_status));
+         return 0;
+
+      case IND_USER_CLEAR_CTRL:
+         IND->ctrl_status &= ~arg;
+         IND_write_reg(IND, R_GPIO_CTRL_ADDR, (IND->ctrl_status));
+         return 0;
+
+      case IND_USER_GET_SEM:
+         ret = IND->semaphore;
+         if (copy_to_user(arg_ptr, &ret, sizeof(u32))) {
+            return -EFAULT;
+         }
+         return 0;
+
+      case IND_USER_SET_SEM:
+         IND->semaphore = arg;
+         return 0;
+
       case IND_USER_REG_DEBUG:
 
          if (copy_from_user(&debug_cmd, arg_ptr, sizeof(debug_cmd))) {
@@ -268,8 +293,9 @@ static irqreturn_t IND_isr(int irq, void *data)
    IND_write_reg(IND, R_INTERRUPT_ADDR,CLEAR_INTERRUPT);
 
    IND->irq_count++;
+   IND->semaphore++;
 
-   IND_write_reg(IND, R_INTERRUPT_ADDR,DISABLE_INTERRUPT);
+//   IND_write_reg(IND, R_INTERRUPT_ADDR,DISABLE_INTERRUPT);
 
    spin_unlock(&IND->lock);
 
@@ -319,7 +345,14 @@ static int IND_probe(struct platform_device *pdev)
    if (IS_ERR(IND->base))
       return PTR_ERR(IND->base);
 
+   // setup fgpa
    IND->config_state = 0;
+   IND_write_reg(IND, R_MODE_CONFIG_ADDR, (IND->config_state));
+   IND->ctrl_status = 0;
+   IND_write_reg(IND, R_GPIO_CTRL_ADDR, (IND->ctrl_status));
+   IND->led_status = 0;
+   IND_write_reg(IND, R_GPIO_LED_ADDR, (IND->led_status));
+   IND->semaphore = arg;
 
    dev_info(&pdev->dev, "Kutu IND finished call to platform get resource\n");
 

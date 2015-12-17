@@ -27,6 +27,7 @@
 #define R_IND_BRAM_BASE       0x1000
 
 #define R_IND_STATUS          0x0000
+#define R_SPI_READ_ADDR       0x0800
 
 #define R_DMA_WRITE_ADDR         0x0000
 #define R_DMA_READ_ADDR          0x0004
@@ -37,6 +38,9 @@
 #define R_SPI_DATA_ADDR          0x0014   // read address on 64 byte boundaries
 #define R_SPI_DEVICE_ADDR        0x0018
 #define R_CAPTURE_COUNT_ADDR     0x001C
+#define R_DELAY_COUNT_ADDR       0x0020
+#define R_GPIO_CTRL_ADDR         0x0024
+#define R_GPIO_LED_ADDR          0x0028
 
 #define IND_REG_BASE          (IND_BASE + R_IND_REG_BASE)
 #define IND_FIFO_BASE         (IND_BASE + R_IND_FIFO_BASE)
@@ -50,7 +54,7 @@
 #define INTERRUPT_ADDR           (IND_BASE + R_INTERRUPT_ADDR)
 #define SPI_DATA_ADDR            (IND_BASE + R_SPI_DATA_ADDR)
 #define SPI_DEVICE_ADDR          (IND_BASE + R_SPI_DEVICE_ADDR)
-#define SPI_CAPTURE_COUNT_ADDR   (IND_BASE + R_SPI_DEVICE_ADDR)
+#define SPI_CAPTURE_COUNT_ADDR   (IND_BASE + R_CAPTURE_COUNT_ADDR)
 
 /*
 ** configuration constants
@@ -160,6 +164,9 @@ struct IND_drvdata {
    spinlock_t lock;
    void __iomem *base;
    uint32_t config_state;
+   uint32_t led_status;
+   uint32_t ctrl_status;
+   uint32_t semaphore;
    char *dma_addr;
    dma_addr_t dma_handle;
 	struct list_head dev_list;
