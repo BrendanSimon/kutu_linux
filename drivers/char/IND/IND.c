@@ -168,7 +168,7 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          return ret;
 
       case IND_USER_SET_ADDRESS:
-         IND_write_reg(IND, R_DMA_WRITE_ADDR, (IND->dma_handle + arg);
+         IND_write_reg(IND, R_DMA_WRITE_ADDR, (IND->dma_handle + arg));
          return 0;
 
       case IND_USER_DMA_TEST:
@@ -352,7 +352,7 @@ static int IND_probe(struct platform_device *pdev)
    IND_write_reg(IND, R_GPIO_CTRL_ADDR, (IND->ctrl_status));
    IND->led_status = 0;
    IND_write_reg(IND, R_GPIO_LED_ADDR, (IND->led_status));
-   IND->semaphore = arg;
+   IND->semaphore = 0;
 
    dev_info(&pdev->dev, "Kutu IND finished call to platform get resource\n");
 
