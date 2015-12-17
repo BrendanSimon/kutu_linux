@@ -12,7 +12,7 @@
 			#clock-cells = <0>;
 			clocks = <&clkc 16>;
 		   interrupt-parent = <&gic>;
-			interrupts = <0 56 4>;
+			interrupts = <0 59 4>;
 		   xlnx,dphase-timeout = <0x8>;
 			xlnx,s-axi-min-size = <0x00003FFF>;
 		   xlnx,slv-awidth = <0x20>;
@@ -21,4 +21,12 @@
 		   xlnx,use-wstrb = <0x0>;
 	   } ;
 	};
+
+      uart_2: uartlite_0@42C00000 {
+            compatible = "xlnx,axi-uartlite-1.02.a";
+            reg = <0x42c00000 0x10000>;
+            interrupt-parent = <&gic>;
+            interrupts = <0 58 4>;
+            clock = <100000000>;
+        };
 };

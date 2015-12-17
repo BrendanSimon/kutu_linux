@@ -220,7 +220,6 @@
 
 		i2c0: i2c@e0004000 {
 			compatible = "cdns,i2c-r1p10";
-			status = "disabled";
 			clocks = <&clkc 38>;
 			interrupt-parent = <&gic>;
 			interrupts = <0 25 4>;
@@ -231,7 +230,6 @@
 
 		i2c1: i2c@e0005000 {
 			compatible = "cdns,i2c-r1p10";
-			status = "disabled";
 			clocks = <&clkc 39>;
 			interrupt-parent = <&gic>;
 			interrupts = <0 48 4>;
