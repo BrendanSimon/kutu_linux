@@ -54,6 +54,13 @@
 #define IND_DEBUG_DMA_READ    3
 #define IND_DEBUG_DMA_WRITE   4
 
+#define LED_RUNNING           0x01
+#define LED_ALERT             0x02
+#define LED_SPARE             0x04
+#define LED_PPS_OK            0x08
+#define LED_3G_OK             0x10
+#define LED_WS_OK             0x20
+
 enum IND_user_cmds
 {
    IND_USER_RESET,
