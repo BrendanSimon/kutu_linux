@@ -23,7 +23,7 @@
 	};
 
       uart_2: uartlite_0@42C00000 {
-            compatible = "xlnx,axi-uartlite-1.02.a";
+            compatible = "xlnx,xps-uartlite-1.00.a";
             reg = <0x42c00000 0x10000>;
             interrupt-parent = <&gic>;
             interrupts = <0 58 4>;
