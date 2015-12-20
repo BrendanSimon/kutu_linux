@@ -15,6 +15,7 @@
 #include <linux/clk.h>
 #include <linux/init.h>
 #include <linux/interrupt.h>
+#include <linux/delay.h>
 
 #include <asm/uaccess.h>
 #include <linux/dma-mapping.h>
@@ -146,7 +147,7 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
    //   int __user *ip = (int __user *)arg;
    void  *arg_ptr = (void *)arg;
    long  ret = 0;
-   unsigned int s2mm_status;
+   unsigned int s2mm_status, timeout;
 //   struct IND_read_data_struct read_cmd;
    struct IND_debug_struct debug_cmd;
 
@@ -172,8 +173,23 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          return 0;
 
       case IND_USER_DMA_TEST:
+
          if (arg >= 0x800000)
             return -EFAULT;
+
+         s2mm_status = IND_Status(IND);
+         if (s2mm_status & (BIT_S2MM_ERR|BIT_MM2S_ERR)) {
+            // DMA error so reset DMA
+            IND_write_reg(IND, R_MODE_CONFIG_ADDR, DMA_RESET|MODE_DMA_DEBUG);
+            IND_write_reg(IND, R_MODE_CONFIG_ADDR, MODE_DMA_DEBUG);
+            printk(KERN_DEBUG "<%s> : clearing dma error\n",MODULE_NAME);
+         }
+
+         if (s2mm_status & BIT_MM2S_RD_CMPLT) {
+            // clear complete bit and ensure interrupt is off
+            IND_write_reg(IND, R_INTERRUPT_ADDR, DISABLE_INTERRUPT);
+            printk(KERN_DEBUG "<%s> : clearing complete flag\n",MODULE_NAME);
+         }
 
          // start read from memory
          IND_write_reg(IND, R_DMA_READ_ADDR, IND->dma_handle);
@@ -181,17 +197,27 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          // start write to memory
          IND_write_reg(IND, R_DMA_WRITE_ADDR, (IND->dma_handle + (DMA_LENGTH/2)));
          IND_write_reg(IND, R_DMA_SIZE_ADDR, arg);
+         IND_write_reg(IND, R_CAPTURE_COUNT_ADDR, (arg>>3));
 
-         // set dma into loopback mode
-         IND_write_reg(IND, R_MODE_CONFIG_ADDR, (IND->config_state|MODE_TRIGGER_DMA));
-
-         printk(KERN_DEBUG "<%s> : started dma \n",MODULE_NAME);
+         // start dma into loopback mode
+         IND_write_reg(IND, R_MODE_CONFIG_ADDR, (DMA_DEBUG_MODE|DEBUG_START_DMA));
 
          s2mm_status = IND_Status(IND);
+         printk(KERN_DEBUG "<%s> : started dma, status = 0x%x\n",MODULE_NAME,s2mm_status);
 
-         while(!(s2mm_status & BIT_MM2S_RD_CMPLT_STATUS)) {
+         timeout = 0;
+         while (((s2mm_status & (BIT_MM2S_RD_CMPLT|BIT_S2MM_ERR|BIT_MM2S_ERR)) == 0) && (timeout <MAX_WAIT_COUNT))  {
+            udelay(100);
             s2mm_status = IND_Status(IND);
+            timeout++;
          }
+         printk(KERN_DEBUG "<%s> : dma status = 0x%x\n",MODULE_NAME,s2mm_status);
+
+         if (timeout > (MAX_WAIT_COUNT - 10))
+            printk(KERN_DEBUG "<%s> : dma timeout\n",MODULE_NAME);
+
+         // clear complete bit
+         IND_write_reg(IND, R_INTERRUPT_ADDR, DISABLE_INTERRUPT);
 
          // set configuration back to original state
          IND_write_reg(IND, R_MODE_CONFIG_ADDR, IND->config_state);
