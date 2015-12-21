@@ -73,6 +73,7 @@
 enum IND_user_cmds
 {
    IND_USER_RESET,
+   IND_USER_DMA_RESET,
    IND_USER_SET_MODE,
    IND_USER_SET_ADDRESS,
    IND_USER_DMA_TEST,
@@ -115,7 +116,8 @@ struct IND_debug_struct {
 
 #define IND_IOCTL_BASE	't'
 
-#define IND_USER_RESET              _IOWR(IND_IOCTL_BASE, 0x81, struct IND_cmd_struct)
+#define IND_USER_RESET              _IOWR(IND_IOCTL_BASE, 0x80, struct IND_cmd_struct)
+#define IND_USER_DMA_RESET          _IOWR(IND_IOCTL_BASE, 0x81, struct IND_cmd_struct)
 #define IND_USER_SET_MODE           _IOWR(IND_IOCTL_BASE, 0x82, struct IND_cmd_struct)
 #define IND_USER_SET_ADDRESS        _IOWR(IND_IOCTL_BASE, 0x83, struct IND_cmd_struct)
 #define IND_USER_DMA_TEST           _IOWR(IND_IOCTL_BASE, 0x84, struct IND_cmd_struct)
