@@ -165,6 +165,14 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          }
          return 0;
 
+      case IND_USER_DMA_RESET:
+         IND_write_reg(IND, R_MODE_CONFIG_ADDR, IND->config_state|DMA_RESET);
+         udelay(10);
+         IND_write_reg(IND, R_MODE_CONFIG_ADDR, IND->config_state);
+         udelay(10);
+        return 0;
+
+
        case IND_USER_SET_MODE:
          if (copy_from_user(&user_cmd, arg_ptr, sizeof(user_cmd))) {
             printk(KERN_DEBUG "IND_REG_DEBUG: copy failed\n");
