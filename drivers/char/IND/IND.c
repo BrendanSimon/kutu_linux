@@ -150,6 +150,7 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
    unsigned int s2mm_status, timeout;
 //   struct IND_read_data_struct read_cmd;
    struct IND_debug_struct debug_cmd;
+   struct IND_cmd_struct user_cmd;
 
    //printk(KERN_DEBUG "<%s> ioctl: entered IND_ioctl\n", MODULE_NAME);
 
@@ -165,7 +166,12 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          return 0;
 
        case IND_USER_SET_MODE:
-         ret = IND_Set_User_Mode(IND, arg);
+         if (copy_from_user(&user_cmd, arg_ptr, sizeof(user_cmd))) {
+            printk(KERN_DEBUG "IND_REG_DEBUG: copy failed\n");
+
+            return -EFAULT;
+         }
+         ret = IND_Set_User_Mode(IND, &user_cmd);
          return ret;
 
       case IND_USER_SET_ADDRESS:

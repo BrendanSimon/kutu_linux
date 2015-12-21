@@ -37,8 +37,12 @@
 //
 // Set the user operation mode
 //
-int IND_Set_User_Mode(struct IND_drvdata *IND, u32 arg)
+int IND_Set_User_Mode(struct IND_drvdata *IND, struct IND_cmd_struct *cmd)
 {
+   u32 arg,dma_size;
+
+   arg = cmd->config;
+
    if (arg & (~(ADC_TEST_DATA|PPS_DEBUG_MODE|DMA_DEBUG_MODE))) {
       printk(KERN_DEBUG "IND_USER_SET_MODE: invalid argument\n");
       return -EFAULT;
@@ -46,6 +50,12 @@ int IND_Set_User_Mode(struct IND_drvdata *IND, u32 arg)
 
    IND->config_state |= arg;
    IND_write_reg(IND, R_MODE_CONFIG_ADDR, IND->config_state);
+
+   dma_size = cmd->capture_count * 6;
+   IND_write_reg(IND, R_DMA_WRITE_ADDR, (IND->dma_handle + cmd->address));
+   IND_write_reg(IND, R_DMA_SIZE_ADDR, dma_size);
+   IND_write_reg(IND, R_CAPTURE_COUNT_ADDR, (cmd->capture_count));
+   IND_write_reg(IND, R_DELAY_COUNT_ADDR, (cmd->delay_count));
 
    return 0;
 }
