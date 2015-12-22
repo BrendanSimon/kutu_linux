@@ -220,7 +220,7 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          printk(KERN_DEBUG "<%s> : started dma, status = 0x%x\n",MODULE_NAME,s2mm_status);
 
          timeout = 0;
-         while (((s2mm_status & (BIT_MM2S_RD_CMPLT|BIT_S2MM_ERR|BIT_MM2S_ERR)) == 0) && (timeout <MAX_WAIT_COUNT))  {
+         while (((s2mm_status & (BIT_MM2S_RD_CMPLT)) == 0) && (timeout <MAX_WAIT_COUNT))  {
             udelay(100);
             s2mm_status = IND_Status(IND);
             timeout++;

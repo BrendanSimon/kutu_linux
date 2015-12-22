@@ -29,6 +29,9 @@
 #define MODE_PPS_DEBUG           (PPS_DEBUG_MODE)
 #define MODE_TRIGGER_PPS         (PPS_DEBUG_MODE|GENERATE_PPS)
 
+#define DISABLE_INTERRUPT        0
+#define ENABLE_INTERRUPT         1
+
 /*
 ** Status constants
 */
@@ -96,6 +99,7 @@ enum IND_user_cmds
 
 struct IND_cmd_struct {
    __u32                            config;
+   __u32                            interrupt;
    __u32                            address;
    __u32                            capture_count;
    __u32                            delay_count;
