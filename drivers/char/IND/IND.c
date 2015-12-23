@@ -201,7 +201,7 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 
          if (s2mm_status & BIT_MM2S_RD_CMPLT) {
             // clear complete bit and ensure interrupt is off
-            IND_write_reg(IND, R_INTERRUPT_ADDR, DISABLE_INTERRUPT);
+            IND_write_reg(IND, R_INTERRUPT_ADDR, K_DISABLE_INTERRUPT);
             printk(KERN_DEBUG "<%s> : clearing complete flag\n",MODULE_NAME);
          }
 
@@ -231,7 +231,7 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
             printk(KERN_DEBUG "<%s> : dma timeout\n",MODULE_NAME);
 
          // clear complete bit
-         IND_write_reg(IND, R_INTERRUPT_ADDR, DISABLE_INTERRUPT);
+         IND_write_reg(IND, R_INTERRUPT_ADDR, K_DISABLE_INTERRUPT);
 
          // set configuration back to original state
          IND_write_reg(IND, R_MODE_CONFIG_ADDR, IND->config_state);
@@ -328,14 +328,15 @@ static irqreturn_t IND_isr(int irq, void *data)
    struct IND_drvdata *IND = data;
 
    spin_lock(&IND->lock);
+   IND->int_status = IND_read_reg(IND, R_IND_STATUS) & (BIT_S2MM_ERR|BIT_MM2S_RD_CMPLT|BIT_MM2S_ERR);
 
    // clear interrupt
-   IND_write_reg(IND, R_INTERRUPT_ADDR,CLEAR_INTERRUPT);
+   IND_write_reg(IND, R_INTERRUPT_ADDR,K_CLEAR_INTERRUPT);
 
    IND->irq_count++;
    IND->semaphore++;
 
-//   IND_write_reg(IND, R_INTERRUPT_ADDR,DISABLE_INTERRUPT);
+//   IND_write_reg(IND, R_INTERRUPT_ADDR,K_DISABLE_INTERRUPT);
 
    spin_unlock(&IND->lock);
 
@@ -393,6 +394,7 @@ static int IND_probe(struct platform_device *pdev)
    IND->led_status = 0;
    IND_write_reg(IND, R_GPIO_LED_ADDR, (IND->led_status));
    IND->semaphore = 0;
+   IND->int_status = 0;
 
    dev_info(&pdev->dev, "Kutu IND finished call to platform get resource\n");
 

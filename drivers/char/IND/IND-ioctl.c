@@ -49,9 +49,9 @@ int IND_Set_User_Mode(struct IND_drvdata *IND, struct IND_cmd_struct *cmd)
    }
 
    if (cmd->interrupt == ENABLE_INTERRUPT)
-       IND_write_reg(IND, R_INTERRUPT_ADDR, CLEAR_INTERRUPT);
+       IND_write_reg(IND, R_INTERRUPT_ADDR, K_CLEAR_INTERRUPT);
    else
-       IND_write_reg(IND, R_INTERRUPT_ADDR, DISABLE_INTERRUPT);
+       IND_write_reg(IND, R_INTERRUPT_ADDR, K_DISABLE_INTERRUPT);
 
 //   printk(KERN_DEBUG "IND_USER_SET_MODE: 0x%x 0x%x 0x%x 0x%x\n",cmd->config,cmd->address,cmd->capture_count,cmd->delay_count);
 
@@ -61,6 +61,7 @@ int IND_Set_User_Mode(struct IND_drvdata *IND, struct IND_cmd_struct *cmd)
    IND_write_reg(IND, R_CAPTURE_COUNT_ADDR, (cmd->capture_count));
    IND_write_reg(IND, R_DELAY_COUNT_ADDR, (cmd->delay_count));
 
+   IND->config_state &= ~(ADC_TEST_DATA|PPS_DEBUG_MODE|DMA_DEBUG_MODE);
    IND->config_state |= arg;
    IND_write_reg(IND, R_MODE_CONFIG_ADDR, IND->config_state);
 

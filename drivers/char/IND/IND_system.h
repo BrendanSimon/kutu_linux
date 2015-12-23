@@ -73,9 +73,9 @@
 /*
  * interrupt constants
  */
-#define ENABLE_INTERRUPT         0x01
-#define DISABLE_INTERRUPT        0x02
-#define CLEAR_INTERRUPT          0x03
+#define K_ENABLE_INTERRUPT       0x01
+#define K_DISABLE_INTERRUPT      0x02
+#define K_CLEAR_INTERRUPT        0x03
 
 /*
 ** SPI constants
@@ -166,6 +166,7 @@ struct IND_drvdata {
    uint32_t config_state;
    uint32_t led_status;
    uint32_t ctrl_status;
+   uint32_t int_status;
    uint32_t semaphore;
    char *dma_addr;
    dma_addr_t dma_handle;
@@ -193,7 +194,7 @@ static inline u32 IND_Status(struct IND_drvdata *IND)
 {
    u32 status;
 
-   status = IND_read_reg(IND, R_IND_STATUS);
+   status = IND_read_reg(IND, R_IND_STATUS)|IND->int_status;
 //   status &= 0x000001ff;
 
    return status;
