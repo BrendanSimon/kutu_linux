@@ -102,12 +102,15 @@ int IND_SPI_Write(struct IND_drvdata *IND, void *user_ptr)
 #ifdef DEBUG
       printk(KERN_DEBUG "Looped through SPI wait %d times\n",i);
 #endif
-      if (cmd.port_addr[j] > 16)
+      if (cmd.port_addr[j] > 0x1fff)
          return -EFAULT;
 
-      data =  (cmd.port_addr[j] << 28)|(cmd.port_data[j]&0x0fffffff);
+      data = 0; // write
+      data |= cmd.port_addr[j];
+      IND_write_reg(IND, R_SPI_DEVICE_ADDR, data);
+
+      data = cmd.port_data[j];
       IND_write_reg(IND, R_SPI_DATA_ADDR, data);
-      IND_write_reg(IND, R_SPI_DEVICE_ADDR, (cmd.port_device[j]&0x03));
 
       // wait until SPI write completes
       i = 0;
