@@ -83,13 +83,15 @@ enum IND_user_cmds
    IND_USER_TRIG_PPS,
    IND_USER_SPI_WRITE,
    IND_USER_STATUS,
-   IND_USER_SET_LEDS,
-   IND_USER_CLEAR_LEDS,
-   IND_USER_SET_CTRL,
-   IND_USER_CLEAR_CTRL,
+   IND_USER_SET_LEDS,       /* use IND_USER_MODIFY_LEDS to set and clear */
+   IND_USER_CLEAR_LEDS,     /* use IND_USER_MODIFY_LEDS to set and clear */
+   IND_USER_SET_CTRL,       /* use IND_USER_MODIFY_CTRL to set and clear */
+   IND_USER_CLEAR_CTRL,     /* use IND_USER_MODIFY_CTRL to set and clear */
    IND_USER_GET_SEM,
    IND_USER_SET_SEM,
-   IND_USER_REG_DEBUG
+   IND_USER_REG_DEBUG,
+   IND_USER_MODIFY_LEDS,
+   IND_USER_MODIFY_CTRL
 };
 
 /*
@@ -104,6 +106,17 @@ struct IND_cmd_struct {
    __u32                            capture_count;
    __u32                            delay_count;
 } ;
+
+/*
+** Structure to set and clear bits for the following ioctl commands.
+**   IND_USER_MODIFY_LEDS
+**   IND_USER_MODIFY_CTRL
+*/
+typedef struct IND_bit_flag_struct {
+   __u32                            set;
+   __u32                            clear;
+} IND_bit_flag_t;
+
 
 struct IND_spi_cmd_struct {
    __u32                           port_device[16];
@@ -135,5 +148,7 @@ struct IND_debug_struct {
 #define IND_USER_GET_SEM            _IOWR(IND_IOCTL_BASE, 0x8c, struct IND_cmd_struct)
 #define IND_USER_SET_SEM            _IOWR(IND_IOCTL_BASE, 0x8d, struct IND_cmd_struct)
 #define IND_USER_REG_DEBUG          _IOWR(IND_IOCTL_BASE, 0x8e, struct IND_cmd_struct)
+#define IND_USER_MODIFY_LEDS        _IOWR(IND_IOCTL_BASE, 0x8f, struct IND_cmd_struct)
+#define IND_USER_MODIFY_CTRL        _IOWR(IND_IOCTL_BASE, 0x90, struct IND_cmd_struct)
 
 #endif /* _IND_H */

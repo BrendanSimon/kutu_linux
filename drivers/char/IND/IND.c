@@ -267,6 +267,14 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          IND_write_reg(IND, R_GPIO_LED_ADDR, (IND->led_status));
          return 0;
 
+      case IND_USER_MODIFY_LEDS:
+      {
+         IND_bit_flag_t *bit_flags = arg_ptr;
+         IND->led_status |= bit_flags->set;
+         IND->led_status &= ~bit_flags->clear;
+         IND_write_reg(IND, R_GPIO_LED_ADDR, (IND->led_status));
+         return 0;
+      }
       case IND_USER_SET_CTRL:
          IND->ctrl_status |= arg;
          IND_write_reg(IND, R_GPIO_CTRL_ADDR, (IND->ctrl_status));
@@ -277,6 +285,14 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          IND_write_reg(IND, R_GPIO_CTRL_ADDR, (IND->ctrl_status));
          return 0;
 
+      case IND_USER_MODIFY_CTRL:
+      {
+         IND_bit_flag_t *bit_flags = arg_ptr;
+         IND->ctrl_status |= bit_flags->set;
+         IND->ctrl_status &= ~bit_flags->clear;
+         IND_write_reg(IND, R_GPIO_CTRL_ADDR, (IND->ctrl_status));
+         return 0;
+      }
       case IND_USER_GET_SEM:
          ret = IND->semaphore;
          if (copy_to_user(arg_ptr, &ret, sizeof(u32))) {
@@ -335,6 +351,11 @@ static irqreturn_t IND_isr(int irq, void *data)
 
    IND->irq_count++;
    IND->semaphore++;
+
+#if 1 //BJS DEBUG
+    IND->led_status ^= LED_SPARE;
+    IND_write_reg(IND, R_GPIO_LED_ADDR, (IND->led_status));
+#endif
 
 //   IND_write_reg(IND, R_INTERRUPT_ADDR,K_DISABLE_INTERRUPT);
 
