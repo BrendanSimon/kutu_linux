@@ -58,7 +58,7 @@ static int IND_open(struct inode *i, struct file *filp)
 
    IND = container_of(i->i_cdev, struct IND_drvdata, cdev);
 
-   IND->irq_count = 0;
+   atomic_set(&IND->irq_count, 0);
 
    printk(KERN_DEBUG "<%s> file: open()\n", MODULE_NAME);
    filp->private_data = IND;
@@ -294,14 +294,14 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          return 0;
       }
       case IND_USER_GET_SEM:
-         ret = IND->semaphore;
+         ret = atomic_read(&IND->semaphore);
          if (copy_to_user(arg_ptr, &ret, sizeof(u32))) {
             return -EFAULT;
          }
          return 0;
 
       case IND_USER_SET_SEM:
-         IND->semaphore = arg;
+         atomic_set(&IND->semaphore, arg);
          return 0;
 
       case IND_USER_REG_DEBUG:
@@ -349,8 +349,8 @@ static irqreturn_t IND_isr(int irq, void *data)
    // clear interrupt
    IND_write_reg(IND, R_INTERRUPT_ADDR,K_CLEAR_INTERRUPT);
 
-   IND->irq_count++;
-   IND->semaphore++;
+   atomic_inc(&IND->irq_count);
+   atomic_inc(&IND->semaphore);
 
 #if 1 //BJS DEBUG
     IND->led_status ^= LED_SPARE;
@@ -414,7 +414,7 @@ static int IND_probe(struct platform_device *pdev)
    IND_write_reg(IND, R_GPIO_CTRL_ADDR, (IND->ctrl_status));
    IND->led_status = 0;
    IND_write_reg(IND, R_GPIO_LED_ADDR, (IND->led_status));
-   IND->semaphore = 0;
+   atomic_set(&IND->semaphore, 0);
    IND->int_status = 0;
 
    dev_info(&pdev->dev, "Kutu IND finished call to platform get resource\n");
