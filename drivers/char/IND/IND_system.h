@@ -171,6 +171,7 @@ struct IND_drvdata {
    char *dma_addr;
    dma_addr_t dma_handle;
    struct list_head dev_list;
+   wait_queue_head_t irq_wait_queue;
 };
 
 static inline void IND_write_reg(struct IND_drvdata *IND, unsigned int reg, uint32_t val)

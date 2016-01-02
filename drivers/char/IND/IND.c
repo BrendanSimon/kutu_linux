@@ -16,6 +16,7 @@
 #include <linux/init.h>
 #include <linux/interrupt.h>
 #include <linux/delay.h>
+#include <linux/poll.h>
 
 #include <asm/uaccess.h>
 #include <linux/dma-mapping.h>
@@ -59,6 +60,8 @@ static int IND_open(struct inode *i, struct file *filp)
    IND = container_of(i->i_cdev, struct IND_drvdata, cdev);
 
    atomic_set(&IND->irq_count, 0);
+
+   init_waitqueue_head(&IND->irq_wait_queue);
 
    printk(KERN_DEBUG "<%s> file: open()\n", MODULE_NAME);
    filp->private_data = IND;
@@ -333,6 +336,20 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
    return ret;
 }
 
+static unsigned int IND_poll(struct file *filp, poll_table *ptp)
+{
+    struct IND_drvdata *IND = filp->private_data;
+    unsigned int mask = 0;
+
+    poll_wait(filp, &IND->irq_wait_queue, ptp);
+
+    if (atomic_read(&IND->semaphore)) {
+        mask |= (POLLIN | POLLRDNORM);
+    }
+
+    return mask;
+}
+
 /**
  * IND_isr() - The main interrupt handler.
  * @irq:	The interrupt number.
@@ -344,6 +361,7 @@ static irqreturn_t IND_isr(int irq, void *data)
    struct IND_drvdata *IND = data;
 
    spin_lock(&IND->lock);
+
    IND->int_status = IND_read_reg(IND, R_IND_STATUS) & (BIT_S2MM_ERR|BIT_MM2S_RD_CMPLT|BIT_MM2S_ERR);
 
    // clear interrupt
@@ -351,6 +369,9 @@ static irqreturn_t IND_isr(int irq, void *data)
 
    atomic_inc(&IND->irq_count);
    atomic_inc(&IND->semaphore);
+
+   // wake up the irq wait queue to notify processes using select/poll/epoll.
+   wake_up_interruptible(&IND->irq_wait_queue);
 
 #if 1 //BJS DEBUG
     IND->led_status ^= LED_SPARE;
@@ -367,6 +388,7 @@ static irqreturn_t IND_isr(int irq, void *data)
 static const struct file_operations IND_fops = {
    .owner = THIS_MODULE,
    .read = IND_read,
+   .poll = IND_poll,
    .mmap = IND_mmap,
    .unlocked_ioctl = IND_ioctl,
    .open = IND_open,
