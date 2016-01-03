@@ -28,6 +28,7 @@
 #define MODE_TRIGGER_DMA         (DMA_DEBUG_MODE|DEBUG_START_DMA)
 #define MODE_PPS_DEBUG           (PPS_DEBUG_MODE)
 #define MODE_TRIGGER_PPS         (PPS_DEBUG_MODE|GENERATE_PPS)
+#define MODE_SYSTEM_HALT         (PPS_DEBUG_MODE)
 
 #define DISABLE_INTERRUPT        0
 #define ENABLE_INTERRUPT         1
@@ -87,6 +88,7 @@ enum IND_user_cmds
    IND_USER_CLEAR_LEDS,     /* use IND_USER_MODIFY_LEDS to set and clear */
    IND_USER_SET_CTRL,       /* use IND_USER_MODIFY_CTRL to set and clear */
    IND_USER_CLEAR_CTRL,     /* use IND_USER_MODIFY_CTRL to set and clear */
+   IND_USER_SET_INTERRUPT,
    IND_USER_GET_SEM,
    IND_USER_SET_SEM,
    IND_USER_REG_DEBUG,
@@ -145,10 +147,11 @@ struct IND_debug_struct {
 #define IND_USER_CLEAR_LEDS         _IOWR(IND_IOCTL_BASE, 0x89, struct IND_cmd_struct)
 #define IND_USER_SET_CTRL           _IOWR(IND_IOCTL_BASE, 0x8a, struct IND_cmd_struct)
 #define IND_USER_CLEAR_CTRL         _IOWR(IND_IOCTL_BASE, 0x8b, struct IND_cmd_struct)
-#define IND_USER_GET_SEM            _IOWR(IND_IOCTL_BASE, 0x8c, struct IND_cmd_struct)
-#define IND_USER_SET_SEM            _IOWR(IND_IOCTL_BASE, 0x8d, struct IND_cmd_struct)
-#define IND_USER_REG_DEBUG          _IOWR(IND_IOCTL_BASE, 0x8e, struct IND_cmd_struct)
-#define IND_USER_MODIFY_LEDS        _IOWR(IND_IOCTL_BASE, 0x8f, struct IND_cmd_struct)
-#define IND_USER_MODIFY_CTRL        _IOWR(IND_IOCTL_BASE, 0x90, struct IND_cmd_struct)
+#define IND_USER_SET_INTERRUPT      _IOWR(IND_IOCTL_BASE, 0x8c, struct IND_cmd_struct)
+#define IND_USER_GET_SEM            _IOWR(IND_IOCTL_BASE, 0x8d, struct IND_cmd_struct)
+#define IND_USER_SET_SEM            _IOWR(IND_IOCTL_BASE, 0x8e, struct IND_cmd_struct)
+#define IND_USER_REG_DEBUG          _IOWR(IND_IOCTL_BASE, 0x8f, struct IND_cmd_struct)
+#define IND_USER_MODIFY_LEDS        _IOWR(IND_IOCTL_BASE, 0x90, struct IND_cmd_struct)
+#define IND_USER_MODIFY_CTRL        _IOWR(IND_IOCTL_BASE, 0x91, struct IND_cmd_struct)
 
 #endif /* _IND_H */

@@ -74,8 +74,8 @@ static int IND_release(struct inode *i, struct file *f)
 
    IND = container_of(i->i_cdev, struct IND_drvdata, cdev);
 
-//   IND_write_reg(IND, R_RUN_TEST, STOP_TEST);
-//   IND_write_reg(IND, R_BOTDA_END_FREQ, 0);
+   IND_write_reg(IND, R_INTERRUPT_ADDR, K_DISABLE_INTERRUPT);
+   IND_write_reg(IND, R_MODE_CONFIG_ADDR, MODE_PPS_DEBUG);
 
    printk(KERN_DEBUG "<%s> file: close()\n", MODULE_NAME);
    return 0;
@@ -204,7 +204,7 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 
          if (s2mm_status & BIT_MM2S_RD_CMPLT) {
             // clear complete bit and ensure interrupt is off
-            IND_write_reg(IND, R_INTERRUPT_ADDR, K_DISABLE_INTERRUPT);
+            IND_write_reg(IND, R_INTERRUPT_ADDR, K_CLEAR_INTERRUPT);
             printk(KERN_DEBUG "<%s> : clearing complete flag\n",MODULE_NAME);
          }
 
@@ -234,7 +234,7 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
             printk(KERN_DEBUG "<%s> : dma timeout\n",MODULE_NAME);
 
          // clear complete bit
-         IND_write_reg(IND, R_INTERRUPT_ADDR, K_DISABLE_INTERRUPT);
+         IND_write_reg(IND, R_INTERRUPT_ADDR, K_CLEAR_INTERRUPT);
 
          // set configuration back to original state
          IND_write_reg(IND, R_MODE_CONFIG_ADDR, IND->config_state);
@@ -296,6 +296,15 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          IND_write_reg(IND, R_GPIO_CTRL_ADDR, (IND->ctrl_status));
          return 0;
       }
+
+      case IND_USER_SET_INTERRUPT:
+         if (arg == ENABLE_INTERRUPT)
+            IND_write_reg(IND, R_INTERRUPT_ADDR, K_CLEAR_INTERRUPT);
+         else
+            IND_write_reg(IND, R_INTERRUPT_ADDR, K_DISABLE_INTERRUPT);
+
+         return 0;
+
       case IND_USER_GET_SEM:
          ret = atomic_read(&IND->semaphore);
          if (copy_to_user(arg_ptr, &ret, sizeof(u32))) {
@@ -438,6 +447,7 @@ static int IND_probe(struct platform_device *pdev)
    IND_write_reg(IND, R_GPIO_LED_ADDR, (IND->led_status));
    atomic_set(&IND->semaphore, 0);
    IND->int_status = 0;
+   IND_write_reg(IND, R_INTERRUPT_ADDR,K_DISABLE_INTERRUPT);
 
    dev_info(&pdev->dev, "Kutu IND finished call to platform get resource\n");
 
