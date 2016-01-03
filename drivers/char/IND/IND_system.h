@@ -154,7 +154,7 @@ struct IND_drvdata {
    dev_t devt;
    struct class *class;
    int irq;
-   uint32_t irq_count;
+   atomic_t irq_count;
    int dma_block_count;
    struct clk *clk;
    volatile bool dma_done;
@@ -167,10 +167,11 @@ struct IND_drvdata {
    uint32_t led_status;
    uint32_t ctrl_status;
    uint32_t int_status;
-   uint32_t semaphore;
+   atomic_t semaphore;
    char *dma_addr;
    dma_addr_t dma_handle;
-	struct list_head dev_list;
+   struct list_head dev_list;
+   wait_queue_head_t irq_wait_queue;
 };
 
 static inline void IND_write_reg(struct IND_drvdata *IND, unsigned int reg, uint32_t val)

@@ -16,6 +16,7 @@
 #include <linux/init.h>
 #include <linux/interrupt.h>
 #include <linux/delay.h>
+#include <linux/poll.h>
 
 #include <asm/uaccess.h>
 #include <linux/dma-mapping.h>
@@ -58,7 +59,9 @@ static int IND_open(struct inode *i, struct file *filp)
 
    IND = container_of(i->i_cdev, struct IND_drvdata, cdev);
 
-   IND->irq_count = 0;
+   atomic_set(&IND->irq_count, 0);
+
+   init_waitqueue_head(&IND->irq_wait_queue);
 
    printk(KERN_DEBUG "<%s> file: open()\n", MODULE_NAME);
    filp->private_data = IND;
@@ -267,6 +270,14 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          IND_write_reg(IND, R_GPIO_LED_ADDR, (IND->led_status));
          return 0;
 
+      case IND_USER_MODIFY_LEDS:
+      {
+         IND_bit_flag_t *bit_flags = arg_ptr;
+         IND->led_status |= bit_flags->set;
+         IND->led_status &= ~bit_flags->clear;
+         IND_write_reg(IND, R_GPIO_LED_ADDR, (IND->led_status));
+         return 0;
+      }
       case IND_USER_SET_CTRL:
          IND->ctrl_status |= arg;
          IND_write_reg(IND, R_GPIO_CTRL_ADDR, (IND->ctrl_status));
@@ -277,15 +288,23 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          IND_write_reg(IND, R_GPIO_CTRL_ADDR, (IND->ctrl_status));
          return 0;
 
+      case IND_USER_MODIFY_CTRL:
+      {
+         IND_bit_flag_t *bit_flags = arg_ptr;
+         IND->ctrl_status |= bit_flags->set;
+         IND->ctrl_status &= ~bit_flags->clear;
+         IND_write_reg(IND, R_GPIO_CTRL_ADDR, (IND->ctrl_status));
+         return 0;
+      }
       case IND_USER_GET_SEM:
-         ret = IND->semaphore;
+         ret = atomic_read(&IND->semaphore);
          if (copy_to_user(arg_ptr, &ret, sizeof(u32))) {
             return -EFAULT;
          }
          return 0;
 
       case IND_USER_SET_SEM:
-         IND->semaphore = arg;
+         atomic_set(&IND->semaphore, arg);
          return 0;
 
       case IND_USER_REG_DEBUG:
@@ -317,6 +336,20 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
    return ret;
 }
 
+static unsigned int IND_poll(struct file *filp, poll_table *ptp)
+{
+    struct IND_drvdata *IND = filp->private_data;
+    unsigned int mask = 0;
+
+    poll_wait(filp, &IND->irq_wait_queue, ptp);
+
+    if (atomic_read(&IND->semaphore)) {
+        mask |= (POLLIN | POLLRDNORM);
+    }
+
+    return mask;
+}
+
 /**
  * IND_isr() - The main interrupt handler.
  * @irq:	The interrupt number.
@@ -328,13 +361,22 @@ static irqreturn_t IND_isr(int irq, void *data)
    struct IND_drvdata *IND = data;
 
    spin_lock(&IND->lock);
+
    IND->int_status = IND_read_reg(IND, R_IND_STATUS) & (BIT_S2MM_ERR|BIT_MM2S_RD_CMPLT|BIT_MM2S_ERR);
 
    // clear interrupt
    IND_write_reg(IND, R_INTERRUPT_ADDR,K_CLEAR_INTERRUPT);
 
-   IND->irq_count++;
-   IND->semaphore++;
+   atomic_inc(&IND->irq_count);
+   atomic_inc(&IND->semaphore);
+
+   // wake up the irq wait queue to notify processes using select/poll/epoll.
+   wake_up_interruptible(&IND->irq_wait_queue);
+
+#if 1 //BJS DEBUG
+    IND->led_status ^= LED_SPARE;
+    IND_write_reg(IND, R_GPIO_LED_ADDR, (IND->led_status));
+#endif
 
 //   IND_write_reg(IND, R_INTERRUPT_ADDR,K_DISABLE_INTERRUPT);
 
@@ -346,6 +388,7 @@ static irqreturn_t IND_isr(int irq, void *data)
 static const struct file_operations IND_fops = {
    .owner = THIS_MODULE,
    .read = IND_read,
+   .poll = IND_poll,
    .mmap = IND_mmap,
    .unlocked_ioctl = IND_ioctl,
    .open = IND_open,
@@ -393,7 +436,7 @@ static int IND_probe(struct platform_device *pdev)
    IND_write_reg(IND, R_GPIO_CTRL_ADDR, (IND->ctrl_status));
    IND->led_status = 0;
    IND_write_reg(IND, R_GPIO_LED_ADDR, (IND->led_status));
-   IND->semaphore = 0;
+   atomic_set(&IND->semaphore, 0);
    IND->int_status = 0;
 
    dev_info(&pdev->dev, "Kutu IND finished call to platform get resource\n");
