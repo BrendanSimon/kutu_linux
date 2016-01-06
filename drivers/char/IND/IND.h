@@ -22,6 +22,11 @@
 #define ADC_TEST_DATA            0x20
 #define PPS_DEBUG_MODE           0x40
 #define DMA_DEBUG_MODE           0x80
+#define DEBUG_SELECT_ACTIVE      0x800
+#define DEBUG_SELECT_CH0         0x000
+#define DEBUG_SELECT_CH1         0x100
+#define DEBUG_SELECT_CH2         0x200
+#define DEBUG_SELECT_CH_OFF      0x300
 
 #define MODE_NORMAL              0x00
 #define MODE_DMA_DEBUG           (DMA_DEBUG_MODE)
@@ -29,6 +34,13 @@
 #define MODE_PPS_DEBUG           (PPS_DEBUG_MODE)
 #define MODE_TRIGGER_PPS         (PPS_DEBUG_MODE|GENERATE_PPS)
 #define MODE_SYSTEM_HALT         (PPS_DEBUG_MODE)
+
+#define MODE_CH_AUTO             0x00
+#define MODE_CH_AUTO_INV         ~(DEBUG_SELECT_ACTIVE|DEBUG_SELECT_CH_OFF)
+#define MODE_CH_0                (DEBUG_SELECT_ACTIVE|DEBUG_SELECT_CH0)
+#define MODE_CH_1                (DEBUG_SELECT_ACTIVE|DEBUG_SELECT_CH1)
+#define MODE_CH_2                (DEBUG_SELECT_ACTIVE|DEBUG_SELECT_CH2)
+#define MODE_CH_OFF              (DEBUG_SELECT_ACTIVE|DEBUG_SELECT_CH_OFF)
 
 #define DISABLE_INTERRUPT        0
 #define ENABLE_INTERRUPT         1

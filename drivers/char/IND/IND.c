@@ -74,8 +74,8 @@ static int IND_release(struct inode *i, struct file *f)
 
    IND = container_of(i->i_cdev, struct IND_drvdata, cdev);
 
-   IND_write_reg(IND, R_INTERRUPT_ADDR, K_DISABLE_INTERRUPT);
-   IND_write_reg(IND, R_MODE_CONFIG_ADDR, MODE_PPS_DEBUG);
+//   IND_write_reg(IND, R_INTERRUPT_ADDR, K_DISABLE_INTERRUPT);
+//   IND_write_reg(IND, R_MODE_CONFIG_ADDR, MODE_PPS_DEBUG);
 
    printk(KERN_DEBUG "<%s> file: close()\n", MODULE_NAME);
    return 0;
