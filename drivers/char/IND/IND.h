@@ -27,6 +27,7 @@
 #define DEBUG_SELECT_CH1         0x100
 #define DEBUG_SELECT_CH2         0x200
 #define DEBUG_SELECT_CH_OFF      0x300
+#define SIGNED_DATA              0x1000
 
 #define MODE_NORMAL              0x00
 #define MODE_DMA_DEBUG           (DMA_DEBUG_MODE)
@@ -41,6 +42,9 @@
 #define MODE_CH_1                (DEBUG_SELECT_ACTIVE|DEBUG_SELECT_CH1)
 #define MODE_CH_2                (DEBUG_SELECT_ACTIVE|DEBUG_SELECT_CH2)
 #define MODE_CH_OFF              (DEBUG_SELECT_ACTIVE|DEBUG_SELECT_CH_OFF)
+
+#define MODE_SIGNED              (SIGNED_DATA)
+
 
 #define DISABLE_INTERRUPT        0
 #define ENABLE_INTERRUPT         1
