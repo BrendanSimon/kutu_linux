@@ -36,7 +36,7 @@
 
 LIST_HEAD( IND_full_dev_list );
 
-static struct IND_drvdata *get_elem_from_list_by_inode(struct inode *i)
+/* static struct IND_drvdata *get_elem_from_list_by_inode(struct inode *i)
 {
    struct list_head *pos;
    struct IND_drvdata *IND = NULL;
@@ -52,6 +52,7 @@ static struct IND_drvdata *get_elem_from_list_by_inode(struct inode *i)
    }
    return IND;
 }
+*/
 
 static int IND_open(struct inode *i, struct file *filp)
 {
@@ -120,26 +121,12 @@ static int IND_mmap(struct file *filp, struct vm_area_struct *vma)
 static ssize_t IND_read(struct file *f, char __user * buf, size_t
       len, loff_t * off)
 {
-   /* printk(KERN_INFO "<%s> file: read()\n", MODULE_NAME); */
-   struct IND_drvdata *IND;
-   int      count;
-   char     *ptr;
+   printk(KERN_INFO "<%s> file: read()\n", MODULE_NAME);
 
    if (len > 65536)
    {
       return 0;
    }
-   IND = get_elem_from_list_by_inode(f->f_inode);
-
-   count = len;
-   ptr   = buf;
-
-   while (count > 1024) {
-      memcpy(ptr, IND->base + R_IND_FIFO_BASE, 1024);
-      count -= 1024;
-      ptr+= 1024;
-   }
-   memcpy(ptr, IND->base + R_IND_FIFO_BASE, count);
 
    return len;
 }
@@ -249,8 +236,8 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 
          return ret;
 
-      case IND_USER_SPI_WRITE:
-         ret = IND_SPI_Write(IND, arg_ptr);
+      case IND_USER_SPI_ACCESS:
+         ret = IND_SPI_Access(IND, arg_ptr);
          return ret;
 
       case IND_USER_STATUS:

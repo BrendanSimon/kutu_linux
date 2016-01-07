@@ -23,7 +23,7 @@
 #define IND_BASE              0x43C00000
 
 #define R_IND_REG_BASE        0x0000
-#define R_IND_FIFO_BASE       0x0800
+#define R_IND_SPI_BASE        0x0800
 #define R_IND_BRAM_BASE       0x1000
 
 #define R_IND_STATUS          0x0000
@@ -43,7 +43,7 @@
 #define R_GPIO_LED_ADDR          0x0028
 
 #define IND_REG_BASE          (IND_BASE + R_IND_REG_BASE)
-#define IND_FIFO_BASE         (IND_BASE + R_IND_FIFO_BASE)
+#define IND_SPI_BASE          (IND_BASE + R_IND_SPI_BASE)
 #define IND_BRAM_BASE         (IND_BASE + R_IND_BRAM_BASE)
 
 #define IND_STATUS            (IND_BASE + R_IND_STATUS)
@@ -79,10 +79,11 @@
 
 /*
 ** SPI constants
-*/
+
 #define SPI_PORT_LOW             0x01
 #define SPI_PORT_HIGH            0x02
 #define SPI_PORT_BOTH            0x03
+*/
 
 /*
 ** Status constants
@@ -251,7 +252,7 @@ int IND_Run_Scan(struct IND_drvdata *IND, void *user_ptr);
 //
 // Write a command to SPI port
 //
-int IND_SPI_Write(struct IND_drvdata *IND, void *user_ptr);
+int IND_SPI_Access(struct IND_drvdata *IND, void *user_ptr);
 
 
 #endif /* _IND_SYSTEM_H */

@@ -69,14 +69,14 @@ int IND_Set_User_Mode(struct IND_drvdata *IND, struct IND_cmd_struct *cmd)
 }
 
 //
-// IND_SPI_Write()
+// IND_SPI_Access()
 //
 // Write a command to SPI port
-// 3byte_mode only affects dac port (SPI 2)
 //
-int IND_SPI_Write(struct IND_drvdata *IND, void *user_ptr)
+int IND_SPI_Access(struct IND_drvdata *IND, void *user_ptr)
 {
    u32   i,j,data;
+   u32   rd_nwr_mode,count;
 
    struct IND_spi_cmd_struct  cmd;
 
@@ -86,13 +86,29 @@ int IND_SPI_Write(struct IND_drvdata *IND, void *user_ptr)
       return -EFAULT;
    }
 
-   if (cmd.num_spi_writes == 0)
-     return 0;
-
    if (cmd.num_spi_writes > 16)
       return -EFAULT;
 
-   for (j = 0; j < cmd.num_spi_writes; j++) {
+   if (cmd.num_spi_reads > 16)
+      return -EFAULT;
+
+   rd_nwr_mode = SPI_CTRL_WRITE; // write by default
+   count = cmd.num_spi_writes;
+   if (cmd.num_spi_writes == 0) {
+      rd_nwr_mode = SPI_CTRL_READ;
+      count = cmd.num_spi_reads;
+   }
+   // if both reads and writes non-zero, then error
+   if (rd_nwr_mode == SPI_CTRL_WRITE)
+      if (cmd.num_spi_reads != 0)
+         return -EFAULT;
+
+   // if both reads and writes 0, then exit
+   if (rd_nwr_mode == SPI_CTRL_READ)
+      if (cmd.num_spi_reads == 0)
+         return 0;
+
+   for (j = 0; j < count; j++) {
       //
       // Wait for SPI access to finish
       //
@@ -105,7 +121,7 @@ int IND_SPI_Write(struct IND_drvdata *IND, void *user_ptr)
       if (cmd.port_addr[j] > 0x1fff)
          return -EFAULT;
 
-      data = 0; // write
+      data = rd_nwr_mode|cmd.port_device[j]; // write to AD9467
       data |= cmd.port_addr[j];
       IND_write_reg(IND, R_SPI_DEVICE_ADDR, data);
 
@@ -117,6 +133,14 @@ int IND_SPI_Write(struct IND_drvdata *IND, void *user_ptr)
       while ((IND_Status(IND) & BIT_SPI_BUSY) && (i < MAX_WAIT_COUNT))
          i++;
 
+      // if read then read back data
+      if (rd_nwr_mode == SPI_CTRL_READ) {
+         data = IND_read_reg(IND,R_SPI_READ_ADDR);
+         if ((data & 0xffffff00) == 0x87654300)
+            cmd.port_data[j] = data & 0xff;
+         else
+            cmd.port_data[j] = data;
+      }
    }
    return 0;
 }

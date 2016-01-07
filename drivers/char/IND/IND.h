@@ -89,6 +89,15 @@
 #define CTRL_POWER_3G         0x02
 #define CTRL_EN_SELECT        0x04
 
+/* SPI definitions
+*/
+#define SPI_CTRL_WRITE        0x0
+#define SPI_CTRL_READ         0x20000
+#define SPI_DEVICE_AD9467     0x0
+#define SPI_DEVICE_AD9517     0x10000
+
+
+
 
 enum IND_user_cmds
 {
@@ -98,7 +107,7 @@ enum IND_user_cmds
    IND_USER_SET_ADDRESS,
    IND_USER_DMA_TEST,
    IND_USER_TRIG_PPS,
-   IND_USER_SPI_WRITE,
+   IND_USER_SPI_ACCESS,
    IND_USER_STATUS,
    IND_USER_SET_LEDS,       /* use IND_USER_MODIFY_LEDS to set and clear */
    IND_USER_CLEAR_LEDS,     /* use IND_USER_MODIFY_LEDS to set and clear */
@@ -141,6 +150,7 @@ struct IND_spi_cmd_struct {
    __u32                           port_addr[16];
    __u32                           port_data[16];
    __u32                           num_spi_writes;
+   __u32                           num_spi_reads;
 } ;
 
 struct IND_debug_struct {
@@ -157,7 +167,7 @@ struct IND_debug_struct {
 #define IND_USER_SET_ADDRESS        _IOWR(IND_IOCTL_BASE, 0x83, struct IND_cmd_struct)
 #define IND_USER_DMA_TEST           _IOWR(IND_IOCTL_BASE, 0x84, struct IND_cmd_struct)
 #define IND_USER_TRIG_PPS           _IOWR(IND_IOCTL_BASE, 0x85, struct IND_cmd_struct)
-#define IND_USER_SPI_WRITE          _IOWR(IND_IOCTL_BASE, 0x86, struct IND_cmd_struct)
+#define IND_USER_SPI_ACCESS         _IOWR(IND_IOCTL_BASE, 0x86, struct IND_cmd_struct)
 #define IND_USER_STATUS             _IOWR(IND_IOCTL_BASE, 0x87, struct IND_cmd_struct)
 #define IND_USER_SET_LEDS           _IOWR(IND_IOCTL_BASE, 0x88, struct IND_cmd_struct)
 #define IND_USER_CLEAR_LEDS         _IOWR(IND_IOCTL_BASE, 0x89, struct IND_cmd_struct)
