@@ -123,6 +123,9 @@ int IND_SPI_Access(struct IND_drvdata *IND, void *user_ptr)
 
       data = rd_nwr_mode|cmd.port_device[j]; // write to AD9467
       data |= cmd.port_addr[j];
+#ifdef DEBUG
+      printk(KERN_DEBUG "output to device register = 0x%x\n",data);
+#endif
       IND_write_reg(IND, R_SPI_DEVICE_ADDR, data);
 
       data = cmd.port_data[j];
@@ -136,10 +139,19 @@ int IND_SPI_Access(struct IND_drvdata *IND, void *user_ptr)
       // if read then read back data
       if (rd_nwr_mode == SPI_CTRL_READ) {
          data = IND_read_reg(IND,R_SPI_READ_ADDR);
+#ifdef DEBUG
+         printk(KERN_DEBUG "Read data = 0x%x\n",data);
+#endif
          if ((data & 0xffffff00) == 0x87654300)
             cmd.port_data[j] = data & 0xff;
          else
             cmd.port_data[j] = data;
+      }
+   }
+
+   if (rd_nwr_mode == SPI_CTRL_READ) {
+      if (copy_to_user(user_ptr, &cmd, sizeof(cmd))) {
+         return -EFAULT;
       }
    }
    return 0;
