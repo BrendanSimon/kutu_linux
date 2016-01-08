@@ -146,13 +146,18 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 
    switch (cmd) {
       case IND_USER_RESET:
-         if (arg == FPGA_RESET) {
-            IND_write_reg(IND, R_MODE_CONFIG_ADDR, FPGA_RESET);
-            IND->config_state = FPGA_RESET;
-         } else {
-            IND_write_reg(IND, R_MODE_CONFIG_ADDR, 0);
-            IND->config_state = 0;
-         }
+         printk(KERN_DEBUG "IND_USER_RESET: Asserting FPGA_RESET bit\n");
+         IND_write_reg(IND, R_MODE_CONFIG_ADDR, FPGA_RESET);
+         IND->config_state = FPGA_RESET;
+         udelay(10);
+
+         printk(KERN_DEBUG "IND_USER_RESET: Deasserting FPGA_RESET bit\n");
+         IND_write_reg(IND, R_MODE_CONFIG_ADDR, 0);
+         IND->config_state = 0;
+         udelay(10);
+
+         printk(KERN_DEBUG "IND_USER_RESET: FPGA Reset complete\n");
+
          return 0;
 
       case IND_USER_DMA_RESET:
