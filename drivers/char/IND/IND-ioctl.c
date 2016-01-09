@@ -55,7 +55,7 @@ int IND_Set_User_Mode(struct IND_drvdata *IND, struct IND_cmd_struct *cmd)
 
 //   printk(KERN_DEBUG "IND_USER_SET_MODE: 0x%x 0x%x 0x%x 0x%x\n",cmd->config,cmd->address,cmd->capture_count,cmd->delay_count);
 
-   dma_size = cmd->capture_count * 6;
+   dma_size = cmd->capture_count * 2;
    IND_write_reg(IND, R_DMA_WRITE_ADDR, (IND->dma_handle + cmd->address));
    IND_write_reg(IND, R_DMA_SIZE_ADDR, dma_size);
    IND_write_reg(IND, R_CAPTURE_COUNT_ADDR, (cmd->capture_count));
@@ -129,7 +129,10 @@ int IND_SPI_Access(struct IND_drvdata *IND, void *user_ptr)
       IND_write_reg(IND, R_SPI_DEVICE_ADDR, data);
 
       data = cmd.port_data[j];
-      IND_write_reg(IND, R_SPI_DATA_ADDR, data);
+#ifdef DEBUG
+      printk(KERN_DEBUG "output to data register = 0x%x\n",data);
+#endif
+       IND_write_reg(IND, R_SPI_DATA_ADDR, data);
 
       // wait until SPI write completes
       i = 0;
@@ -148,6 +151,12 @@ int IND_SPI_Access(struct IND_drvdata *IND, void *user_ptr)
             cmd.port_data[j] = data;
       }
    }
+   //
+   // Wait for SPI access to finish
+   //
+   i = 0;
+   while ((IND_Status(IND) & BIT_SPI_BUSY) && (i < MAX_WAIT_COUNT))
+      i++;
 
    if (rd_nwr_mode == SPI_CTRL_READ) {
       if (copy_to_user(user_ptr, &cmd, sizeof(cmd))) {
