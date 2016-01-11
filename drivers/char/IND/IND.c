@@ -431,8 +431,11 @@ static int IND_probe(struct platform_device *pdev)
       return PTR_ERR(IND->base);
 
    // setup fgpa
+   IND_write_reg(IND, R_MODE_CONFIG_ADDR, FPGA_RESET);
+   udelay(5);
    IND->config_state = 0;
    IND_write_reg(IND, R_MODE_CONFIG_ADDR, (IND->config_state));
+   udelay(5);
    IND->ctrl_status = 0;
    IND_write_reg(IND, R_GPIO_CTRL_ADDR, (IND->ctrl_status));
    IND->led_status = 0;
