@@ -55,7 +55,7 @@ int IND_Set_User_Mode(struct IND_drvdata *IND, struct IND_cmd_struct *cmd)
 
 //   printk(KERN_DEBUG "IND_USER_SET_MODE: 0x%x 0x%x 0x%x 0x%x\n",cmd->config,cmd->address,cmd->capture_count,cmd->delay_count);
 
-   dma_size = cmd->capture_count * 2;
+   dma_size = cmd->capture_count * 6;
    IND_write_reg(IND, R_DMA_WRITE_ADDR, (IND->dma_handle + cmd->address));
    IND_write_reg(IND, R_DMA_SIZE_ADDR, dma_size);
    IND_write_reg(IND, R_CAPTURE_COUNT_ADDR, (cmd->capture_count));
