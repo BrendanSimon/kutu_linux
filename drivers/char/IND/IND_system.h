@@ -41,6 +41,8 @@
 #define R_DELAY_COUNT_ADDR       0x0020
 #define R_GPIO_CTRL_ADDR         0x0024
 #define R_GPIO_LED_ADDR          0x0028
+#define R_PEAK_START_ADDR        0x002C
+#define R_PEAK_END_ADDR          0x0030
 
 #define R_MAX_CH0_VAL_ADDR       0x1000
 #define R_MAX_CH0_LOC_ADDR       0x1004

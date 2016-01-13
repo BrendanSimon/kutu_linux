@@ -45,6 +45,8 @@
 
 #define MODE_SIGNED              (SIGNED_DATA)
 
+#define PEAK_SS_DISABLE          0x00ffffff
+
 
 #define DISABLE_INTERRUPT        0
 #define ENABLE_INTERRUPT         1
@@ -133,6 +135,8 @@ struct IND_cmd_struct {
    __u32                            address;
    __u32                            capture_count;
    __u32                            delay_count;
+   __u32                            peak_detect_start;
+   __u32                            peak_detect_end;
 } ;
 
 /*
