@@ -24,7 +24,7 @@
 
 #define R_IND_REG_BASE        0x0000
 #define R_IND_SPI_BASE        0x0800
-#define R_IND_BRAM_BASE       0x1000
+#define R_IND_MINMAX_BASE     0x1000
 
 #define R_IND_STATUS          0x0000
 #define R_SPI_READ_ADDR       0x0800
@@ -41,6 +41,21 @@
 #define R_DELAY_COUNT_ADDR       0x0020
 #define R_GPIO_CTRL_ADDR         0x0024
 #define R_GPIO_LED_ADDR          0x0028
+
+#define R_MAX_CH0_VAL_ADDR       0x1000
+#define R_MAX_CH0_LOC_ADDR       0x1004
+#define R_MIN_CH0_VAL_ADDR       0x1008
+#define R_MIN_CH0_LOC_ADDR       0x100C
+#define R_MAX_CH1_VAL_ADDR       0x1010
+#define R_MAX_CH1_LOC_ADDR       0x1014
+#define R_MIN_CH1_VAL_ADDR       0x1018
+#define R_MIN_CH1_LOC_ADDR       0x101C
+#define R_MAX_CH2_VAL_ADDR       0x1020
+#define R_MAX_CH2_LOC_ADDR       0x1024
+#define R_MIN_CH2_VAL_ADDR       0x1028
+#define R_MIN_CH2_LOC_ADDR       0x102C
+
+
 
 #define IND_REG_BASE          (IND_BASE + R_IND_REG_BASE)
 #define IND_SPI_BASE          (IND_BASE + R_IND_SPI_BASE)
@@ -254,5 +269,9 @@ int IND_Run_Scan(struct IND_drvdata *IND, void *user_ptr);
 //
 int IND_SPI_Access(struct IND_drvdata *IND, void *user_ptr);
 
+//
+// IND_Maxmin_Read()
+//
+int IND_Maxmin_Read(struct IND_drvdata *IND, void *user_ptr);
 
 #endif /* _IND_SYSTEM_H */
