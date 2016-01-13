@@ -327,8 +327,11 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          if (copy_to_user(arg_ptr, &debug_cmd, sizeof(debug_cmd))) {
             return -EFAULT;
          }
+        return 0;
 
-         return 0;
+      case IND_USER_READ_MAXMIN:
+         ret = IND_Maxmin_Read(IND, arg_ptr);
+         return ret;
 
       default:
          break;

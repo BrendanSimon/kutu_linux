@@ -167,6 +167,34 @@ int IND_SPI_Access(struct IND_drvdata *IND, void *user_ptr)
 }
 
 //
+// IND_Maxmin_Read()
+//
+int IND_Maxmin_Read(struct IND_drvdata *IND, void *user_ptr)
+{
+   struct IND_maxmin_struct  cmd;
+
+   cmd.max_ch0_data = IND_read_reg(IND,R_MAX_CH0_VAL_ADDR) & 0x00ffffff;
+   cmd.max_ch0_addr = IND_read_reg(IND,R_MAX_CH0_LOC_ADDR) & 0x00ffffff;
+   cmd.min_ch0_data = IND_read_reg(IND,R_MIN_CH0_VAL_ADDR) & 0x00ffffff;
+   cmd.min_ch0_addr = IND_read_reg(IND,R_MIN_CH0_LOC_ADDR) & 0x00ffffff;
+   cmd.max_ch1_data = IND_read_reg(IND,R_MAX_CH1_VAL_ADDR) & 0x00ffffff;
+   cmd.max_ch1_addr = IND_read_reg(IND,R_MAX_CH1_LOC_ADDR) & 0x00ffffff;
+   cmd.min_ch1_data = IND_read_reg(IND,R_MIN_CH1_VAL_ADDR) & 0x00ffffff;
+   cmd.min_ch1_addr = IND_read_reg(IND,R_MIN_CH1_LOC_ADDR) & 0x00ffffff;
+   cmd.max_ch2_data = IND_read_reg(IND,R_MAX_CH2_VAL_ADDR) & 0x00ffffff;
+   cmd.max_ch2_addr = IND_read_reg(IND,R_MAX_CH2_LOC_ADDR) & 0x00ffffff;
+   cmd.min_ch2_data = IND_read_reg(IND,R_MIN_CH2_VAL_ADDR) & 0x00ffffff;
+   cmd.min_ch2_addr = IND_read_reg(IND,R_MIN_CH2_LOC_ADDR) & 0x00ffffff;
+
+   if (copy_to_user(user_ptr, &cmd, sizeof(cmd))) {
+      return -EFAULT;
+   }
+
+   return 0;
+}
+
+
+//
 // IND_Run_Scan()
 //
 // Set the user operation mode
