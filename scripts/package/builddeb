@@ -143,6 +143,11 @@ else
 	cp arch/$ARCH/boot/$KBUILD_IMAGE "$tmpdir/$installed_image_path"
 fi
 
+## SEPL/BJS hack to install uImage in debian package.
+if [ -e arch/$ARCH/boot/uImage ]; then
+	cp arch/$ARCH/boot/uImage "$tmpdir/boot/uImage-$version"
+fi
+
 if grep -q '^CONFIG_MODULES=y' $KCONFIG_CONFIG ; then
 	INSTALL_MOD_PATH="$tmpdir" $MAKE KBUILD_SRC= modules_install
 	rm -f "$tmpdir/lib/modules/$version/build"

@@ -22,12 +22,15 @@
 #define ADC_TEST_DATA            0x20
 #define PPS_DEBUG_MODE           0x40
 #define DMA_DEBUG_MODE           0x80
-#define DEBUG_SELECT_ACTIVE      0x800
 #define DEBUG_SELECT_CH0         0x000
 #define DEBUG_SELECT_CH1         0x100
 #define DEBUG_SELECT_CH2         0x200
 #define DEBUG_SELECT_CH_OFF      0x300
+#define DEBUG_SELECT_ACTIVE      0x800
 #define SIGNED_DATA              0x1000
+
+#define CONFIG_MODE_MASK         (ADC_TEST_DATA | PPS_DEBUG_MODE | DMA_DEBUG_MODE | DEBUG_SELECT_CH_OFF | DEBUG_SELECT_ACTIVE | SIGNED_DATA)
+
 
 #define MODE_NORMAL              0x00
 #define MODE_DMA_DEBUG           (DMA_DEBUG_MODE)
@@ -45,7 +48,8 @@
 
 #define MODE_SIGNED              (SIGNED_DATA)
 
-#define PEAK_SS_DISABLE          0x00ffffff
+#define PEAK_START_DISABLE       0x00ffffff
+#define PEAK_STOP_DISABLE        0x00ffffff
 
 
 #define DISABLE_INTERRUPT        0
