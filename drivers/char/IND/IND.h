@@ -45,7 +45,8 @@
 
 #define MODE_SIGNED              (SIGNED_DATA)
 
-#define PEAK_SS_DISABLE          0x00ffffff
+#define PEAK_START_DISABLE       0x00ffffff
+#define PEAK_STOP_DISABLE        0x00ffffff
 
 
 #define DISABLE_INTERRUPT        0
