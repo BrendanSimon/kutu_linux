@@ -142,6 +142,17 @@
 			interrupt-parent = <&gic>;
 		};
 
+		watchdog@f8005000 {
+			clocks = <&clkc 45>;
+			compatible = "cdns,wdt-r1p2";
+			interrupt-parent = <&gic>;
+			#interrupts = <0 9 4>;
+			interrupts = <0 9 1>;
+			reg = <0xf8005000 0x1000>;
+			timeout-sec = <60>;
+            reset-on-timeout;
+		};
+
 		swdt@f8005000 {
 			device_type = "watchdog";
 			compatible = "xlnx,ps7-wdt-1.00.a", "xlnx,zynq-wdt-1.00.a";
