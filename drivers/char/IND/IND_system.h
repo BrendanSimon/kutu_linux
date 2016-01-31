@@ -48,10 +48,12 @@
 #define R_MAX_CH0_LOC_ADDR       0x1004
 #define R_MIN_CH0_VAL_ADDR       0x1008
 #define R_MIN_CH0_LOC_ADDR       0x100C
+
 #define R_MAX_CH1_VAL_ADDR       0x1010
 #define R_MAX_CH1_LOC_ADDR       0x1014
 #define R_MIN_CH1_VAL_ADDR       0x1018
 #define R_MIN_CH1_LOC_ADDR       0x101C
+
 #define R_MAX_CH2_VAL_ADDR       0x1020
 #define R_MAX_CH2_LOC_ADDR       0x1024
 #define R_MIN_CH2_VAL_ADDR       0x1028

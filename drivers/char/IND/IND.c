@@ -291,6 +291,7 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 
       case IND_USER_SET_INTERRUPT:
          if (arg == ENABLE_INTERRUPT)
+            // enable and clear pending interrupt.
             IND_write_reg(IND, R_INTERRUPT_ADDR, K_CLEAR_INTERRUPT);
          else
             IND_write_reg(IND, R_INTERRUPT_ADDR, K_DISABLE_INTERRUPT);

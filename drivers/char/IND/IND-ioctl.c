@@ -49,11 +49,12 @@ int IND_Set_User_Mode(struct IND_drvdata *IND, struct IND_cmd_struct *cmd)
 //   }
 
    if (cmd->interrupt == ENABLE_INTERRUPT)
+       // enable and clear pending interrupt.
        IND_write_reg(IND, R_INTERRUPT_ADDR, K_CLEAR_INTERRUPT);
    else
        IND_write_reg(IND, R_INTERRUPT_ADDR, K_DISABLE_INTERRUPT);
 
-   //printk(KERN_DEBUG "IND_USER_SET_MODE: config=0x%08x address=0x%08x capture_count=0x%08x delay_count=0x%08x peak_detect_start=0x%08x peak_detect_end=0x%08X\n", cmd->config, cmd->address, cmd->capture_count, cmd->delay_count, cmd->peak_detect_start, cmd->peak_detect_end);
+   printk(KERN_DEBUG "IND_USER_SET_MODE: interrupt=0x%08x config=0x%08x address=0x%08x capture_count=0x%08x delay_count=0x%08x peak_detect_start=0x%08x peak_detect_end=0x%08X\n", cmd->interrupt, cmd->config, cmd->address, cmd->capture_count, cmd->delay_count, cmd->peak_detect_start, cmd->peak_detect_end);
 
    dma_size = cmd->capture_count * 6;
    IND_write_reg(IND, R_DMA_WRITE_ADDR, (IND->dma_handle + cmd->address));
@@ -200,6 +201,15 @@ int IND_Maxmin_Read(struct IND_drvdata *IND, void *user_ptr)
    if (copy_to_user(user_ptr, &cmd, sizeof(cmd))) {
       return -EFAULT;
    }
+
+#if 0
+   printk(KERN_DEBUG "IND_Maxmin_Read: max_ch0_addr=0x%08x max_ch0_data=0x%08x\n", cmd.max_ch0_addr, cmd.max_ch0_data);
+   printk(KERN_DEBUG "IND_Maxmin_Read: min_ch0_addr=0x%08x min_ch0_data=0x%08x\n", cmd.min_ch0_addr, cmd.min_ch0_data);
+   printk(KERN_DEBUG "IND_Maxmin_Read: max_ch1_addr=0x%08x max_ch1_data=0x%08x\n", cmd.max_ch1_addr, cmd.max_ch1_data);
+   printk(KERN_DEBUG "IND_Maxmin_Read: min_ch1_addr=0x%08x min_ch1_data=0x%08x\n", cmd.min_ch1_addr, cmd.min_ch1_data);
+   printk(KERN_DEBUG "IND_Maxmin_Read: max_ch2_addr=0x%08x max_ch2_data=0x%08x\n", cmd.max_ch2_addr, cmd.max_ch2_data);
+   printk(KERN_DEBUG "IND_Maxmin_Read: min_ch2_addr=0x%08x min_ch2_data=0x%08x\n", cmd.min_ch2_addr, cmd.min_ch2_data);
+#endif
 
    return 0;
 }
