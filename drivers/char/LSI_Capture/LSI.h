@@ -75,10 +75,10 @@
 
 #define DMA_LENGTH	(128*1024*1024)
 
-#define LSI_Capture_DEBUG_READ        1
-#define LSI_Capture_DEBUG_WRITE       2
-#define LSI_Capture_DEBUG_DMA_READ    3
-#define LSI_Capture_DEBUG_DMA_WRITE   4
+#define LSI_DEBUG_READ        1
+#define LSI_DEBUG_WRITE       2
+#define LSI_DEBUG_DMA_READ    3
+#define LSI_DEBUG_DMA_WRITE   4
 
 /* LED definitions
  * */

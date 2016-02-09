@@ -55,7 +55,7 @@ int LSI_Set_User_Mode(struct LSI_drvdata *LSI, struct LSI_cmd_struct *cmd)
 
    //printk(KERN_DEBUG "LSI_USER_SET_MODE: config=0x%08x address=0x%08x capture_count=0x%08x delay_count=0x%08x peak_detect_start=0x%08x peak_detect_end=0x%08X\n", cmd->config, cmd->address, cmd->capture_count, cmd->delay_count, cmd->peak_detect_start, cmd->peak_detect_end);
 
-   dma_size = cmd->capture_count * 6;
+   dma_size = cmd->capture_count * 2;
    LSI_write_reg(LSI, R_DMA_WRITE_ADDR, (LSI->dma_handle + cmd->address));
    LSI_write_reg(LSI, R_DMA_SIZE_ADDR, dma_size);
    LSI_write_reg(LSI, R_CAPTURE_COUNT_ADDR, (cmd->capture_count));

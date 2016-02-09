@@ -399,6 +399,8 @@ static const struct file_operations LSI_fops = {
    .release = LSI_release,
 };
 
+
+
 static const struct of_device_id LSI_of_match_table[] = {
    { .compatible = "kutu,axi4-LSI-controller-1.00-a", (void *)&LSI_fops },
    { },
