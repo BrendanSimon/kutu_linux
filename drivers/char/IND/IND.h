@@ -151,6 +151,7 @@ struct IND_cmd_struct {
 typedef struct IND_bit_flag_struct {
    __u32                            set;
    __u32                            clear;
+   __u32                            toggle;
 } IND_bit_flag_t;
 
 
@@ -202,8 +203,8 @@ struct IND_maxmin_struct {
 #define IND_USER_GET_SEM            _IOWR(IND_IOCTL_BASE, 0x8d, struct IND_cmd_struct)
 #define IND_USER_SET_SEM            _IOWR(IND_IOCTL_BASE, 0x8e, struct IND_cmd_struct)
 #define IND_USER_REG_DEBUG          _IOWR(IND_IOCTL_BASE, 0x8f, struct IND_cmd_struct)
-#define IND_USER_MODIFY_LEDS        _IOWR(IND_IOCTL_BASE, 0x90, struct IND_cmd_struct)
-#define IND_USER_MODIFY_CTRL        _IOWR(IND_IOCTL_BASE, 0x91, struct IND_cmd_struct)
+#define IND_USER_MODIFY_LEDS        _IOWR(IND_IOCTL_BASE, 0x90, struct IND_bit_flag_struct)
+#define IND_USER_MODIFY_CTRL        _IOWR(IND_IOCTL_BASE, 0x91, struct IND_bit_flag_struct)
 #define IND_USER_READ_MAXMIN        _IOWR(IND_IOCTL_BASE, 0x92, struct IND_maxmin_struct)
 
 #endif /* _IND_H */
