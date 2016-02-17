@@ -15,7 +15,7 @@
 ** configuration constants
 */
 #define GENERATE_PPS             0x01
-#define DEBUG_START_DMA          0x02
+#define START_DMA                0x02
 #define DMA_HALT                 0x04
 #define DMA_RESET                0x08
 #define FPGA_RESET               0x10
@@ -73,7 +73,7 @@
 #define BIT_BAT_LOW_STATUS       0x1000
 #define BIT_AC_OK_STATUS         0x2000
 
-#define DMA_LENGTH	(128*1024*1024)
+#define DMA_LENGTH	(256*1024*1024)
 
 #define LSI_DEBUG_READ        1
 #define LSI_DEBUG_WRITE       2
@@ -125,7 +125,8 @@ enum LSI_Capture_user_cmds
    LSI_USER_REG_DEBUG,
    LSI_USER_MODIFY_LEDS,
    LSI_USER_MODIFY_CTRL,
-   LSI_USER_READ_MAXMIN
+   LSI_USER_READ_MAXMIN,
+   LSI_USER_INIT_LMK03000
 };
 
 /*
@@ -205,5 +206,6 @@ struct LSI_maxmin_struct {
 #define LSI_USER_MODIFY_LEDS        _IOWR(LSI_IOCTL_BASE, 0x90, struct LSI_cmd_struct)
 #define LSI_USER_MODIFY_CTRL        _IOWR(LSI_IOCTL_BASE, 0x91, struct LSI_cmd_struct)
 #define LSI_USER_READ_MAXMIN        _IOWR(LSI_IOCTL_BASE, 0x92, struct LSI_maxmin_struct)
+#define LSI_USER_INIT_LMK03000      _IOWR(LSI_IOCTL_BASE, 0x93, struct LSI_cmd_struct)
 
 #endif /* _LSI_H */

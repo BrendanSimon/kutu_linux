@@ -181,6 +181,7 @@ struct LSI_drvdata {
    struct mutex mutex;
    spinlock_t lock;
    void __iomem *base;
+   void __iomem *lmk_base;
    uint32_t config_state;
    uint32_t led_status;
    uint32_t ctrl_status;
@@ -201,6 +202,17 @@ static inline uint32_t LSI_read_reg(struct LSI_drvdata *LSI, unsigned int reg)
 {
 	return(readl(LSI->base + reg));
 }
+
+static inline void LMK_write_reg(struct LSI_drvdata *LSI, unsigned int reg, uint32_t val)
+{
+	writel(val, LSI->lmk_base + reg);
+}
+
+static inline uint32_t LMK_read_reg(struct LSI_drvdata *LSI, unsigned int reg)
+{
+	return(readl(LSI->lmk_base + reg));
+}
+
 
 //
 // LSI_Status()
@@ -229,6 +241,7 @@ static inline u32 LSI_Status(struct LSI_drvdata *LSI)
 //
 //
 //
+void lmk03000_init (struct LSI_drvdata *LSI);
 
 //
 // LSI_Open()

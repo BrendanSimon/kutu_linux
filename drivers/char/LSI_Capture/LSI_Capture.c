@@ -137,7 +137,7 @@ static long LSI_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
    //   int __user *ip = (int __user *)arg;
    void  *arg_ptr = (void *)arg;
    long  ret = 0;
-   unsigned int s2mm_status, timeout;
+   unsigned int s2mm_status, timeout,val;
 //   struct LSI_read_data_struct read_cmd;
    struct LSI_debug_struct debug_cmd;
    struct LSI_cmd_struct user_cmd;
@@ -181,6 +181,10 @@ static long LSI_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          LSI_write_reg(LSI, R_DMA_WRITE_ADDR, (LSI->dma_handle + arg));
          return 0;
 
+      case LSI_USER_INIT_LMK03000:
+         lmk03000_init(LSI);
+         return 0;
+
       case LSI_USER_DMA_TEST:
 
          if (arg >= 0x800000)
@@ -209,7 +213,7 @@ static long LSI_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          LSI_write_reg(LSI, R_CAPTURE_COUNT_ADDR, (arg>>3));
 
          // start dma into loopback mode
-         LSI_write_reg(LSI, R_MODE_CONFIG_ADDR, (DMA_DEBUG_MODE|DEBUG_START_DMA));
+         LSI_write_reg(LSI, R_MODE_CONFIG_ADDR, (DMA_DEBUG_MODE|START_DMA));
 
          s2mm_status = LSI_Status(LSI);
          printk(KERN_DEBUG "<%s> : started dma, status = 0x%x\n",MODULE_NAME,s2mm_status);
@@ -234,10 +238,15 @@ static long LSI_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          return 0;
 
       case LSI_USER_TRIG_PPS:
-         if ((arg != MODE_TRIGGER_PPS)&&(arg != GENERATE_PPS))
+         if ((arg != MODE_TRIGGER_PPS)&&(arg != GENERATE_PPS)) {
+            printk(KERN_DEBUG "<%s> : LSI_USER_TRIG_PPS error\n",MODULE_NAME);
             return -1;
+         }
+         val = LSI->config_state|arg;
 
-         LSI_write_reg(LSI, R_MODE_CONFIG_ADDR, (LSI->config_state|arg));
+         printk(KERN_DEBUG "<%s> : started trigger, write = 0x%x\n",MODULE_NAME,val);
+
+         LSI_write_reg(LSI, R_MODE_CONFIG_ADDR, val);
 
          return ret;
 
@@ -377,11 +386,6 @@ static irqreturn_t LSI_isr(int irq, void *data)
    // wake up the irq wait queue to notify processes using select/poll/epoll.
    wake_up_interruptible(&LSI->irq_wait_queue);
 
-#if 1 //BJS DEBUG
-    LSI->led_status ^= LED_SPARE;
-    LSI_write_reg(LSI, R_GPIO_LED_ADDR, (LSI->led_status));
-#endif
-
 //   LSI_write_reg(LSI, R_INTERRUPT_ADDR,K_DISABLE_INTERRUPT);
 
    spin_unlock(&LSI->lock);
@@ -431,6 +435,7 @@ static int LSI_probe(struct platform_device *pdev)
 
    mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
    LSI->base = devm_ioremap_resource(&pdev->dev, mem);
+   LSI->lmk_base = LSI->base + 0x10000;
 
    if (IS_ERR(LSI->base))
       return PTR_ERR(LSI->base);
