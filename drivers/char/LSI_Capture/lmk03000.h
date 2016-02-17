@@ -78,9 +78,9 @@
 #define LMK03000_BASEADDR                        0x43c10000
 
 // LMK03000 Register offsets
-#define LMK03000_STATUS_REG_OFFSET               0x00000000
+#define LMK03000_TX_REG_OFFSET                   0x00000000
 #define LMK03000_CONTROL_REG_OFFSET              0x00000004
-#define LMK03000_TX_REG_OFFSET                   0x00000008
+#define LMK03000_STATUS_REG_OFFSET               0x00000008
 
 #define LMK03000_SYNC_LOW                        0x00000001
 #define LMK03000_SYNC_HIGH                       0x00000000
