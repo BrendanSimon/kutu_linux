@@ -87,6 +87,7 @@ int LSI_SPI_Access(struct LSI_drvdata *LSI, void *user_ptr)
 {
    u32   i,j,data;
    u32   rd_nwr_mode,count;
+   u32   addr_offset;
 
    struct LSI_spi_cmd_struct  cmd;
 
@@ -123,7 +124,7 @@ int LSI_SPI_Access(struct LSI_drvdata *LSI, void *user_ptr)
       // Wait for SPI access to finish
       //
       i = 0;
-      while ((LSI_Status(LSI) & BIT_SPI_BUSY) && (i < MAX_WAIT_COUNT))
+      while (LMK_SPI_Busy(LSI) && (i < MAX_WAIT_COUNT))
          i++;
 #ifdef DEBUG
       printk(KERN_DEBUG "Looped through SPI wait %d times\n",i);
@@ -131,41 +132,48 @@ int LSI_SPI_Access(struct LSI_drvdata *LSI, void *user_ptr)
       if (cmd.port_addr[j] > 0x1fff)
          return -EFAULT;
 
-      data = rd_nwr_mode|cmd.port_device[j]; // write to AD9467
-      data |= cmd.port_addr[j];
-#ifdef DEBUG
-      printk(KERN_DEBUG "output to device register = 0x%x\n",data);
-#endif
-      LSI_write_reg(LSI, R_SPI_DEVICE_ADDR, data);
+      if (cmd.port_data[j] > 0xff)
+         return -EFAULT;
 
-      data = cmd.port_data[j];
+      if (cmd.port_device[j] > 9)
+         return -EFAULT;
+
+      data = SPI_DEVICE_0;
+      if (cmd.port_device[j] & 1)
+         data = SPI_DEVICE_1;
+
+      addr_offset = R_SPI_0_ADDR + ((cmd.port_device[j]>>1)*4);
+      data |= rd_nwr_mode;             // read or write
+      data |= cmd.port_addr[j] << 8;   // port address
+      data |= cmd.port_data[j];        // port data
+
 #ifdef DEBUG
-      printk(KERN_DEBUG "output to data register = 0x%x\n",data);
+      printk(KERN_DEBUG "output to device register at address 0x%x = 0x%x\n",addr_offset,data);
 #endif
-       LSI_write_reg(LSI, R_SPI_DATA_ADDR, data);
+      LMK_write_reg(LSI, addr_offset, data);
 
       // wait until SPI write completes
       i = 0;
-      while ((LSI_Status(LSI) & BIT_SPI_BUSY) && (i < MAX_WAIT_COUNT))
+      while (LMK_SPI_Busy(LSI) && (i < MAX_WAIT_COUNT))
          i++;
+#ifdef DEBUG
+      printk(KERN_DEBUG "Looped through SPI wait %d times\n",i);
+#endif
 
       // if read then read back data
       if (rd_nwr_mode == SPI_CTRL_READ) {
-         data = LSI_read_reg(LSI,R_SPI_READ_ADDR);
+         data = LMK_read_reg(LSI,addr_offset);
 #ifdef DEBUG
          printk(KERN_DEBUG "Read data = 0x%x\n",data);
 #endif
-         if ((data & 0xffffff00) == 0x87654300)
-            cmd.port_data[j] = data & 0xff;
-         else
-            cmd.port_data[j] = data;
+         cmd.port_data[j] = data;
       }
    }
    //
    // Wait for SPI access to finish
    //
    i = 0;
-   while ((LSI_Status(LSI) & BIT_SPI_BUSY) && (i < MAX_WAIT_COUNT))
+   while (LMK_SPI_Busy(LSI) && (i < MAX_WAIT_COUNT))
       i++;
 
    if (rd_nwr_mode == SPI_CTRL_READ) {

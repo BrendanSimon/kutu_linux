@@ -98,9 +98,9 @@
 /* SPI definitions
 */
 #define SPI_CTRL_WRITE        0x0
-#define SPI_CTRL_READ         0x20000
-#define SPI_DEVICE_AD9467     0x0
-#define SPI_DEVICE_AD9517     0x10000
+#define SPI_CTRL_READ         0x00800000
+#define SPI_DEVICE_0          0x0
+#define SPI_DEVICE_1          0x01000000
 
 
 

@@ -21,6 +21,7 @@
 /* general register memory location */
 
 #define LSI_BASE              0x43C00000
+#define LSI_LMK_BASE          0x43C10000
 
 #define R_LSI_REG_BASE        0x0000
 #define R_LSI_SPI_BASE        0x0800
@@ -57,6 +58,20 @@
 #define R_MIN_CH2_VAL_ADDR       0x1028
 #define R_MIN_CH2_LOC_ADDR       0x102C
 
+
+#define LMK03000_TX_REG_OFFSET                   0x00000000
+#define LMK03000_CONTROL_REG_OFFSET              0x00000004
+#define LMK03000_STATUS_REG_OFFSET               0x00000008
+
+#define R_LMK_DATA_ADDR          0x0000
+#define R_LMK_CNTL_ADDR          0x0004
+#define R_LMK_STATUS_ADDR        0x0008
+#define R_SPI_0_ADDR             0x0020
+#define R_SPI_1_ADDR             0x0024
+#define R_SPI_2_ADDR             0x0028
+#define R_SPI_3_ADDR             0x002C
+#define R_SPI_4_ADDR             0x0030
+#define R_ADC_STATUS_ADDR        0x003C
 
 
 #define LSI_REG_BASE          (LSI_BASE + R_LSI_REG_BASE)
@@ -227,6 +242,22 @@ static inline u32 LSI_Status(struct LSI_drvdata *LSI)
 
    status = LSI_read_reg(LSI, R_LSI_STATUS)|LSI->int_status;
 //   status &= 0x000001ff;
+
+   return status;
+}
+
+//
+// LSI_ADC_Status()
+//
+// read the FOS status registers
+//
+// status if system is running test, sweep or is idle
+//
+static inline u32 LMK_SPI_Busy(struct LSI_drvdata *LSI)
+{
+   u32 status;
+
+   status = LMK_read_reg(LSI, R_ADC_STATUS_ADDR)>>16;
 
    return status;
 }
