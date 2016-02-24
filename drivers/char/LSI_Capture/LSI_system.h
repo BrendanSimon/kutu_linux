@@ -197,6 +197,7 @@ struct LSI_drvdata {
    spinlock_t lock;
    void __iomem *base;
    void __iomem *lmk_base;
+   void __iomem *spi_base;
    uint32_t config_state;
    uint32_t led_status;
    uint32_t ctrl_status;

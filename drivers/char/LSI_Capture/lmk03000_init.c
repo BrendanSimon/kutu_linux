@@ -98,7 +98,7 @@
 #include "LSI_system.h"
 
 // Use 120MHz otherwise 100MHz
-//#define USE_120MHz
+#define USE_120MHz
 
 #ifdef USE_120MHz
 #define LMK03000_CLK_DIV_USE        LMK03000_CLK_DIV_2

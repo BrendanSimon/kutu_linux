@@ -242,7 +242,7 @@ static long LSI_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
             printk(KERN_DEBUG "<%s> : LSI_USER_TRIG_PPS error\n",MODULE_NAME);
             return -1;
          }
-         val = LSI->config_state|arg;
+         val = (LSI->config_state|arg) & ~START_DMA;
 
          printk(KERN_DEBUG "<%s> : started trigger, write = 0x%x\n",MODULE_NAME,val);
 
@@ -436,6 +436,7 @@ static int LSI_probe(struct platform_device *pdev)
    mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
    LSI->base = devm_ioremap_resource(&pdev->dev, mem);
    LSI->lmk_base = LSI->base + 0x10000;
+   LSI->spi_base = LSI->base + 0x20000;
 
    if (IS_ERR(LSI->base))
       return PTR_ERR(LSI->base);
