@@ -100,6 +100,7 @@
 // Use 120MHz otherwise 100MHz
 #define USE_120MHz
 
+/*
 #ifdef USE_120MHz
 #define LMK03000_CLK_DIV_USE        LMK03000_CLK_DIV_2
 #define LMK03000_VCO_DIV_USE        LMK03000_VCO_DIV_5_120MHz
@@ -109,12 +110,27 @@
 #define LMK03000_VCO_DIV_USE        LMK03000_VCO_DIV_3_100MHz
 #define LMK03000_PLL_N_USE          LMK03000_PLL_N_100MHz
 #endif
-
-void lmk03000_init (struct LSI_drvdata *LSI)
+*/
+void lmk03000_init (struct LSI_drvdata *LSI, u32 freq)
 {
    u32 lmk03000_init[15];
    u32 status;
    int index = 0;
+
+   u32 lmk03000_clk_div_use;
+   u32 lmk03000_vco_div_use;
+   u32 lmk03000_pll_n_use;
+
+   if (freq == 120) {
+      lmk03000_clk_div_use = LMK03000_CLK_DIV_2;
+      lmk03000_vco_div_use = LMK03000_VCO_DIV_5_120MHz;
+      lmk03000_pll_n_use = LMK03000_PLL_N_120MHz;
+   } else {
+      // 100Mhz
+      lmk03000_clk_div_use = LMK03000_CLK_DIV_4;
+      lmk03000_vco_div_use = LMK03000_VCO_DIV_3_100MHz;
+      lmk03000_pll_n_use = LMK03000_PLL_N_100MHz;
+   }
 
    // Drive "Clocks_vco_goe" high to enable outputs
    printk(KERN_DEBUG "\n\rWrite => Control Register = %02x", (LMK03000_GOE_HIGH) );
@@ -124,7 +140,7 @@ void lmk03000_init (struct LSI_drvdata *LSI)
    lmk03000_init[0]        = (LMK03000_RESET)            + (LMK03000_CLK_DIV_2)                + (LMK03000_R0);
 
    // R0 (CLKOUT0_P/N) - 120MHz LVDS (VCO_FPGA_CLK_P/N)
-   lmk03000_init[1]        = (LMK03000_CLK_MUX_DIVIDED)  + (LMK03000_CLK_EN_ENABLED)           + (LMK03000_CLK_DIV_USE) +
+   lmk03000_init[1]        = (LMK03000_CLK_MUX_DIVIDED)  + (LMK03000_CLK_EN_ENABLED)           + (lmk03000_clk_div_use) +
       (LMK03000_CLK_DLY_0)        + (LMK03000_R0);
 
    // R1 (CLKOUT1_P/N) - Not used
@@ -134,23 +150,23 @@ void lmk03000_init (struct LSI_drvdata *LSI)
    lmk03000_init[3]        = (LMK03000_CLK_EN_DISABLED)  + (LMK03000_CLK_DIV_2)                + (LMK03000_R2);
 
    // R3 (CLKOUT3_P/N) - 120MHz LVPECL (VCO_OADC_CLK0_P/N)
-   lmk03000_init[4]        = (LMK03000_CLK_MUX_DIVIDED)  + (LMK03000_CLK_EN_ENABLED)           + (LMK03000_CLK_DIV_USE) +
+   lmk03000_init[4]        = (LMK03000_CLK_MUX_DIVIDED)  + (LMK03000_CLK_EN_ENABLED)           + (lmk03000_clk_div_use) +
       (LMK03000_CLK_DLY_0)        + (LMK03000_R3);
 
    // R4 (CLKOUT4_P/N) - 120MHz LVPECL (VCO_OADC_CLK1_P/N)
-   lmk03000_init[5]        = (LMK03000_CLK_MUX_DIVIDED)  + (LMK03000_CLK_EN_ENABLED)           + (LMK03000_CLK_DIV_USE) +
+   lmk03000_init[5]        = (LMK03000_CLK_MUX_DIVIDED)  + (LMK03000_CLK_EN_ENABLED)           + (lmk03000_clk_div_use) +
       (LMK03000_CLK_DLY_0)        + (LMK03000_R4);
 
    // R5 (CLKOUT5_P/N) - 120MHz LVPECL (VCO_OADC_CLK2_P/N)
-   lmk03000_init[6]        = (LMK03000_CLK_MUX_DIVIDED)  + (LMK03000_CLK_EN_ENABLED)           + (LMK03000_CLK_DIV_USE) +
+   lmk03000_init[6]        = (LMK03000_CLK_MUX_DIVIDED)  + (LMK03000_CLK_EN_ENABLED)           + (lmk03000_clk_div_use) +
       (LMK03000_CLK_DLY_0)        + (LMK03000_R5);
 
    // R6 (CLKOUT6_P/N) - 120MHz LVPECL (VCO_OADC_CLK3_P/N)
-   lmk03000_init[7]        = (LMK03000_CLK_MUX_DIVIDED)  + (LMK03000_CLK_EN_ENABLED)           + (LMK03000_CLK_DIV_USE) +
+   lmk03000_init[7]        = (LMK03000_CLK_MUX_DIVIDED)  + (LMK03000_CLK_EN_ENABLED)           + (lmk03000_clk_div_use) +
       (LMK03000_CLK_DLY_0)        + (LMK03000_R6);
 
    // R7 (CLKOUT7_P/N) - 120MHz LVPECL (VCO_OADC_CLK4_P/N)
-   lmk03000_init[8]        = (LMK03000_CLK_MUX_DIVIDED)  + (LMK03000_CLK_EN_ENABLED)           + (LMK03000_CLK_DIV_USE) +
+   lmk03000_init[8]        = (LMK03000_CLK_MUX_DIVIDED)  + (LMK03000_CLK_EN_ENABLED)           + (lmk03000_clk_div_use) +
       (LMK03000_CLK_DLY_0)        + (LMK03000_R7);
 
    // R8
@@ -168,8 +184,8 @@ void lmk03000_init (struct LSI_drvdata *LSI)
       (LMK03000_PLL_MUX_PP_AH)    + (LMK03000_PLL_R)                    + (LMK03000_R14);
 
    // R15
-   lmk03000_init[14]       = (LMK03000_PLL_CP_GAIN_32x)  + (LMK03000_VCO_DIV_USE)         +
-      (LMK03000_PLL_N_USE)        + (LMK03000_R15);
+   lmk03000_init[14]       = (LMK03000_PLL_CP_GAIN_32x)  + (lmk03000_vco_div_use)         +
+      (lmk03000_pll_n_use)        + (LMK03000_R15);
 
    status = LMK_read_reg(LSI, LMK03000_STATUS_REG_OFFSET); //LMK03000_STATUS_READ;
    printk(KERN_DEBUG "\n\rRead  => Status Register = %02x\n", status);

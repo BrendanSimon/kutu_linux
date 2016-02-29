@@ -126,7 +126,9 @@ enum LSI_Capture_user_cmds
    LSI_USER_MODIFY_LEDS,
    LSI_USER_MODIFY_CTRL,
    LSI_USER_READ_MAXMIN,
-   LSI_USER_INIT_LMK03000
+   LSI_USER_INIT_LMK03000,
+   LSI_USER_WRITE_TAPS,
+   LSI_USER_READ_TAPS
 };
 
 /*
@@ -161,6 +163,21 @@ struct LSI_spi_cmd_struct {
    __u32                           port_data[16];
    __u32                           num_spi_writes;
    __u32                           num_spi_reads;
+} ;
+
+struct LSI_adc_tap_struct {
+   __u32                           clk_taps;
+   __u32                           frame_taps;
+   __u32                           adc0_0_taps;
+   __u32                           adc0_1_taps;
+   __u32                           adc1_0_taps;
+   __u32                           adc1_1_taps;
+   __u32                           adc2_0_taps;
+   __u32                           adc2_1_taps;
+   __u32                           adc3_0_taps;
+   __u32                           adc3_1_taps;
+   __u32                           device;
+   __u32                           frame_status;
 } ;
 
 struct LSI_debug_struct {
@@ -207,5 +224,7 @@ struct LSI_maxmin_struct {
 #define LSI_USER_MODIFY_CTRL        _IOWR(LSI_IOCTL_BASE, 0x91, struct LSI_cmd_struct)
 #define LSI_USER_READ_MAXMIN        _IOWR(LSI_IOCTL_BASE, 0x92, struct LSI_maxmin_struct)
 #define LSI_USER_INIT_LMK03000      _IOWR(LSI_IOCTL_BASE, 0x93, struct LSI_cmd_struct)
+#define LSI_USER_WRITE_TAPS         _IOWR(LSI_IOCTL_BASE, 0x94, struct LSI_adc_tap_struct)
+#define LSI_USER_READ_TAPS          _IOWR(LSI_IOCTL_BASE, 0x95, struct LSI_adc_tap_struct)
 
 #endif /* _LSI_H */

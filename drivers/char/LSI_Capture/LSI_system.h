@@ -58,7 +58,7 @@
 #define R_MIN_CH2_VAL_ADDR       0x1028
 #define R_MIN_CH2_LOC_ADDR       0x102C
 
-
+// LMK registers
 #define LMK03000_TX_REG_OFFSET                   0x00000000
 #define LMK03000_CONTROL_REG_OFFSET              0x00000004
 #define LMK03000_STATUS_REG_OFFSET               0x00000008
@@ -66,6 +66,47 @@
 #define R_LMK_DATA_ADDR          0x0000
 #define R_LMK_CNTL_ADDR          0x0004
 #define R_LMK_STATUS_ADDR        0x0008
+#define R_SPI_0_ADDR             0x0020
+#define R_SPI_1_ADDR             0x0024
+#define R_SPI_2_ADDR             0x0028
+#define R_SPI_3_ADDR             0x002C
+#define R_SPI_4_ADDR             0x0030
+#define R_ADC_STATUS_ADDR        0x003C
+
+// ADC Registers
+#define R_TAPS_LOAD_ADDR         0x002C
+
+#define R_ADC0_L_TAPS_ADDR       0x0030
+#define R_ADC0_H_TAPS_ADDR       0x0034
+#define R_ADC1_L_TAPS_ADDR       0x0038
+#define R_ADC1_H_TAPS_ADDR       0x003C
+
+#define R_ADC2_L_TAPS_ADDR       0x0040
+#define R_ADC2_H_TAPS_ADDR       0x0044
+#define R_ADC3_L_TAPS_ADDR       0x0048
+#define R_ADC3_H_TAPS_ADDR       0x004C
+
+#define R_ADC4_L_TAPS_ADDR       0x0050
+#define R_ADC4_H_TAPS_ADDR       0x0054
+#define R_ADC5_L_TAPS_ADDR       0x0058
+#define R_ADC5_H_TAPS_ADDR       0x005C
+
+#define R_ADC6_L_TAPS_ADDR       0x0060
+#define R_ADC6_H_TAPS_ADDR       0x0064
+#define R_ADC7_L_TAPS_ADDR       0x0068
+#define R_ADC7_H_TAPS_ADDR       0x006C
+
+#define R_ADC8_L_TAPS_ADDR       0x0070
+#define R_ADC8_H_TAPS_ADDR       0x0074
+#define R_ADC9_L_TAPS_ADDR       0x0078
+#define R_ADC9_H_TAPS_ADDR       0x007C
+
+
+
+
+
+
+
 #define R_SPI_0_ADDR             0x0020
 #define R_SPI_1_ADDR             0x0024
 #define R_SPI_2_ADDR             0x0028
@@ -197,7 +238,7 @@ struct LSI_drvdata {
    spinlock_t lock;
    void __iomem *base;
    void __iomem *lmk_base;
-   void __iomem *spi_base;
+   void __iomem *adc_base;
    uint32_t config_state;
    uint32_t led_status;
    uint32_t ctrl_status;
@@ -228,6 +269,17 @@ static inline uint32_t LMK_read_reg(struct LSI_drvdata *LSI, unsigned int reg)
 {
 	return(readl(LSI->lmk_base + reg));
 }
+
+static inline void ADC_write_reg(struct LSI_drvdata *LSI, unsigned int reg, uint32_t val)
+{
+	writel(val, LSI->adc_base + reg);
+}
+
+static inline uint32_t ADC_read_reg(struct LSI_drvdata *LSI, unsigned int reg)
+{
+	return(readl(LSI->adc_base + reg));
+}
+
 
 
 //
@@ -273,7 +325,7 @@ static inline u32 LMK_SPI_Busy(struct LSI_drvdata *LSI)
 //
 //
 //
-void lmk03000_init (struct LSI_drvdata *LSI);
+void lmk03000_init (struct LSI_drvdata *LSI, u32 freq);
 
 //
 // LSI_Open()
@@ -320,5 +372,20 @@ int LSI_SPI_Access(struct LSI_drvdata *LSI, void *user_ptr);
 // LSI_Maxmin_Read()
 //
 int LSI_Maxmin_Read(struct LSI_drvdata *LSI, void *user_ptr);
+
+//
+// LSI_Write_Adc_Taps()
+//
+// Set the user operation mode
+//
+int LSI_Write_Adc_Taps(struct LSI_drvdata *LSI, void *user_ptr);
+
+//
+// LSI_Read_Adc_Taps()
+//
+// Set the user operation mode
+//
+int LSI_Read_Adc_Taps(struct LSI_drvdata *LSI, void *user_ptr);
+
 
 #endif /* _LSI_SYSTEM_H */

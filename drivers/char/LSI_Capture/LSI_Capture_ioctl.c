@@ -239,3 +239,84 @@ int LSI_Run_Scan(struct LSI_drvdata *LSI, void *user_ptr)
 
    return 0;
 }
+
+//
+// LSI_Write_Adc_Taps()
+//
+// Set the user operation mode
+//
+int LSI_Write_Adc_Taps(struct LSI_drvdata *LSI, void *user_ptr)
+{
+   struct LSI_adc_tap_struct   taps;
+   u32                         lo_word, hi_word, addr_lo, addr_hi;
+
+   if (copy_from_user(&taps, user_ptr, sizeof(taps))) {
+      printk(KERN_DEBUG "LSI_Set_Run_Scan: copy failed\n");
+
+      return -EFAULT;
+   }
+
+   lo_word = (taps.clk_taps << 16)||(taps.adc1_1_taps << 12)||(taps.adc1_0_taps << 8)||(taps.adc0_1_taps << 4)||(taps.adc0_0_taps);
+   hi_word = (taps.frame_taps << 16)||(taps.adc3_1_taps << 12)||(taps.adc3_0_taps << 8)||(taps.adc2_1_taps << 4)||(taps.adc2_0_taps);
+
+   if (taps.device > 9)
+      return -EFAULT;
+
+   addr_lo = R_ADC0_L_TAPS_ADDR + taps.device*8;
+   addr_hi = R_ADC0_H_TAPS_ADDR + taps.device*8;
+
+   ADC_write_reg(LSI, addr_lo, lo_word);
+   ADC_write_reg(LSI, addr_hi, lo_word);
+   udelay(10);
+   ADC_write_reg(LSI, R_TAPS_LOAD_ADDR, (1 << taps.device));
+   udelay(10);
+
+   return 0;
+}
+
+//
+// LSI_Read_Adc_Taps()
+//
+// Set the user operation mode
+//
+int LSI_Read_Adc_Taps(struct LSI_drvdata *LSI, void *user_ptr)
+{
+   struct LSI_adc_tap_struct   taps;
+   u32                         lo_word, hi_word, addr_lo, addr_hi;
+
+   if (copy_from_user(&taps, user_ptr, sizeof(taps))) {
+      printk(KERN_DEBUG "LSI_Set_Run_Scan: copy failed\n");
+
+      return -EFAULT;
+   }
+
+   if (taps.device > 9)
+      return -EFAULT;
+
+   addr_lo = R_ADC0_L_TAPS_ADDR + taps.device*8;
+   addr_hi = R_ADC0_H_TAPS_ADDR + taps.device*8;
+   lo_word = ADC_read_reg(LSI, addr_lo);
+   hi_word = ADC_read_reg(LSI, addr_hi);
+
+   printk(KERN_DEBUG "LSI_Read_Adc_taps:addr_lo = 0x%x, addr_hi = 0x%x, lo_word = 0x%x, hi_word = 0x%x\n",addr_lo, addr_hi, lo_word, hi_word);
+
+  taps.clk_taps      = (lo_word >> 16) & 0xf;
+  taps.adc1_1_taps   = (lo_word >> 12) & 0xf;
+  taps.adc1_0_taps   = (lo_word >> 8) & 0xf;
+  taps.adc0_1_taps   = (lo_word >> 4) & 0xf;
+  taps.adc0_0_taps   = (lo_word >> 0) & 0xf;
+
+  taps.frame_status  = (lo_word >> (20 + taps.device)) & 0x1;
+
+  taps.frame_taps    = (hi_word >> 16) & 0xf;
+  taps.adc3_1_taps   = (hi_word >> 12) & 0xf;
+  taps.adc3_0_taps   = (hi_word >> 8) & 0xf;
+  taps.adc2_1_taps   = (hi_word >> 4) & 0xf;
+  taps.adc2_0_taps   = (hi_word >> 0) & 0xf;
+
+  if (copy_to_user(user_ptr, &taps, sizeof(taps))) {
+     return -EFAULT;
+  }
+
+  return 0;
+}

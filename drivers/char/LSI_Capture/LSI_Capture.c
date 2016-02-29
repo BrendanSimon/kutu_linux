@@ -182,7 +182,7 @@ static long LSI_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          return 0;
 
       case LSI_USER_INIT_LMK03000:
-         lmk03000_init(LSI);
+         lmk03000_init(LSI,arg);
          return 0;
 
       case LSI_USER_DMA_TEST:
@@ -342,6 +342,14 @@ static long LSI_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          ret = LSI_Maxmin_Read(LSI, arg_ptr);
          return ret;
 
+      case LSI_USER_WRITE_TAPS:
+         ret = LSI_Write_Adc_Taps(LSI, arg_ptr);
+         return ret;
+
+      case LSI_USER_READ_TAPS:
+         ret = LSI_Read_Adc_Taps(LSI, arg_ptr);
+         return ret;
+
       default:
          break;
    }
@@ -436,7 +444,7 @@ static int LSI_probe(struct platform_device *pdev)
    mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
    LSI->base = devm_ioremap_resource(&pdev->dev, mem);
    LSI->lmk_base = LSI->base + 0x10000;
-   LSI->spi_base = LSI->base + 0x20000;
+   LSI->adc_base = LSI->base + 0x20000;
 
    if (IS_ERR(LSI->base))
       return PTR_ERR(LSI->base);
