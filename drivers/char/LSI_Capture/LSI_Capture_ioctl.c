@@ -31,6 +31,7 @@
 //#include <linux/iio/buffer.h>
 
 #define DEBUG
+#define TAPS_DEBUG
 
 //
 // LSI_Set_User_Mode()
@@ -256,8 +257,8 @@ int LSI_Write_Adc_Taps(struct LSI_drvdata *LSI, void *user_ptr)
       return -EFAULT;
    }
 
-   lo_word = (taps.clk_taps << 16)||(taps.adc1_1_taps << 12)||(taps.adc1_0_taps << 8)||(taps.adc0_1_taps << 4)||(taps.adc0_0_taps);
-   hi_word = (taps.frame_taps << 16)||(taps.adc3_1_taps << 12)||(taps.adc3_0_taps << 8)||(taps.adc2_1_taps << 4)||(taps.adc2_0_taps);
+   lo_word = (taps.clk_taps << 16)|(taps.adc1_1_taps << 12)|(taps.adc1_0_taps << 8)|(taps.adc0_1_taps << 4)|(taps.adc0_0_taps);
+   hi_word = (taps.frame_taps << 16)|(taps.adc3_1_taps << 12)|(taps.adc3_0_taps << 8)|(taps.adc2_1_taps << 4)|(taps.adc2_0_taps);
 
    if (taps.device > 9)
       return -EFAULT;
@@ -265,8 +266,23 @@ int LSI_Write_Adc_Taps(struct LSI_drvdata *LSI, void *user_ptr)
    addr_lo = R_ADC0_L_TAPS_ADDR + taps.device*8;
    addr_hi = R_ADC0_H_TAPS_ADDR + taps.device*8;
 
+#ifdef TAPS_DEBUG
+      printk(KERN_DEBUG "LSI_Write_Adc_taps:clk_taps = 0x%x\n", taps.clk_taps);
+      printk(KERN_DEBUG "LSI_Write_Adc_taps:frame_taps = 0x%x\n", taps.frame_taps);
+      printk(KERN_DEBUG "LSI_Write_Adc_taps:adc0_0_taps = 0x%x\n", taps.adc0_0_taps);
+      printk(KERN_DEBUG "LSI_Write_Adc_taps:adc0_1_taps = 0x%x\n", taps.adc0_1_taps);
+      printk(KERN_DEBUG "LSI_Write_Adc_taps:adc1_0_taps = 0x%x\n", taps.adc1_0_taps);
+      printk(KERN_DEBUG "LSI_Write_Adc_taps:adc1_1_taps = 0x%x\n", taps.adc1_1_taps);
+      printk(KERN_DEBUG "LSI_Write_Adc_taps:adc2_0_taps = 0x%x\n", taps.adc2_0_taps);
+      printk(KERN_DEBUG "LSI_Write_Adc_taps:adc2_1_taps = 0x%x\n", taps.adc2_1_taps);
+      printk(KERN_DEBUG "LSI_Write_Adc_taps:adc3_0_taps = 0x%x\n", taps.adc3_0_taps);
+      printk(KERN_DEBUG "LSI_Write_Adc_taps:adc3_1_taps = 0x%x\n", taps.adc3_1_taps);
+
+      printk(KERN_DEBUG "LSI_Write_Adc_taps:addr_lo = 0x%x, addr_hi = 0x%x, lo_word = 0x%x, hi_word = 0x%x\n",addr_lo, addr_hi, lo_word, hi_word);
+#endif
+
    ADC_write_reg(LSI, addr_lo, lo_word);
-   ADC_write_reg(LSI, addr_hi, lo_word);
+   ADC_write_reg(LSI, addr_hi, hi_word);
    udelay(10);
    ADC_write_reg(LSI, R_TAPS_LOAD_ADDR, (1 << taps.device));
    udelay(10);
@@ -282,7 +298,7 @@ int LSI_Write_Adc_Taps(struct LSI_drvdata *LSI, void *user_ptr)
 int LSI_Read_Adc_Taps(struct LSI_drvdata *LSI, void *user_ptr)
 {
    struct LSI_adc_tap_struct   taps;
-   u32                         lo_word, hi_word, addr_lo, addr_hi;
+   u32                         lo_word, hi_word, addr_lo, addr_hi,i;
 
    if (copy_from_user(&taps, user_ptr, sizeof(taps))) {
       printk(KERN_DEBUG "LSI_Set_Run_Scan: copy failed\n");
@@ -298,7 +314,13 @@ int LSI_Read_Adc_Taps(struct LSI_drvdata *LSI, void *user_ptr)
    lo_word = ADC_read_reg(LSI, addr_lo);
    hi_word = ADC_read_reg(LSI, addr_hi);
 
+#ifdef TAPS_DEBUG
    printk(KERN_DEBUG "LSI_Read_Adc_taps:addr_lo = 0x%x, addr_hi = 0x%x, lo_word = 0x%x, hi_word = 0x%x\n",addr_lo, addr_hi, lo_word, hi_word);
+
+   // dump registers
+   for (i=0; i < 128; i+=4)
+      printk(KERN_DEBUG "LSI_Read_Adc_taps:addr = 0x%x, word = 0x%x\n",i, ADC_read_reg(LSI, i));
+#endif
 
   taps.clk_taps      = (lo_word >> 16) & 0xf;
   taps.adc1_1_taps   = (lo_word >> 12) & 0xf;
