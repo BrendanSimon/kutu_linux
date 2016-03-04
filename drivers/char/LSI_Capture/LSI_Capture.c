@@ -260,6 +260,13 @@ static long LSI_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
             return -EFAULT;
          }
          return 0;
+      case LSI_USER_VERSION:
+
+         ret = (LSI_VERSION_MAJOR<<8)|LSI_VERSION_MINOR;
+         if (copy_to_user(arg_ptr, &ret, sizeof(u32))) {
+            return -EFAULT;
+         }
+         return 0;
 
       case LSI_USER_SET_LEDS:
          LSI->led_status |= arg;
