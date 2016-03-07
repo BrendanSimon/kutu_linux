@@ -45,6 +45,8 @@
 #define R_PEAK_START_ADDR        0x002C
 #define R_PEAK_END_ADDR          0x0030
 
+#define R_FPGA_VERSION_ADDR      0x0800
+
 #define R_MAX_CH0_VAL_ADDR       0x1000
 #define R_MAX_CH0_LOC_ADDR       0x1004
 #define R_MIN_CH0_VAL_ADDR       0x1008

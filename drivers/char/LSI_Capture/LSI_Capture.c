@@ -268,6 +268,20 @@ static long LSI_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          }
          return 0;
 
+      case LSI_USER_FPGA_VERSION:
+
+         val = LSI_read_reg(LSI,R_FPGA_VERSION_ADDR);
+         if ((val & 0xffff0000) != 0x87650000) {
+            printk(KERN_DEBUG "<%s> : Read version failed !!!, read = 0x%x\n",MODULE_NAME,val);
+            return -EFAULT;
+         }
+         val &=0x0000ffff;
+
+         if (copy_to_user(arg_ptr, &val, sizeof(u32))) {
+            return -EFAULT;
+         }
+         return 0;
+
       case LSI_USER_SET_LEDS:
          LSI->led_status |= arg;
          LSI_write_reg(LSI, R_GPIO_LED_ADDR, (LSI->led_status));
