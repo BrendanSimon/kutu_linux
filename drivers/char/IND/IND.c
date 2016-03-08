@@ -286,7 +286,7 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          IND_bit_flag_t *bit_flags = arg_ptr;
          IND->ctrl_status |= bit_flags->set;
          IND->ctrl_status &= ~bit_flags->clear;
-         IND->ctrl_status ^= ~bit_flags->toggle;
+         IND->ctrl_status ^= bit_flags->toggle;
          IND_write_reg(IND, R_GPIO_CTRL_ADDR, (IND->ctrl_status));
          return 0;
       }
@@ -381,7 +381,7 @@ static irqreturn_t IND_isr(int irq, void *data)
    wake_up_interruptible(&IND->irq_wait_queue);
 
 #if 1 //BJS DEBUG
-    IND->led_status ^= LED_SPARE;
+    IND->led_status ^= LED_PPS_OK;
     IND_write_reg(IND, R_GPIO_LED_ADDR, (IND->led_status));
 #endif
 
