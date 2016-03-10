@@ -37,22 +37,22 @@
 LIST_HEAD( LSI_full_dev_list );
 
 /* static struct LSI_drvdata *get_elem_from_list_by_inode(struct inode *i)
-{
+   {
    struct list_head *pos;
    struct LSI_drvdata *LSI = NULL;
 
    list_for_each( pos, &LSI_full_dev_list ) {
-      struct LSI_drvdata *tmp;
-      tmp = list_entry( pos, struct LSI_drvdata, dev_list );
-      if (tmp->devt == i->i_rdev)
-      {
-         LSI = tmp;
-         break;
-      }
+   struct LSI_drvdata *tmp;
+   tmp = list_entry( pos, struct LSI_drvdata, dev_list );
+   if (tmp->devt == i->i_rdev)
+   {
+   LSI = tmp;
+   break;
+   }
    }
    return LSI;
-}
-*/
+   }
+   */
 
 static int LSI_open(struct inode *i, struct file *filp)
 {
@@ -75,8 +75,8 @@ static int LSI_release(struct inode *i, struct file *f)
 
    LSI = container_of(i->i_cdev, struct LSI_drvdata, cdev);
 
-//   LSI_write_reg(LSI, R_INTERRUPT_ADDR, K_DISABLE_INTERRUPT);
-//   LSI_write_reg(LSI, R_MODE_CONFIG_ADDR, MODE_PPS_DEBUG);
+   //   LSI_write_reg(LSI, R_INTERRUPT_ADDR, K_DISABLE_INTERRUPT);
+   //   LSI_write_reg(LSI, R_MODE_CONFIG_ADDR, MODE_PPS_DEBUG);
 
    printk(KERN_DEBUG "<%s> file: close()\n", MODULE_NAME);
    return 0;
@@ -138,9 +138,10 @@ static long LSI_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
    void  *arg_ptr = (void *)arg;
    long  ret = 0;
    unsigned int s2mm_status, timeout,val;
-//   struct LSI_read_data_struct read_cmd;
+   //   struct LSI_read_data_struct read_cmd;
    struct LSI_debug_struct debug_cmd;
    struct LSI_cmd_struct user_cmd;
+   struct LSI_pn9_struct user_pn9;
 
    //printk(KERN_DEBUG "<%s> ioctl: entered LSI_ioctl\n", MODULE_NAME);
 
@@ -165,10 +166,10 @@ static long LSI_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          udelay(10);
          LSI_write_reg(LSI, R_MODE_CONFIG_ADDR, LSI->config_state);
          udelay(10);
-        return 0;
+         return 0;
 
 
-       case LSI_USER_SET_MODE:
+      case LSI_USER_SET_MODE:
          if (copy_from_user(&user_cmd, arg_ptr, sizeof(user_cmd))) {
             printk(KERN_DEBUG "LSI_REG_DEBUG: copy failed\n");
 
@@ -179,6 +180,38 @@ static long LSI_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 
       case LSI_USER_SET_ADDRESS:
          LSI_write_reg(LSI, R_DMA_WRITE_ADDR, (LSI->dma_handle + arg));
+         return 0;
+
+      case LSI_USER_SET_PN9_TEST:
+         if (copy_from_user(&user_pn9, arg_ptr, sizeof(user_pn9))) {
+            printk(KERN_DEBUG "LSI_USER_SET_PN9_TEST: copy failed\n");
+         }
+         user_pn9.status[0] = ADC_read_reg(LSI,R_ADC_STATUS_0_ADDR);
+         user_pn9.status[1] = ADC_read_reg(LSI,R_ADC_STATUS_1_ADDR);
+         user_pn9.status[2] = ADC_read_reg(LSI,R_ADC_STATUS_2_ADDR);
+         user_pn9.status[3] = ADC_read_reg(LSI,R_ADC_STATUS_3_ADDR);
+         user_pn9.status[4] = ADC_read_reg(LSI,R_ADC_STATUS_4_ADDR);
+         LSI_write_reg(LSI, R_ADC_CONTROL_ADDR, user_pn9.command);
+         user_pn9.command = ADC_read_reg(LSI,R_ADC_CONTROL_ADDR);
+
+         if (copy_to_user(arg_ptr, &user_pn9, sizeof(user_pn9))) {
+            printk(KERN_DEBUG "LSI_USER_SET_PN9_TEST: copy_to_user failed\n");
+            return -EFAULT;
+         }
+         return 0;
+
+      case LSI_USER_READ_PN9_TEST:
+         user_pn9.status[0] = ADC_read_reg(LSI,R_ADC_STATUS_0_ADDR);
+         user_pn9.status[1] = ADC_read_reg(LSI,R_ADC_STATUS_1_ADDR);
+         user_pn9.status[2] = ADC_read_reg(LSI,R_ADC_STATUS_2_ADDR);
+         user_pn9.status[3] = ADC_read_reg(LSI,R_ADC_STATUS_3_ADDR);
+         user_pn9.status[4] = ADC_read_reg(LSI,R_ADC_STATUS_4_ADDR);
+         user_pn9.command = ADC_read_reg(LSI,R_ADC_CONTROL_ADDR);
+
+         if (copy_to_user(arg_ptr, &user_pn9, sizeof(user_pn9))) {
+            printk(KERN_DEBUG "LSI_USER_READ_PN9_TEST: copy_to_user failed\n");
+            return -EFAULT;
+         }
          return 0;
 
       case LSI_USER_INIT_LMK03000:
@@ -293,13 +326,13 @@ static long LSI_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          return 0;
 
       case LSI_USER_MODIFY_LEDS:
-      {
-         LSI_bit_flag_t *bit_flags = arg_ptr;
-         LSI->led_status |= bit_flags->set;
-         LSI->led_status &= ~bit_flags->clear;
-         LSI_write_reg(LSI, R_GPIO_LED_ADDR, (LSI->led_status));
-         return 0;
-      }
+         {
+            LSI_bit_flag_t *bit_flags = arg_ptr;
+            LSI->led_status |= bit_flags->set;
+            LSI->led_status &= ~bit_flags->clear;
+            LSI_write_reg(LSI, R_GPIO_LED_ADDR, (LSI->led_status));
+            return 0;
+         }
       case LSI_USER_SET_CTRL:
          LSI->ctrl_status |= arg;
          LSI_write_reg(LSI, R_GPIO_CTRL_ADDR, (LSI->ctrl_status));
@@ -311,13 +344,13 @@ static long LSI_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          return 0;
 
       case LSI_USER_MODIFY_CTRL:
-      {
-         LSI_bit_flag_t *bit_flags = arg_ptr;
-         LSI->ctrl_status |= bit_flags->set;
-         LSI->ctrl_status &= ~bit_flags->clear;
-         LSI_write_reg(LSI, R_GPIO_CTRL_ADDR, (LSI->ctrl_status));
-         return 0;
-      }
+         {
+            LSI_bit_flag_t *bit_flags = arg_ptr;
+            LSI->ctrl_status |= bit_flags->set;
+            LSI->ctrl_status &= ~bit_flags->clear;
+            LSI_write_reg(LSI, R_GPIO_CTRL_ADDR, (LSI->ctrl_status));
+            return 0;
+         }
 
       case LSI_USER_SET_INTERRUPT:
          if (arg == ENABLE_INTERRUPT)
@@ -357,7 +390,7 @@ static long LSI_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          if (copy_to_user(arg_ptr, &debug_cmd, sizeof(debug_cmd))) {
             return -EFAULT;
          }
-        return 0;
+         return 0;
 
       case LSI_USER_READ_MAXMIN:
          ret = LSI_Maxmin_Read(LSI, arg_ptr);
@@ -380,16 +413,16 @@ static long LSI_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 
 static unsigned int LSI_poll(struct file *filp, poll_table *ptp)
 {
-    struct LSI_drvdata *LSI = filp->private_data;
-    unsigned int mask = 0;
+   struct LSI_drvdata *LSI = filp->private_data;
+   unsigned int mask = 0;
 
-    poll_wait(filp, &LSI->irq_wait_queue, ptp);
+   poll_wait(filp, &LSI->irq_wait_queue, ptp);
 
-    if (atomic_read(&LSI->semaphore)) {
-        mask |= (POLLIN | POLLRDNORM);
-    }
+   if (atomic_read(&LSI->semaphore)) {
+      mask |= (POLLIN | POLLRDNORM);
+   }
 
-    return mask;
+   return mask;
 }
 
 /**
@@ -415,7 +448,7 @@ static irqreturn_t LSI_isr(int irq, void *data)
    // wake up the irq wait queue to notify processes using select/poll/epoll.
    wake_up_interruptible(&LSI->irq_wait_queue);
 
-//   LSI_write_reg(LSI, R_INTERRUPT_ADDR,K_DISABLE_INTERRUPT);
+   //   LSI_write_reg(LSI, R_INTERRUPT_ADDR,K_DISABLE_INTERRUPT);
 
    spin_unlock(&LSI->lock);
 

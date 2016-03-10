@@ -11,7 +11,7 @@
 #define _LSI_Capture_H
 
 #define LSI_VERSION_MAJOR 0
-#define LSI_VERSION_MINOR 3
+#define LSI_VERSION_MINOR 4
 
 /*
 ** configuration constants
@@ -132,7 +132,9 @@ enum LSI_Capture_user_cmds
    LSI_USER_WRITE_TAPS,
    LSI_USER_READ_TAPS,
    LSI_USER_VERSION,
-   LSI_USER_FPGA_VERSION
+   LSI_USER_FPGA_VERSION,
+   LSI_USER_SET_PN9_TEST,
+   LSI_USER_READ_PN9_TEST
 };
 
 /*
@@ -146,9 +148,17 @@ struct LSI_cmd_struct {
    __u32                            address;
    __u32                            capture_count;
    __u32                            delay_count;
+   __u32                            capture_channel;
+   __u32                            single_channel;
    __u32                            peak_detect_start;
    __u32                            peak_detect_end;
 } ;
+
+struct LSI_pn9_struct {
+   __u32                            command;
+   __u32                            status[5];
+} ;
+
 
 /*
 ** Structure to set and clear bits for the following ioctl commands.
@@ -232,5 +242,7 @@ struct LSI_maxmin_struct {
 #define LSI_USER_READ_TAPS          _IOWR(LSI_IOCTL_BASE, 0x95, struct LSI_adc_tap_struct)
 #define LSI_USER_VERSION            _IOWR(LSI_IOCTL_BASE, 0x96, struct LSI_cmd_struct)
 #define LSI_USER_FPGA_VERSION       _IOWR(LSI_IOCTL_BASE, 0x97, struct LSI_cmd_struct)
+#define LSI_USER_SET_PN9_TEST       _IOWR(LSI_IOCTL_BASE, 0x98, struct LSI_pn9_struct)
+#define LSI_USER_READ_PN9_TEST      _IOWR(LSI_IOCTL_BASE, 0x99, struct LSI_pn9_struct)
 
 #endif /* _LSI_H */

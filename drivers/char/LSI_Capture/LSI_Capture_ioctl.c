@@ -40,14 +40,21 @@
 //
 int LSI_Set_User_Mode(struct LSI_drvdata *LSI, struct LSI_cmd_struct *cmd)
 {
-   u32 arg,dma_size,capture_count;
+   u32 dma_size,capture_count,val;
 
-   arg = cmd->config;
+   //
+   // set capture channe and mode
 
-//   if (arg & (~(ADC_TEST_DATA|PPS_DEBUG_MODE|DMA_DEBUG_MODE))) {
-//      printk(KERN_DEBUG "LSI_USER_SET_MODE: invalid argument\n");
-//      return -EFAULT;
-//   }
+   if (cmd->capture_channel > 39)
+      return -EFAULT;
+
+   val = ADC_read_reg(LSI, R_ADC_CONTROL_ADDR) & 0xfff;
+   val |= (cmd->capture_channel << 12);
+   if (cmd->single_channel)
+      val |= 0x80000;
+
+   ADC_write_reg(LSI, R_ADC_CONTROL_ADDR,val);
+   printk(KERN_DEBUG "LSI_USER_SET_MODE: ADC Control register = 0x%08x\n", ADC_read_reg(LSI, R_ADC_CONTROL_ADDR));
 
    if (cmd->interrupt == ENABLE_INTERRUPT)
        LSI_write_reg(LSI, R_INTERRUPT_ADDR, K_CLEAR_INTERRUPT);
@@ -57,9 +64,10 @@ int LSI_Set_User_Mode(struct LSI_drvdata *LSI, struct LSI_cmd_struct *cmd)
    printk(KERN_DEBUG "LSI_USER_SET_MODE: config=0x%08x address=0x%08x capture_count=0x%08x delay_count=0x%08x peak_detect_start=0x%08x peak_detect_end=0x%08X\n", cmd->config, cmd->address, cmd->capture_count, cmd->delay_count, cmd->peak_detect_start, cmd->peak_detect_end);
 
 //   capture_count = cmd->capture_count;
-   capture_count = 128000000;
+   capture_count = 32002048;
 
-   dma_size = capture_count * 2;
+   dma_size = capture_count * 8;
+
 //   LSI_write_reg(LSI, R_DMA_WRITE_ADDR, (LSI->dma_handle + cmd->address));
    LSI_write_reg(LSI, R_DMA_WRITE_ADDR, (LSI->dma_handle));
    LSI_write_reg(LSI, R_DMA_SIZE_ADDR, dma_size);
@@ -77,7 +85,7 @@ int LSI_Set_User_Mode(struct LSI_drvdata *LSI, struct LSI_cmd_struct *cmd)
       LSI_write_reg(LSI, R_PEAK_END_ADDR, cmd->peak_detect_end);
 
    LSI->config_state &= ~(CONFIG_MODE_MASK);
-   LSI->config_state |= (arg & CONFIG_MODE_MASK);
+   LSI->config_state |= (cmd->config & CONFIG_MODE_MASK);
    LSI_write_reg(LSI, R_MODE_CONFIG_ADDR, LSI->config_state);
    printk(KERN_DEBUG "LSI_USER_SET_MODE: config_state=0x%08x\n", LSI->config_state);
 

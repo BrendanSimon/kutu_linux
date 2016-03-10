@@ -76,6 +76,13 @@
 #define R_ADC_STATUS_ADDR        0x003C
 
 // ADC Registers
+#define R_ADC_CONTROL_ADDR       0x0000
+#define R_ADC_STATUS_0_ADDR      0x0004
+#define R_ADC_STATUS_1_ADDR      0x0008
+#define R_ADC_STATUS_2_ADDR      0x000C
+#define R_ADC_STATUS_3_ADDR      0x0010
+#define R_ADC_STATUS_4_ADDR      0x0014
+
 #define R_TAPS_LOAD_ADDR         0x002C
 
 #define R_ADC0_L_TAPS_ADDR       0x0030
