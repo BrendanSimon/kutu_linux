@@ -503,7 +503,14 @@ static int LSI_probe(struct platform_device *pdev)
    if (IS_ERR(LSI->base))
       return PTR_ERR(LSI->base);
 
-   // setup fgpa
+   // reset fgpa
+   LSI_write_reg(LSI, R_MODE_CONFIG_ADDR, FPGA_RESET);
+   udelay(5);
+   LSI->config_state = 0;
+   LSI_write_reg(LSI, R_MODE_CONFIG_ADDR, (LSI->config_state));
+   udelay(5);
+   // setup clock and reset fpga
+   lmk03000_init(LSI,100);
    LSI_write_reg(LSI, R_MODE_CONFIG_ADDR, FPGA_RESET);
    udelay(5);
    LSI->config_state = 0;
