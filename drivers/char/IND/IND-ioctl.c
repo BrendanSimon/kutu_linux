@@ -183,32 +183,32 @@ int IND_SPI_Access(struct IND_drvdata *IND, void *user_ptr)
 //
 int IND_Maxmin_Read(struct IND_drvdata *IND, void *user_ptr)
 {
-   struct IND_maxmin_struct  cmd;
+   struct IND_maxmin_struct  data;
 
-   cmd.max_ch0_data = IND_read_reg(IND,R_MAX_CH0_VAL_ADDR) & 0x00ffffff;
-   cmd.max_ch0_addr = IND_read_reg(IND,R_MAX_CH0_LOC_ADDR) & 0x00ffffff;
-   cmd.min_ch0_data = IND_read_reg(IND,R_MIN_CH0_VAL_ADDR) & 0x00ffffff;
-   cmd.min_ch0_addr = IND_read_reg(IND,R_MIN_CH0_LOC_ADDR) & 0x00ffffff;
-   cmd.max_ch1_data = IND_read_reg(IND,R_MAX_CH1_VAL_ADDR) & 0x00ffffff;
-   cmd.max_ch1_addr = IND_read_reg(IND,R_MAX_CH1_LOC_ADDR) & 0x00ffffff;
-   cmd.min_ch1_data = IND_read_reg(IND,R_MIN_CH1_VAL_ADDR) & 0x00ffffff;
-   cmd.min_ch1_addr = IND_read_reg(IND,R_MIN_CH1_LOC_ADDR) & 0x00ffffff;
-   cmd.max_ch2_data = IND_read_reg(IND,R_MAX_CH2_VAL_ADDR) & 0x00ffffff;
-   cmd.max_ch2_addr = IND_read_reg(IND,R_MAX_CH2_LOC_ADDR) & 0x00ffffff;
-   cmd.min_ch2_data = IND_read_reg(IND,R_MIN_CH2_VAL_ADDR) & 0x00ffffff;
-   cmd.min_ch2_addr = IND_read_reg(IND,R_MIN_CH2_LOC_ADDR) & 0x00ffffff;
+   data.max_ch0_data = IND_read_reg(IND,R_MAX_CH0_VAL_ADDR) & 0x00ffffff;
+   data.max_ch0_addr = IND_read_reg(IND,R_MAX_CH0_LOC_ADDR) & 0x00ffffff;
+   data.min_ch0_data = IND_read_reg(IND,R_MIN_CH0_VAL_ADDR) & 0x00ffffff;
+   data.min_ch0_addr = IND_read_reg(IND,R_MIN_CH0_LOC_ADDR) & 0x00ffffff;
+   data.max_ch1_data = IND_read_reg(IND,R_MAX_CH1_VAL_ADDR) & 0x00ffffff;
+   data.max_ch1_addr = IND_read_reg(IND,R_MAX_CH1_LOC_ADDR) & 0x00ffffff;
+   data.min_ch1_data = IND_read_reg(IND,R_MIN_CH1_VAL_ADDR) & 0x00ffffff;
+   data.min_ch1_addr = IND_read_reg(IND,R_MIN_CH1_LOC_ADDR) & 0x00ffffff;
+   data.max_ch2_data = IND_read_reg(IND,R_MAX_CH2_VAL_ADDR) & 0x00ffffff;
+   data.max_ch2_addr = IND_read_reg(IND,R_MAX_CH2_LOC_ADDR) & 0x00ffffff;
+   data.min_ch2_data = IND_read_reg(IND,R_MIN_CH2_VAL_ADDR) & 0x00ffffff;
+   data.min_ch2_addr = IND_read_reg(IND,R_MIN_CH2_LOC_ADDR) & 0x00ffffff;
 
-   if (copy_to_user(user_ptr, &cmd, sizeof(cmd))) {
+   if (copy_to_user(user_ptr, &data, sizeof(data))) {
       return -EFAULT;
    }
 
 #if 0
-   printk(KERN_DEBUG "IND_Maxmin_Read: max_ch0_addr=0x%08x max_ch0_data=0x%08x\n", cmd.max_ch0_addr, cmd.max_ch0_data);
-   printk(KERN_DEBUG "IND_Maxmin_Read: min_ch0_addr=0x%08x min_ch0_data=0x%08x\n", cmd.min_ch0_addr, cmd.min_ch0_data);
-   printk(KERN_DEBUG "IND_Maxmin_Read: max_ch1_addr=0x%08x max_ch1_data=0x%08x\n", cmd.max_ch1_addr, cmd.max_ch1_data);
-   printk(KERN_DEBUG "IND_Maxmin_Read: min_ch1_addr=0x%08x min_ch1_data=0x%08x\n", cmd.min_ch1_addr, cmd.min_ch1_data);
-   printk(KERN_DEBUG "IND_Maxmin_Read: max_ch2_addr=0x%08x max_ch2_data=0x%08x\n", cmd.max_ch2_addr, cmd.max_ch2_data);
-   printk(KERN_DEBUG "IND_Maxmin_Read: min_ch2_addr=0x%08x min_ch2_data=0x%08x\n", cmd.min_ch2_addr, cmd.min_ch2_data);
+   printk(KERN_DEBUG "IND_Maxmin_Read: max_ch0_addr=0x%08x max_ch0_data=0x%08x\n", data.max_ch0_addr, data.max_ch0_data);
+   printk(KERN_DEBUG "IND_Maxmin_Read: min_ch0_addr=0x%08x min_ch0_data=0x%08x\n", data.min_ch0_addr, data.min_ch0_data);
+   printk(KERN_DEBUG "IND_Maxmin_Read: max_ch1_addr=0x%08x max_ch1_data=0x%08x\n", data.max_ch1_addr, data.max_ch1_data);
+   printk(KERN_DEBUG "IND_Maxmin_Read: min_ch1_addr=0x%08x min_ch1_data=0x%08x\n", data.min_ch1_addr, data.min_ch1_data);
+   printk(KERN_DEBUG "IND_Maxmin_Read: max_ch2_addr=0x%08x max_ch2_data=0x%08x\n", data.max_ch2_addr, data.max_ch2_data);
+   printk(KERN_DEBUG "IND_Maxmin_Read: min_ch2_addr=0x%08x min_ch2_data=0x%08x\n", data.min_ch2_addr, data.min_ch2_data);
 #endif
 
    return 0;

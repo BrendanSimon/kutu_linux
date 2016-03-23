@@ -171,7 +171,6 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
        case IND_USER_SET_MODE:
          if (copy_from_user(&user_cmd, arg_ptr, sizeof(user_cmd))) {
             printk(KERN_DEBUG "IND_REG_DEBUG: copy failed\n");
-
             return -EFAULT;
          }
          ret = IND_Set_User_Mode(IND, &user_cmd);
@@ -264,10 +263,17 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 
       case IND_USER_MODIFY_LEDS:
       {
-         IND_bit_flag_t *bit_flags = arg_ptr;
-         IND->led_status |= bit_flags->set;
-         IND->led_status &= ~bit_flags->clear;
-         IND->led_status ^= bit_flags->toggle;
+         IND_bit_flag_t bit_flags;
+
+         if (copy_from_user(&bit_flags, arg_ptr, sizeof(bit_flags))) {
+            printk(KERN_DEBUG "IND_USER_MODIFY_LEDS: copy_from_user failed\n");
+            return -EFAULT;
+         }
+
+         IND->led_status |= bit_flags.set;
+         IND->led_status &= ~bit_flags.clear;
+         IND->led_status ^= bit_flags.toggle;
+
          IND_write_reg(IND, R_GPIO_LED_ADDR, (IND->led_status));
          return 0;
       }
@@ -283,10 +289,17 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 
       case IND_USER_MODIFY_CTRL:
       {
-         IND_bit_flag_t *bit_flags = arg_ptr;
-         IND->ctrl_status |= bit_flags->set;
-         IND->ctrl_status &= ~bit_flags->clear;
-         IND->ctrl_status ^= bit_flags->toggle;
+         IND_bit_flag_t bit_flags;
+
+         if (copy_from_user(&bit_flags, arg_ptr, sizeof(bit_flags))) {
+            printk(KERN_DEBUG "IND_USER_MODIFY_CTRL: copy_from_user failed\n");
+            return -EFAULT;
+         }
+
+         IND->ctrl_status |= bit_flags.set;
+         IND->ctrl_status &= ~bit_flags.clear;
+         IND->ctrl_status ^= bit_flags.toggle;
+
          IND_write_reg(IND, R_GPIO_CTRL_ADDR, (IND->ctrl_status));
          return 0;
       }
