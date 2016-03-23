@@ -36,6 +36,11 @@
 
 LIST_HEAD( IND_full_dev_list );
 
+/*
+ * Static global variables
+ */
+// static DECLARE_WAIT_QUEUE_HEAD(irq_wait_queue);
+
 /* static struct IND_drvdata *get_elem_from_list_by_inode(struct inode *i)
 {
    struct list_head *pos;
@@ -62,7 +67,7 @@ static int IND_open(struct inode *i, struct file *filp)
 
    atomic_set(&IND->irq_count, 0);
 
-   init_waitqueue_head(&IND->irq_wait_queue);
+   //init_waitqueue_head(&IND->irq_wait_queue);
 
    printk(KERN_DEBUG "<%s> file: open()\n", MODULE_NAME);
    filp->private_data = IND;
@@ -540,6 +545,8 @@ static int IND_probe(struct platform_device *pdev)
       goto failed8;
    }
    dev_info(&pdev->dev, "Successfully allocated dma memory\n");
+
+   init_waitqueue_head(&IND->irq_wait_queue);
 
    //platform_driver_register(pdev);
    dev_info(&pdev->dev, "Kutu IND finished loading driver\n");
