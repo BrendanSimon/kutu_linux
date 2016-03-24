@@ -36,6 +36,11 @@
 
 LIST_HEAD( IND_full_dev_list );
 
+/*
+ * Static global variables
+ */
+// static DECLARE_WAIT_QUEUE_HEAD(irq_wait_queue);
+
 /* static struct IND_drvdata *get_elem_from_list_by_inode(struct inode *i)
 {
    struct list_head *pos;
@@ -62,7 +67,7 @@ static int IND_open(struct inode *i, struct file *filp)
 
    atomic_set(&IND->irq_count, 0);
 
-   init_waitqueue_head(&IND->irq_wait_queue);
+   //init_waitqueue_head(&IND->irq_wait_queue);
 
    printk(KERN_DEBUG "<%s> file: open()\n", MODULE_NAME);
    filp->private_data = IND;
@@ -137,10 +142,10 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
    //   int __user *ip = (int __user *)arg;
    void  *arg_ptr = (void *)arg;
    long  ret = 0;
-   unsigned int s2mm_status, timeout;
+   unsigned int s2mm_status;
+   unsigned int timeout;
 //   struct IND_read_data_struct read_cmd;
    struct IND_debug_struct debug_cmd;
-   struct IND_cmd_struct user_cmd;
 
    //printk(KERN_DEBUG "<%s> ioctl: entered IND_ioctl\n", MODULE_NAME);
 
@@ -157,7 +162,6 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          udelay(10);
 
          printk(KERN_DEBUG "IND_USER_RESET: FPGA Reset complete\n");
-
          return 0;
 
       case IND_USER_DMA_RESET:
@@ -165,16 +169,11 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          udelay(10);
          IND_write_reg(IND, R_MODE_CONFIG_ADDR, IND->config_state);
          udelay(10);
-        return 0;
+         return 0;
 
 
        case IND_USER_SET_MODE:
-         if (copy_from_user(&user_cmd, arg_ptr, sizeof(user_cmd))) {
-            printk(KERN_DEBUG "IND_REG_DEBUG: copy failed\n");
-
-            return -EFAULT;
-         }
-         ret = IND_Set_User_Mode(IND, &user_cmd);
+         ret = IND_Set_User_Mode(IND, arg_ptr);
          return ret;
 
       case IND_USER_SET_ADDRESS:
@@ -234,7 +233,7 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          return 0;
 
       case IND_USER_TRIG_PPS:
-         if ((arg != MODE_TRIGGER_PPS)&&(arg != GENERATE_PPS))
+         if ((arg != MODE_TRIGGER_PPS) && (arg != GENERATE_PPS))
             return -1;
 
          IND_write_reg(IND, R_MODE_CONFIG_ADDR, (IND->config_state|arg));
@@ -264,11 +263,19 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 
       case IND_USER_MODIFY_LEDS:
       {
-         IND_bit_flag_t *bit_flags = arg_ptr;
-         IND->led_status |= bit_flags->set;
-         IND->led_status &= ~bit_flags->clear;
-         IND->led_status ^= bit_flags->toggle;
+         IND_bit_flag_t bit_flags;
+
+         if (copy_from_user(&bit_flags, arg_ptr, sizeof(bit_flags))) {
+            printk(KERN_DEBUG "IND_USER_MODIFY_LEDS: copy_from_user failed\n");
+            return -EFAULT;
+         }
+
+         IND->led_status |= bit_flags.set;
+         IND->led_status &= ~bit_flags.clear;
+         IND->led_status ^= bit_flags.toggle;
+
          IND_write_reg(IND, R_GPIO_LED_ADDR, (IND->led_status));
+
          return 0;
       }
       case IND_USER_SET_CTRL:
@@ -283,11 +290,19 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 
       case IND_USER_MODIFY_CTRL:
       {
-         IND_bit_flag_t *bit_flags = arg_ptr;
-         IND->ctrl_status |= bit_flags->set;
-         IND->ctrl_status &= ~bit_flags->clear;
-         IND->ctrl_status ^= bit_flags->toggle;
+         IND_bit_flag_t bit_flags;
+
+         if (copy_from_user(&bit_flags, arg_ptr, sizeof(bit_flags))) {
+            printk(KERN_DEBUG "IND_USER_MODIFY_CTRL: copy_from_user failed\n");
+            return -EFAULT;
+         }
+
+         IND->ctrl_status |= bit_flags.set;
+         IND->ctrl_status &= ~bit_flags.clear;
+         IND->ctrl_status ^= bit_flags.toggle;
+
          IND_write_reg(IND, R_GPIO_CTRL_ADDR, (IND->ctrl_status));
+
          return 0;
       }
 
@@ -312,7 +327,6 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          return 0;
 
       case IND_USER_REG_DEBUG:
-
          if (copy_from_user(&debug_cmd, arg_ptr, sizeof(debug_cmd))) {
             printk(KERN_DEBUG "IND_REG_DEBUG: copy failed\n");
 
@@ -330,7 +344,8 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          if (copy_to_user(arg_ptr, &debug_cmd, sizeof(debug_cmd))) {
             return -EFAULT;
          }
-        return 0;
+
+         return 0;
 
       case IND_USER_READ_MAXMIN:
          ret = IND_Maxmin_Read(IND, arg_ptr);
@@ -527,6 +542,8 @@ static int IND_probe(struct platform_device *pdev)
       goto failed8;
    }
    dev_info(&pdev->dev, "Successfully allocated dma memory\n");
+
+   init_waitqueue_head(&IND->irq_wait_queue);
 
    //platform_driver_register(pdev);
    dev_info(&pdev->dev, "Kutu IND finished loading driver\n");

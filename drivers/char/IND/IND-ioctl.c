@@ -37,40 +37,47 @@
 //
 // Set the user operation mode
 //
-int IND_Set_User_Mode(struct IND_drvdata *IND, struct IND_cmd_struct *cmd)
+int IND_Set_User_Mode(struct IND_drvdata *IND, void *user_ptr)
 {
-   u32 arg,dma_size;
+   struct IND_cmd_struct cmd;
+   u32 arg;
+   u32 dma_size;
 
-   arg = cmd->config;
+   if (copy_from_user(&cmd, user_ptr, sizeof(cmd))) {
+      printk(KERN_DEBUG "IND_Set_User_Mode: copy failed\n");
+      return -EFAULT;
+   }
+
+   arg = cmd.config;
 
 //   if (arg & (~(ADC_TEST_DATA|PPS_DEBUG_MODE|DMA_DEBUG_MODE))) {
 //      printk(KERN_DEBUG "IND_USER_SET_MODE: invalid argument\n");
 //      return -EFAULT;
 //   }
 
-   if (cmd->interrupt == ENABLE_INTERRUPT)
+   if (cmd.interrupt == ENABLE_INTERRUPT)
        // enable and clear pending interrupt.
        IND_write_reg(IND, R_INTERRUPT_ADDR, K_CLEAR_INTERRUPT);
    else
        IND_write_reg(IND, R_INTERRUPT_ADDR, K_DISABLE_INTERRUPT);
 
-   printk(KERN_DEBUG "IND_USER_SET_MODE: interrupt=0x%08x config=0x%08x address=0x%08x capture_count=0x%08x delay_count=0x%08x peak_detect_start=0x%08x peak_detect_end=0x%08X\n", cmd->interrupt, cmd->config, cmd->address, cmd->capture_count, cmd->delay_count, cmd->peak_detect_start, cmd->peak_detect_end);
+   printk(KERN_DEBUG "IND_USER_SET_MODE: interrupt=0x%08x config=0x%08x address=0x%08x capture_count=0x%08x delay_count=0x%08x peak_detect_start=0x%08x peak_detect_end=0x%08X\n", cmd.interrupt, cmd.config, cmd.address, cmd.capture_count, cmd.delay_count, cmd.peak_detect_start, cmd.peak_detect_end);
 
-   dma_size = cmd->capture_count * 6;
-   IND_write_reg(IND, R_DMA_WRITE_ADDR, (IND->dma_handle + cmd->address));
+   dma_size = cmd.capture_count * 6;
+   IND_write_reg(IND, R_DMA_WRITE_ADDR, (IND->dma_handle + cmd.address));
    IND_write_reg(IND, R_DMA_SIZE_ADDR, dma_size);
-   IND_write_reg(IND, R_CAPTURE_COUNT_ADDR, (cmd->capture_count));
-   IND_write_reg(IND, R_DELAY_COUNT_ADDR, (cmd->delay_count));
+   IND_write_reg(IND, R_CAPTURE_COUNT_ADDR, (cmd.capture_count));
+   IND_write_reg(IND, R_DELAY_COUNT_ADDR, (cmd.delay_count));
 
-   if (cmd->peak_detect_start > PEAK_START_DISABLE)
+   if (cmd.peak_detect_start > PEAK_START_DISABLE)
       IND_write_reg(IND, R_PEAK_START_ADDR, PEAK_START_DISABLE);
    else
-      IND_write_reg(IND, R_PEAK_START_ADDR, cmd->peak_detect_start);
+      IND_write_reg(IND, R_PEAK_START_ADDR, cmd.peak_detect_start);
 
-   if (cmd->peak_detect_end > PEAK_STOP_DISABLE)
+   if (cmd.peak_detect_end > PEAK_STOP_DISABLE)
       IND_write_reg(IND, R_PEAK_END_ADDR, PEAK_STOP_DISABLE);
    else
-      IND_write_reg(IND, R_PEAK_END_ADDR, cmd->peak_detect_end);
+      IND_write_reg(IND, R_PEAK_END_ADDR, cmd.peak_detect_end);
 
    IND->config_state &= ~(CONFIG_MODE_MASK);
    IND->config_state |= (arg & CONFIG_MODE_MASK);
@@ -183,32 +190,32 @@ int IND_SPI_Access(struct IND_drvdata *IND, void *user_ptr)
 //
 int IND_Maxmin_Read(struct IND_drvdata *IND, void *user_ptr)
 {
-   struct IND_maxmin_struct  cmd;
+   struct IND_maxmin_struct  data;
 
-   cmd.max_ch0_data = IND_read_reg(IND,R_MAX_CH0_VAL_ADDR) & 0x00ffffff;
-   cmd.max_ch0_addr = IND_read_reg(IND,R_MAX_CH0_LOC_ADDR) & 0x00ffffff;
-   cmd.min_ch0_data = IND_read_reg(IND,R_MIN_CH0_VAL_ADDR) & 0x00ffffff;
-   cmd.min_ch0_addr = IND_read_reg(IND,R_MIN_CH0_LOC_ADDR) & 0x00ffffff;
-   cmd.max_ch1_data = IND_read_reg(IND,R_MAX_CH1_VAL_ADDR) & 0x00ffffff;
-   cmd.max_ch1_addr = IND_read_reg(IND,R_MAX_CH1_LOC_ADDR) & 0x00ffffff;
-   cmd.min_ch1_data = IND_read_reg(IND,R_MIN_CH1_VAL_ADDR) & 0x00ffffff;
-   cmd.min_ch1_addr = IND_read_reg(IND,R_MIN_CH1_LOC_ADDR) & 0x00ffffff;
-   cmd.max_ch2_data = IND_read_reg(IND,R_MAX_CH2_VAL_ADDR) & 0x00ffffff;
-   cmd.max_ch2_addr = IND_read_reg(IND,R_MAX_CH2_LOC_ADDR) & 0x00ffffff;
-   cmd.min_ch2_data = IND_read_reg(IND,R_MIN_CH2_VAL_ADDR) & 0x00ffffff;
-   cmd.min_ch2_addr = IND_read_reg(IND,R_MIN_CH2_LOC_ADDR) & 0x00ffffff;
+   data.max_ch0_data = IND_read_reg(IND,R_MAX_CH0_VAL_ADDR) & 0x00ffffff;
+   data.max_ch0_addr = IND_read_reg(IND,R_MAX_CH0_LOC_ADDR) & 0x00ffffff;
+   data.min_ch0_data = IND_read_reg(IND,R_MIN_CH0_VAL_ADDR) & 0x00ffffff;
+   data.min_ch0_addr = IND_read_reg(IND,R_MIN_CH0_LOC_ADDR) & 0x00ffffff;
+   data.max_ch1_data = IND_read_reg(IND,R_MAX_CH1_VAL_ADDR) & 0x00ffffff;
+   data.max_ch1_addr = IND_read_reg(IND,R_MAX_CH1_LOC_ADDR) & 0x00ffffff;
+   data.min_ch1_data = IND_read_reg(IND,R_MIN_CH1_VAL_ADDR) & 0x00ffffff;
+   data.min_ch1_addr = IND_read_reg(IND,R_MIN_CH1_LOC_ADDR) & 0x00ffffff;
+   data.max_ch2_data = IND_read_reg(IND,R_MAX_CH2_VAL_ADDR) & 0x00ffffff;
+   data.max_ch2_addr = IND_read_reg(IND,R_MAX_CH2_LOC_ADDR) & 0x00ffffff;
+   data.min_ch2_data = IND_read_reg(IND,R_MIN_CH2_VAL_ADDR) & 0x00ffffff;
+   data.min_ch2_addr = IND_read_reg(IND,R_MIN_CH2_LOC_ADDR) & 0x00ffffff;
 
-   if (copy_to_user(user_ptr, &cmd, sizeof(cmd))) {
+   if (copy_to_user(user_ptr, &data, sizeof(data))) {
       return -EFAULT;
    }
 
 #if 0
-   printk(KERN_DEBUG "IND_Maxmin_Read: max_ch0_addr=0x%08x max_ch0_data=0x%08x\n", cmd.max_ch0_addr, cmd.max_ch0_data);
-   printk(KERN_DEBUG "IND_Maxmin_Read: min_ch0_addr=0x%08x min_ch0_data=0x%08x\n", cmd.min_ch0_addr, cmd.min_ch0_data);
-   printk(KERN_DEBUG "IND_Maxmin_Read: max_ch1_addr=0x%08x max_ch1_data=0x%08x\n", cmd.max_ch1_addr, cmd.max_ch1_data);
-   printk(KERN_DEBUG "IND_Maxmin_Read: min_ch1_addr=0x%08x min_ch1_data=0x%08x\n", cmd.min_ch1_addr, cmd.min_ch1_data);
-   printk(KERN_DEBUG "IND_Maxmin_Read: max_ch2_addr=0x%08x max_ch2_data=0x%08x\n", cmd.max_ch2_addr, cmd.max_ch2_data);
-   printk(KERN_DEBUG "IND_Maxmin_Read: min_ch2_addr=0x%08x min_ch2_data=0x%08x\n", cmd.min_ch2_addr, cmd.min_ch2_data);
+   printk(KERN_DEBUG "IND_Maxmin_Read: max_ch0_addr=0x%08x max_ch0_data=0x%08x\n", data.max_ch0_addr, data.max_ch0_data);
+   printk(KERN_DEBUG "IND_Maxmin_Read: min_ch0_addr=0x%08x min_ch0_data=0x%08x\n", data.min_ch0_addr, data.min_ch0_data);
+   printk(KERN_DEBUG "IND_Maxmin_Read: max_ch1_addr=0x%08x max_ch1_data=0x%08x\n", data.max_ch1_addr, data.max_ch1_data);
+   printk(KERN_DEBUG "IND_Maxmin_Read: min_ch1_addr=0x%08x min_ch1_data=0x%08x\n", data.min_ch1_addr, data.min_ch1_data);
+   printk(KERN_DEBUG "IND_Maxmin_Read: max_ch2_addr=0x%08x max_ch2_data=0x%08x\n", data.max_ch2_addr, data.max_ch2_data);
+   printk(KERN_DEBUG "IND_Maxmin_Read: min_ch2_addr=0x%08x min_ch2_data=0x%08x\n", data.min_ch2_addr, data.min_ch2_data);
 #endif
 
    return 0;

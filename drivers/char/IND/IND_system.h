@@ -254,7 +254,7 @@ u32 IND_Close(int fd);
 //
 // Setup the system configuration
 //
-int IND_Set_User_Mode(struct IND_drvdata *IND, struct IND_cmd_struct *cmd);
+int IND_Set_User_Mode(struct IND_drvdata *IND, void *user_ptr);
 
 //
 // IND_Run_Scan()
