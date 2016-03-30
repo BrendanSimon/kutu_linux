@@ -3427,6 +3427,7 @@ static int ad9361_gpo_setup(struct ad9361_rf_phy *phy, struct gpo_control *ctrl)
 				(ctrl->gpo3_slave_tx_en << 3)));
 
 	ad9361_spi_write(spi, REG_GPO_FORCE_AND_INIT,
+			 GPO_MANUAL_CTRL(ctrl->gpo_manual_mode_enable_mask) |
 			 GPO_INIT_STATE(ctrl->gpo0_inactive_state_high_en |
 				(ctrl->gpo1_inactive_state_high_en << 1) |
 				(ctrl->gpo2_inactive_state_high_en << 2) |
@@ -3440,6 +3441,12 @@ static int ad9361_gpo_setup(struct ad9361_rf_phy *phy, struct gpo_control *ctrl)
 	ad9361_spi_write(spi, REG_GPO2_TX_DELAY, ctrl->gpo2_tx_delay_us);
 	ad9361_spi_write(spi, REG_GPO3_RX_DELAY, ctrl->gpo3_rx_delay_us);
 	ad9361_spi_write(spi, REG_GPO3_TX_DELAY, ctrl->gpo3_tx_delay_us);
+
+	/*
+	 * GPO manual mode conflicts with automatic ENSM slave and eLNA mode
+	 */
+	ad9361_spi_writef(phy->spi, REG_EXTERNAL_LNA_CTRL, GPO_MANUAL_SELECT,
+			ctrl->gpo_manual_mode_en);
 
 	return 0;
 }
@@ -7676,7 +7683,7 @@ static struct ad9361_phy_platform_data
 	ad9361_of_get_bool(iodev, np, "adi,mgc-rx1-ctrl-inp-enable",
 			   &pdata->gain_ctrl.mgc_rx1_ctrl_inp_en);
 	ad9361_of_get_bool(iodev, np, "adi,mgc-rx2-ctrl-inp-enable",
-			   &pdata->gain_ctrl.mgc_rx1_ctrl_inp_en);
+			   &pdata->gain_ctrl.mgc_rx2_ctrl_inp_en);
 	ad9361_of_get_u32(iodev, np, "adi,mgc-inc-gain-step", 2,
 			  &pdata->gain_ctrl.mgc_inc_gain_step);
 	ad9361_of_get_u32(iodev, np, "adi,mgc-dec-gain-step", 2,
@@ -7880,6 +7887,12 @@ static struct ad9361_phy_platform_data
 
 	/* GPO Control */
 
+	ad9361_of_get_bool(iodev, np, "adi,gpo-manual-mode-enable",
+			&pdata->gpo_ctrl.gpo_manual_mode_en);
+
+	ad9361_of_get_u32(iodev, np, "adi,gpo-manual-mode-enable-mask", 0,
+			&pdata->gpo_ctrl.gpo_manual_mode_enable_mask);
+
 	ad9361_of_get_bool(iodev, np, "adi,gpo0-inactive-state-high-enable",
 			&pdata->gpo_ctrl.gpo0_inactive_state_high_en);
 	ad9361_of_get_bool(iodev, np, "adi,gpo1-inactive-state-high-enable",
@@ -8013,26 +8026,18 @@ static int ad9361_probe(struct spi_device *spi)
 	if (phy->pdata == NULL)
 		return -EINVAL;
 
-	phy->pdata->reset_gpio = devm_gpiod_get(&spi->dev, "reset");
-	if (!IS_ERR(phy->pdata->reset_gpio)) {
-		ret = gpiod_direction_output(phy->pdata->reset_gpio, 1);
-	}
+	phy->pdata->reset_gpio = devm_gpiod_get(&spi->dev, "reset",
+		GPIOD_OUT_HIGH);
 
 	/* Optional: next three used for MCS synchronization */
-	phy->pdata->sync_gpio = devm_gpiod_get(&spi->dev, "sync");
-	if (!IS_ERR(phy->pdata->sync_gpio)) {
-		ret = gpiod_direction_output(phy->pdata->sync_gpio, 0);
-	}
+	phy->pdata->sync_gpio = devm_gpiod_get(&spi->dev, "sync",
+		GPIOD_OUT_LOW);
 
-	phy->pdata->cal_sw1_gpio = devm_gpiod_get(&spi->dev, "cal-sw1");
-	if (!IS_ERR(phy->pdata->cal_sw1_gpio)) {
-		ret = gpiod_direction_output(phy->pdata->cal_sw1_gpio, 0);
-	}
+	phy->pdata->cal_sw1_gpio = devm_gpiod_get(&spi->dev, "cal-sw1",
+		GPIOD_OUT_LOW);
 
-	phy->pdata->cal_sw2_gpio = devm_gpiod_get(&spi->dev, "cal-sw2");
-	if (!IS_ERR(phy->pdata->cal_sw2_gpio)) {
-		ret = gpiod_direction_output(phy->pdata->cal_sw2_gpio, 0);
-	}
+	phy->pdata->cal_sw2_gpio = devm_gpiod_get(&spi->dev, "cal-sw2",
+		GPIOD_OUT_LOW);
 
 	phy->spi = spi;
 	phy->clk_refin = clk;

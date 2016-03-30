@@ -22,9 +22,9 @@
  * (at your option) any later version.
  */
 
-#include <linux/amba/xilinx_dma.h>
 #include <linux/bitops.h>
 #include <linux/dmapool.h>
+#include <linux/dma/xilinx_dma.h>
 #include <linux/init.h>
 #include <linux/interrupt.h>
 #include <linux/io.h>
@@ -1300,6 +1300,7 @@ static int xilinx_vdma_probe(struct platform_device *pdev)
 	INIT_LIST_HEAD(&xdev->common.channels);
 	dma_cap_set(DMA_SLAVE, xdev->common.cap_mask);
 	dma_cap_set(DMA_PRIVATE, xdev->common.cap_mask);
+	dma_cap_set(DMA_INTERLEAVE, xdev->common.cap_mask);
 
 	xdev->common.device_alloc_chan_resources =
 				xilinx_vdma_alloc_chan_resources;
@@ -1373,6 +1374,7 @@ static const struct of_device_id xilinx_vdma_of_ids[] = {
 	{ .compatible = "xlnx,axi-vdma-1.00.a",},
 	{}
 };
+MODULE_DEVICE_TABLE(of, xilinx_vdma_of_ids);
 
 static struct platform_driver xilinx_vdma_driver = {
 	.driver = {
