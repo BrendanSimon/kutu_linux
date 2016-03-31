@@ -53,6 +53,7 @@
 #define SPINOR_OP_BP		0x02	/* Byte program */
 #define SPINOR_OP_WRDI		0x04	/* Write disable */
 #define SPINOR_OP_AAI_WP	0xad	/* Auto address increment word program */
+#define GLOBAL_BLKPROT_UNLK	0x98	/* Clear global write protection bits */
 
 /* Used for Macronix and Winbond flashes. */
 #define SPINOR_OP_EN4B		0xb7	/* Enter 4-byte mode */
@@ -234,5 +235,14 @@ struct spi_nor {
  * Return: 0 for success, others for failure.
  */
 int spi_nor_scan(struct spi_nor *nor, const char *name, enum read_mode mode);
+
+/**
+ * spi_nor_shutdown() - prepare for reboot
+ * @nor:	the spi_nor structure
+ *
+ * The drivers can use this fuction to get the address back to
+ * 0 as will be required for a ROM boot.
+ */
+void spi_nor_shutdown(struct spi_nor *nor);
 
 #endif

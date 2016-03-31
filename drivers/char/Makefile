@@ -36,6 +36,7 @@ obj-$(CONFIG_XILINX_DEVCFG)	+= xilinx_devcfg.o
 obj-$(CONFIG_HAWK_FOS)	+= fos/
 obj-$(CONFIG_GR1000)	+= gr1000/
 obj-$(CONFIG_IND)	+= IND/
+obj-$(CONFIG_LSI_CAPTURE)	+= LSI_Capture/
 ifeq ($(CONFIG_GENERIC_NVRAM),y)
   obj-$(CONFIG_NVRAM)	+= generic_nvram.o
 else
