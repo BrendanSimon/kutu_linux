@@ -23,7 +23,6 @@
 #include <xen/page.h>
 
 #include <linux/slab.h>
-#include <linux/amba/xilinx_dma.h>
 #include <linux/platform_device.h>
 
 #include "LSI.h"
