@@ -150,8 +150,8 @@ int IND_SPI_Access(struct IND_drvdata *IND, void *user_ptr)
       while ((IND_Status(IND) & BIT_SPI_BUSY) && (i < MAX_WAIT_COUNT))
          i++;
 
-      // if read then read back data
-      if (rd_nwr_mode == SPI_CTRL_READ) {
+      // read back data
+//      if (rd_nwr_mode == SPI_CTRL_READ) {
          data = IND_read_reg(IND,R_SPI_READ_ADDR);
 #ifdef DEBUG
          printk(KERN_DEBUG "Read data = 0x%x\n",data);
@@ -160,7 +160,7 @@ int IND_SPI_Access(struct IND_drvdata *IND, void *user_ptr)
             cmd.port_data[j] = data & 0xff;
          else
             cmd.port_data[j] = data;
-      }
+//      }
    }
    //
    // Wait for SPI access to finish
