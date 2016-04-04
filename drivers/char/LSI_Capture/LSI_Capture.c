@@ -136,7 +136,8 @@ static long LSI_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
    //   int __user *ip = (int __user *)arg;
    void  *arg_ptr = (void *)arg;
    long  ret = 0;
-   unsigned int s2mm_status, timeout,val;
+   unsigned int val;
+  // unsigned int s2mm_status, timeout,val;
    //   struct LSI_read_data_struct read_cmd;
    struct LSI_debug_struct debug_cmd;
    struct LSI_cmd_struct user_cmd;
@@ -178,20 +179,20 @@ static long LSI_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          return ret;
 
       case LSI_USER_SET_ADDRESS:
-         LSI_write_reg(LSI, R_DMA_WRITE_ADDR, (LSI->dma_handle + arg));
+         LSI_write_reg(LSI, R_CAPT_DMA_ADDR, (LSI->dma_handle + arg));
          return 0;
 
       case LSI_USER_SET_PN9_TEST:
          if (copy_from_user(&user_pn9, arg_ptr, sizeof(user_pn9))) {
             printk(KERN_DEBUG "LSI_USER_SET_PN9_TEST: copy failed\n");
          }
-         user_pn9.status[0] = ADC_read_reg(LSI,R_ADC_STATUS_0_ADDR);
-         user_pn9.status[1] = ADC_read_reg(LSI,R_ADC_STATUS_1_ADDR);
-         user_pn9.status[2] = ADC_read_reg(LSI,R_ADC_STATUS_2_ADDR);
-         user_pn9.status[3] = ADC_read_reg(LSI,R_ADC_STATUS_3_ADDR);
-         user_pn9.status[4] = ADC_read_reg(LSI,R_ADC_STATUS_4_ADDR);
+         user_pn9.status[0] = LSI_read_reg(LSI,R_ADC_STATUS_0_ADDR);
+         user_pn9.status[1] = LSI_read_reg(LSI,R_ADC_STATUS_1_ADDR);
+         user_pn9.status[2] = LSI_read_reg(LSI,R_ADC_STATUS_2_ADDR);
+         user_pn9.status[3] = LSI_read_reg(LSI,R_ADC_STATUS_3_ADDR);
+         user_pn9.status[4] = LSI_read_reg(LSI,R_ADC_STATUS_4_ADDR);
          LSI_write_reg(LSI, R_ADC_CONTROL_ADDR, user_pn9.command);
-         user_pn9.command = ADC_read_reg(LSI,R_ADC_CONTROL_ADDR);
+         user_pn9.command = LSI_read_reg(LSI,R_ADC_CONTROL_ADDR);
 
          if (copy_to_user(arg_ptr, &user_pn9, sizeof(user_pn9))) {
             printk(KERN_DEBUG "LSI_USER_SET_PN9_TEST: copy_to_user failed\n");
@@ -200,12 +201,12 @@ static long LSI_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          return 0;
 
       case LSI_USER_READ_PN9_TEST:
-         user_pn9.status[0] = ADC_read_reg(LSI,R_ADC_STATUS_0_ADDR);
-         user_pn9.status[1] = ADC_read_reg(LSI,R_ADC_STATUS_1_ADDR);
-         user_pn9.status[2] = ADC_read_reg(LSI,R_ADC_STATUS_2_ADDR);
-         user_pn9.status[3] = ADC_read_reg(LSI,R_ADC_STATUS_3_ADDR);
-         user_pn9.status[4] = ADC_read_reg(LSI,R_ADC_STATUS_4_ADDR);
-         user_pn9.command = ADC_read_reg(LSI,R_ADC_CONTROL_ADDR);
+         user_pn9.status[0] = LSI_read_reg(LSI,R_ADC_STATUS_0_ADDR);
+         user_pn9.status[1] = LSI_read_reg(LSI,R_ADC_STATUS_1_ADDR);
+         user_pn9.status[2] = LSI_read_reg(LSI,R_ADC_STATUS_2_ADDR);
+         user_pn9.status[3] = LSI_read_reg(LSI,R_ADC_STATUS_3_ADDR);
+         user_pn9.status[4] = LSI_read_reg(LSI,R_ADC_STATUS_4_ADDR);
+         user_pn9.command = LSI_read_reg(LSI,R_ADC_CONTROL_ADDR);
 
          if (copy_to_user(arg_ptr, &user_pn9, sizeof(user_pn9))) {
             printk(KERN_DEBUG "LSI_USER_READ_PN9_TEST: copy_to_user failed\n");
@@ -215,58 +216,6 @@ static long LSI_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 
       case LSI_USER_INIT_LMK03000:
          lmk03000_init(LSI,arg);
-         return 0;
-
-      case LSI_USER_DMA_TEST:
-
-         if (arg >= 0x800000)
-            return -EFAULT;
-
-         s2mm_status = LSI_Status(LSI);
-         if (s2mm_status & (BIT_S2MM_ERR|BIT_MM2S_ERR)) {
-            // DMA error so reset DMA
-            LSI_write_reg(LSI, R_MODE_CONFIG_ADDR, DMA_RESET|MODE_DMA_DEBUG);
-            LSI_write_reg(LSI, R_MODE_CONFIG_ADDR, MODE_DMA_DEBUG);
-            printk(KERN_DEBUG "<%s> : clearing dma error\n",MODULE_NAME);
-         }
-
-         if (s2mm_status & BIT_MM2S_RD_CMPLT) {
-            // clear complete bit and ensure interrupt is off
-            LSI_write_reg(LSI, R_INTERRUPT_ADDR, K_CLEAR_INTERRUPT);
-            printk(KERN_DEBUG "<%s> : clearing complete flag\n",MODULE_NAME);
-         }
-
-         // start read from memory
-         LSI_write_reg(LSI, R_DMA_READ_ADDR, LSI->dma_handle);
-
-         // start write to memory
-         LSI_write_reg(LSI, R_DMA_WRITE_ADDR, (LSI->dma_handle + (DMA_LENGTH/2)));
-         LSI_write_reg(LSI, R_DMA_SIZE_ADDR, arg);
-         LSI_write_reg(LSI, R_CAPTURE_COUNT_ADDR, (arg>>3));
-
-         // start dma into loopback mode
-         LSI_write_reg(LSI, R_MODE_CONFIG_ADDR, (DMA_DEBUG_MODE|START_DMA));
-
-         s2mm_status = LSI_Status(LSI);
-         printk(KERN_DEBUG "<%s> : started dma, status = 0x%x\n",MODULE_NAME,s2mm_status);
-
-         timeout = 0;
-         while (((s2mm_status & (BIT_MM2S_RD_CMPLT)) == 0) && (timeout <MAX_WAIT_COUNT))  {
-            udelay(100);
-            s2mm_status = LSI_Status(LSI);
-            timeout++;
-         }
-         printk(KERN_DEBUG "<%s> : dma status = 0x%x\n",MODULE_NAME,s2mm_status);
-
-         if (timeout > (MAX_WAIT_COUNT - 10))
-            printk(KERN_DEBUG "<%s> : dma timeout\n",MODULE_NAME);
-
-         // clear complete bit
-         LSI_write_reg(LSI, R_INTERRUPT_ADDR, K_CLEAR_INTERRUPT);
-
-         // set configuration back to original state
-         LSI_write_reg(LSI, R_MODE_CONFIG_ADDR, LSI->config_state);
-
          return 0;
 
       case LSI_USER_TRIG_PPS:
@@ -314,43 +263,6 @@ static long LSI_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          }
          return 0;
 
-      case LSI_USER_SET_LEDS:
-         LSI->led_status |= arg;
-         LSI_write_reg(LSI, R_GPIO_LED_ADDR, (LSI->led_status));
-         return 0;
-
-      case LSI_USER_CLEAR_LEDS:
-         LSI->led_status &= ~arg;
-         LSI_write_reg(LSI, R_GPIO_LED_ADDR, (LSI->led_status));
-         return 0;
-
-      case LSI_USER_MODIFY_LEDS:
-         {
-            LSI_bit_flag_t *bit_flags = arg_ptr;
-            LSI->led_status |= bit_flags->set;
-            LSI->led_status &= ~bit_flags->clear;
-            LSI_write_reg(LSI, R_GPIO_LED_ADDR, (LSI->led_status));
-            return 0;
-         }
-      case LSI_USER_SET_CTRL:
-         LSI->ctrl_status |= arg;
-         LSI_write_reg(LSI, R_GPIO_CTRL_ADDR, (LSI->ctrl_status));
-         return 0;
-
-      case LSI_USER_CLEAR_CTRL:
-         LSI->ctrl_status &= ~arg;
-         LSI_write_reg(LSI, R_GPIO_CTRL_ADDR, (LSI->ctrl_status));
-         return 0;
-
-      case LSI_USER_MODIFY_CTRL:
-         {
-            LSI_bit_flag_t *bit_flags = arg_ptr;
-            LSI->ctrl_status |= bit_flags->set;
-            LSI->ctrl_status &= ~bit_flags->clear;
-            LSI_write_reg(LSI, R_GPIO_CTRL_ADDR, (LSI->ctrl_status));
-            return 0;
-         }
-
       case LSI_USER_SET_INTERRUPT:
          if (arg == ENABLE_INTERRUPT)
             LSI_write_reg(LSI, R_INTERRUPT_ADDR, K_CLEAR_INTERRUPT);
@@ -390,10 +302,6 @@ static long LSI_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
             return -EFAULT;
          }
          return 0;
-
-      case LSI_USER_READ_MAXMIN:
-         ret = LSI_Maxmin_Read(LSI, arg_ptr);
-         return ret;
 
       case LSI_USER_WRITE_TAPS:
          ret = LSI_Write_Adc_Taps(LSI, arg_ptr);
@@ -436,7 +344,7 @@ static irqreturn_t LSI_isr(int irq, void *data)
 
    spin_lock(&LSI->lock);
 
-   LSI->int_status = LSI_read_reg(LSI, R_LSI_STATUS) & (BIT_S2MM_ERR|BIT_MM2S_RD_CMPLT|BIT_MM2S_ERR);
+   LSI->int_status = LSI_read_reg(LSI, R_LSI_STATUS) & (BIT_S2MM_ERR|BIT_MM2S_RD_CMPLT);
 
    // clear interrupt
    LSI_write_reg(LSI, R_INTERRUPT_ADDR,K_CLEAR_INTERRUPT);
@@ -496,8 +404,6 @@ static int LSI_probe(struct platform_device *pdev)
 
    mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
    LSI->base = devm_ioremap_resource(&pdev->dev, mem);
-   LSI->lmk_base = LSI->base + 0x10000;
-   LSI->adc_base = LSI->base + 0x20000;
 
    if (IS_ERR(LSI->base))
       return PTR_ERR(LSI->base);
@@ -515,10 +421,6 @@ static int LSI_probe(struct platform_device *pdev)
    LSI->config_state = 0;
    LSI_write_reg(LSI, R_MODE_CONFIG_ADDR, (LSI->config_state));
    udelay(5);
-   LSI->ctrl_status = 0;
-   LSI_write_reg(LSI, R_GPIO_CTRL_ADDR, (LSI->ctrl_status));
-   LSI->led_status = 0;
-   LSI_write_reg(LSI, R_GPIO_LED_ADDR, (LSI->led_status));
    atomic_set(&LSI->semaphore, 0);
    LSI->int_status = 0;
    LSI_write_reg(LSI, R_INTERRUPT_ADDR,K_DISABLE_INTERRUPT);

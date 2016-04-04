@@ -133,7 +133,7 @@ void lmk03000_init (struct LSI_drvdata *LSI, u32 freq)
 
    // Drive "Clocks_vco_goe" high to enable outputs
    printk(KERN_DEBUG "\n\rWrite => Control Register = %02x", (LMK03000_GOE_HIGH) );
-   LMK_write_reg(LSI, LMK03000_CONTROL_REG_OFFSET, LMK03000_GOE_HIGH);  //LMK03000_CONTROL_WRITE(LMK03000_GOE_HIGH);
+   LSI_write_reg(LSI, R_LMK_CNTL_ADDR, LMK03000_GOE_HIGH);  //LMK03000_CONTROL_WRITE(LMK03000_GOE_HIGH);
 
    // R0 - Init (CLK_DIV has to be non zero)
    lmk03000_init[0]        = (LMK03000_RESET)            + (LMK03000_CLK_DIV_2)                + (LMK03000_R0);
@@ -186,7 +186,7 @@ void lmk03000_init (struct LSI_drvdata *LSI, u32 freq)
    lmk03000_init[14]       = (LMK03000_PLL_CP_GAIN_32x)  + (lmk03000_vco_div_use)         +
       (lmk03000_pll_n_use)        + (LMK03000_R15);
 
-   status = LMK_read_reg(LSI, LMK03000_STATUS_REG_OFFSET); //LMK03000_STATUS_READ;
+   status = LSI_read_reg(LSI, R_LMK_STATUS_ADDR); //LMK03000_STATUS_READ;
    printk(KERN_DEBUG "\n\rRead  => Status Register = %02x\n", status);
    // Check if locked
    if ((LMK03000_LD_MASK & status) == LMK03000_LD_MASK) {
@@ -200,9 +200,9 @@ void lmk03000_init (struct LSI_drvdata *LSI, u32 freq)
    // Write R0 to R15
    for (index = 0; index < 15; index++) {
       printk(KERN_DEBUG "\n\rWrite => Data = %08x", lmk03000_init[index]);
-      LMK_write_reg(LSI, LMK03000_TX_REG_OFFSET, lmk03000_init[index]); // LMK03000_TX_WRITE(lmk03000_init[index]);
+      LSI_write_reg(LSI, R_LMK_DATA_ADDR, lmk03000_init[index]); // LMK03000_TX_WRITE(lmk03000_init[index]);
       udelay(10);
-      status = LMK_read_reg(LSI, LMK03000_STATUS_REG_OFFSET); //LMK03000_STATUS_READ;
+      status = LSI_read_reg(LSI, R_LMK_STATUS_ADDR); //LMK03000_STATUS_READ;
       printk(KERN_DEBUG "\n\rRead  => Status Register = %02x", status);
    }
 
@@ -210,7 +210,7 @@ void lmk03000_init (struct LSI_drvdata *LSI, u32 freq)
    udelay(1000); // wait for 1 s
 
    // Check Lock
-   status = LMK_read_reg(LSI, LMK03000_STATUS_REG_OFFSET); //LMK03000_STATUS_READ;
+   status = LSI_read_reg(LSI, R_LMK_STATUS_ADDR); //LMK03000_STATUS_READ;
    printk(KERN_DEBUG "\n\rRead  => Status Register = %02x", status );
    // Check if locked
    if ((LMK03000_LD_MASK & status) == LMK03000_LD_MASK) {

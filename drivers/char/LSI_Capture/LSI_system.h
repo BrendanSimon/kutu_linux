@@ -20,123 +20,83 @@
 
 /* general register memory location */
 
-#define LSI_BASE              0x43C00000
-#define LSI_LMK_BASE          0x43C10000
+#define LSI_BASE                 0x43C00000
+#define LSI_LMK_BASE             0x43C10000
+#define LSI_ADC_BASE             0x43C20000
 
-#define R_LSI_REG_BASE        0x0000
-#define R_LSI_SPI_BASE        0x0800
-#define R_LSI_MINMAX_BASE     0x1000
+#define R_LSI_REG_BASE           0x0000
+#define R_LSI_SPI_BASE           0x0800
 
-#define R_LSI_STATUS          0x0000
-#define R_SPI_READ_ADDR       0x0800
+#define R_LSI_STATUS             0x0000
+#define R_SPI_READ_ADDR          0x0800
 
-#define R_DMA_WRITE_ADDR         0x0000
-#define R_DMA_READ_ADDR          0x0004
-#define R_DMA_SIZE_ADDR          0x0008
-#define R_MODE_CONFIG_ADDR       0x000C
-#define R_INTERRUPT_ADDR         0x0010
+#define R_MODE_CONFIG_ADDR       0x0000
+#define R_INTERRUPT_ADDR         0x0004
+#define R_HISTOGRAM_RATE_ADDR    0x0008
+#define R_HISTOGRAM_NUM_ADDR     0x000C
 
-#define R_SPI_DATA_ADDR          0x0014   // read address on 64 byte boundaries
-#define R_SPI_DEVICE_ADDR        0x0018
-#define R_CAPTURE_COUNT_ADDR     0x001C
-#define R_DELAY_COUNT_ADDR       0x0020
-#define R_GPIO_CTRL_ADDR         0x0024
-#define R_GPIO_LED_ADDR          0x0028
-#define R_PEAK_START_ADDR        0x002C
-#define R_PEAK_END_ADDR          0x0030
+#define R_CAPTURE_COUNT_ADDR     0x0010
+
+#define R_CAPT_DMA_ADDR          0x0018
+#define R_CAPT_SIZE_ADDR         0x001C
+
+#define R_HIST_DMA_ADDR          0x0020
+#define R_HIST_SIZE_ADDR         0x0024
+
+#define R_TEST_DMA_ADDR          0x0028
+#define R_TEST_SIZE_ADDR         0x002C
+
+#define R_OFFSET_BASE_ADDR       0x0100   // base address for 40 32-bit words
+#define R_SCALE_BASE_ADDR        0x0200   // base address for 40 32-bit words
 
 #define R_FPGA_VERSION_ADDR      0x0800
 
-#define R_MAX_CH0_VAL_ADDR       0x1000
-#define R_MAX_CH0_LOC_ADDR       0x1004
-#define R_MIN_CH0_VAL_ADDR       0x1008
-#define R_MIN_CH0_LOC_ADDR       0x100C
-#define R_MAX_CH1_VAL_ADDR       0x1010
-#define R_MAX_CH1_LOC_ADDR       0x1014
-#define R_MIN_CH1_VAL_ADDR       0x1018
-#define R_MIN_CH1_LOC_ADDR       0x101C
-#define R_MAX_CH2_VAL_ADDR       0x1020
-#define R_MAX_CH2_LOC_ADDR       0x1024
-#define R_MIN_CH2_VAL_ADDR       0x1028
-#define R_MIN_CH2_LOC_ADDR       0x102C
-
 // LMK registers
-#define LMK03000_TX_REG_OFFSET                   0x00000000
-#define LMK03000_CONTROL_REG_OFFSET              0x00000004
-#define LMK03000_STATUS_REG_OFFSET               0x00000008
-
-#define R_LMK_DATA_ADDR          0x0000
-#define R_LMK_CNTL_ADDR          0x0004
-#define R_LMK_STATUS_ADDR        0x0008
-#define R_SPI_0_ADDR             0x0020
-#define R_SPI_1_ADDR             0x0024
-#define R_SPI_2_ADDR             0x0028
-#define R_SPI_3_ADDR             0x002C
-#define R_SPI_4_ADDR             0x0030
-#define R_ADC_STATUS_ADDR        0x003C
+#define R_LMK_DATA_ADDR          0x10000
+#define R_LMK_CNTL_ADDR          0x10004
+#define R_LMK_STATUS_ADDR        0x10008
+#define R_SPI_0_ADDR             0x10020
+#define R_SPI_1_ADDR             0x10024
+#define R_SPI_2_ADDR             0x10028
+#define R_SPI_3_ADDR             0x1002C
+#define R_SPI_4_ADDR             0x10030
+#define R_ADC_STATUS_ADDR        0x1003C
 
 // ADC Registers
-#define R_ADC_CONTROL_ADDR       0x0000
-#define R_ADC_STATUS_0_ADDR      0x0004
-#define R_ADC_STATUS_1_ADDR      0x0008
-#define R_ADC_STATUS_2_ADDR      0x000C
-#define R_ADC_STATUS_3_ADDR      0x0010
-#define R_ADC_STATUS_4_ADDR      0x0014
+#define R_ADC_CONTROL_ADDR       0x20000
+#define R_ADC_STATUS_0_ADDR      0x20004
+#define R_ADC_STATUS_1_ADDR      0x20008
+#define R_ADC_STATUS_2_ADDR      0x2000C
+#define R_ADC_STATUS_3_ADDR      0x20010
+#define R_ADC_STATUS_4_ADDR      0x20014
 
-#define R_TAPS_LOAD_ADDR         0x002C
+// These registers are only mapped for debug build
+#define R_TAPS_LOAD_ADDR         0x2002C
 
-#define R_ADC0_L_TAPS_ADDR       0x0030
-#define R_ADC0_H_TAPS_ADDR       0x0034
-#define R_ADC1_L_TAPS_ADDR       0x0038
-#define R_ADC1_H_TAPS_ADDR       0x003C
+#define R_ADC0_L_TAPS_ADDR       0x20030
+#define R_ADC0_H_TAPS_ADDR       0x20034
+#define R_ADC1_L_TAPS_ADDR       0x20038
+#define R_ADC1_H_TAPS_ADDR       0x2003C
 
-#define R_ADC2_L_TAPS_ADDR       0x0040
-#define R_ADC2_H_TAPS_ADDR       0x0044
-#define R_ADC3_L_TAPS_ADDR       0x0048
-#define R_ADC3_H_TAPS_ADDR       0x004C
+#define R_ADC2_L_TAPS_ADDR       0x20040
+#define R_ADC2_H_TAPS_ADDR       0x20044
+#define R_ADC3_L_TAPS_ADDR       0x20048
+#define R_ADC3_H_TAPS_ADDR       0x2004C
 
-#define R_ADC4_L_TAPS_ADDR       0x0050
-#define R_ADC4_H_TAPS_ADDR       0x0054
-#define R_ADC5_L_TAPS_ADDR       0x0058
-#define R_ADC5_H_TAPS_ADDR       0x005C
+#define R_ADC4_L_TAPS_ADDR       0x20050
+#define R_ADC4_H_TAPS_ADDR       0x20054
+#define R_ADC5_L_TAPS_ADDR       0x20058
+#define R_ADC5_H_TAPS_ADDR       0x2005C
 
-#define R_ADC6_L_TAPS_ADDR       0x0060
-#define R_ADC6_H_TAPS_ADDR       0x0064
-#define R_ADC7_L_TAPS_ADDR       0x0068
-#define R_ADC7_H_TAPS_ADDR       0x006C
+#define R_ADC6_L_TAPS_ADDR       0x20060
+#define R_ADC6_H_TAPS_ADDR       0x20064
+#define R_ADC7_L_TAPS_ADDR       0x20068
+#define R_ADC7_H_TAPS_ADDR       0x2006C
 
-#define R_ADC8_L_TAPS_ADDR       0x0070
-#define R_ADC8_H_TAPS_ADDR       0x0074
-#define R_ADC9_L_TAPS_ADDR       0x0078
-#define R_ADC9_H_TAPS_ADDR       0x007C
-
-
-
-
-
-
-
-#define R_SPI_0_ADDR             0x0020
-#define R_SPI_1_ADDR             0x0024
-#define R_SPI_2_ADDR             0x0028
-#define R_SPI_3_ADDR             0x002C
-#define R_SPI_4_ADDR             0x0030
-#define R_ADC_STATUS_ADDR        0x003C
-
-
-#define LSI_REG_BASE          (LSI_BASE + R_LSI_REG_BASE)
-#define LSI_SPI_BASE          (LSI_BASE + R_LSI_SPI_BASE)
-#define LSI_BRAM_BASE         (LSI_BASE + R_LSI_BRAM_BASE)
-
-#define LSI_STATUS            (LSI_BASE + R_LSI_STATUS)
-
-#define DMA_WRITE_ADDR           (LSI_BASE + R_DMA_WRITE_ADDR)
-#define DMA_READ_ADDR            (LSI_BASE + R_DMA_READ_ADDR)
-#define MODE_CONFIG_ADDR         (LSI_BASE + R_MODE_CONFIG_ADDR)
-#define INTERRUPT_ADDR           (LSI_BASE + R_INTERRUPT_ADDR)
-#define SPI_DATA_ADDR            (LSI_BASE + R_SPI_DATA_ADDR)
-#define SPI_DEVICE_ADDR          (LSI_BASE + R_SPI_DEVICE_ADDR)
-#define SPI_CAPTURE_COUNT_ADDR   (LSI_BASE + R_CAPTURE_COUNT_ADDR)
+#define R_ADC8_L_TAPS_ADDR       0x20070
+#define R_ADC8_H_TAPS_ADDR       0x20074
+#define R_ADC9_L_TAPS_ADDR       0x20078
+#define R_ADC9_H_TAPS_ADDR       0x2007C
 
 /*
 ** configuration constants
@@ -161,24 +121,7 @@
 
 /*
 ** SPI constants
-
-#define SPI_PORT_LOW             0x01
-#define SPI_PORT_HIGH            0x02
-#define SPI_PORT_BOTH            0x03
 */
-
-/*
-** Status constants
-*/
-#define BIT_SPI_BUSY             0x01
-#define BIT_S2MM_ERR             0x02
-#define BIT_MM2S_RD_CMPLT        0x04
-#define BIT_MM2S_ERR             0x08
-#define BIT_SPI_ERR              0x10
-#define BIT_INTERRUPT_ACTIVE     0x20
-#define BIT_S2MM_ERR_STATUS      0x40
-#define BIT_MM2S_RD_CMPLT_STATUS 0x80
-#define BIT_MM2S_ERR_STATUS      0x100
 
 #define SPI_MAX_WAIT_COUNT 1000000
 #define MAX_WAIT_COUNT     10000
@@ -246,11 +189,7 @@ struct LSI_drvdata {
    struct mutex mutex;
    spinlock_t lock;
    void __iomem *base;
-   void __iomem *lmk_base;
-   void __iomem *adc_base;
    uint32_t config_state;
-   uint32_t led_status;
-   uint32_t ctrl_status;
    uint32_t int_status;
    atomic_t semaphore;
    char *dma_addr;
@@ -269,6 +208,7 @@ static inline uint32_t LSI_read_reg(struct LSI_drvdata *LSI, unsigned int reg)
 	return(readl(LSI->base + reg));
 }
 
+/*
 static inline void LMK_write_reg(struct LSI_drvdata *LSI, unsigned int reg, uint32_t val)
 {
 	writel(val, LSI->lmk_base + reg);
@@ -288,7 +228,7 @@ static inline uint32_t ADC_read_reg(struct LSI_drvdata *LSI, unsigned int reg)
 {
 	return(readl(LSI->adc_base + reg));
 }
-
+*/
 
 
 //
@@ -319,7 +259,7 @@ static inline u32 LMK_SPI_Busy(struct LSI_drvdata *LSI)
 {
    u32 status;
 
-   status = LMK_read_reg(LSI, R_ADC_STATUS_ADDR)>>16;
+   status = LSI_read_reg(LSI, R_ADC_STATUS_ADDR)>>16;
 
    return status;
 }

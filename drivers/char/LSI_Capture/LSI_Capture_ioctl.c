@@ -40,52 +40,111 @@
 //
 int LSI_Set_User_Mode(struct LSI_drvdata *LSI, struct LSI_cmd_struct *cmd)
 {
-   u32 dma_size,capture_count,val;
+   u32 dma_size,capture_count,val,config;
 
    //
-   // set capture channe and mode
+   // set capture channel and mode
 
-   if (cmd->capture_channel > 39)
+   if (cmd->capture_channel > 39) {
+      printk(KERN_DEBUG "LSI_USER_SET_MODE: Only channel 0 .. 39 is valid!\n");
       return -EFAULT;
+   }
 
-   val = ADC_read_reg(LSI, R_ADC_CONTROL_ADDR) & 0xfff;
-   val |= (cmd->capture_channel << 12);
+   config = cmd->config & (USE_HISTOGRAM|USE_CAPTURE|USE_TEST_DATA|ADC_TEST_DATA|PPS_DEBUG_MODE);
+   config |= cmd->capture_channel << 16;
    if (cmd->single_channel)
-      val |= 0x80000;
+      config |= SINGLE_MODE;
 
-   ADC_write_reg(LSI, R_ADC_CONTROL_ADDR,val);
-   printk(KERN_DEBUG "LSI_USER_SET_MODE: ADC Control register = 0x%08x\n", ADC_read_reg(LSI, R_ADC_CONTROL_ADDR));
+   if (!(config & (USE_HISTOGRAM|USE_CAPTURE))) {
+      printk(KERN_DEBUG "LSI_USER_SET_MODE: No capture mode selected!\n");
+      return -EFAULT;
+   }
+
+   // check for logical commands
+   if (config & ADC_TEST_DATA) {
+      // this mode is only valid if capture is enabled, histogram is disabled and test data is disabled
+      val = config & (USE_HISTOGRAM|USE_CAPTURE|USE_TEST_DATA);
+      if (val != USE_CAPTURE) {
+         printk(KERN_DEBUG "LSI_USER_SET_MODE: ADC_TEST_DATA configuration is invalid!\n");
+         return -EFAULT;
+      }
+   }
+
+   if (config & USE_HISTOGRAM) {
+      if ((cmd->histogram_rate < 5) || (cmd->histogram_rate > 1000)) {
+         printk(KERN_DEBUG "LSI_USER_SET_MODE: Histogram rate is limited from 0.1ms to 20ms in 20us steps\n");
+         return -EFAULT;
+      }
+
+      if ((cmd->histogram_count < 1) || (cmd->histogram_count > 8000)) {
+         printk(KERN_DEBUG "LSI_USER_SET_MODE: Histogram count is limited from 1 to 8000\n");
+         return -EFAULT;
+      }
+
+      LSI_write_reg(LSI, R_HISTOGRAM_RATE_ADDR, cmd->histogram_rate);
+      LSI_write_reg(LSI, R_HISTOGRAM_NUM_ADDR, cmd->histogram_count);
+
+      if ((cmd->histogram_address + cmd->histogram_count*32768) > DMA_LENGTH) {
+         printk(KERN_DEBUG "LSI_USER_SET_MODE: Invalid histogram address\n");
+         return -EFAULT;
+      }
+      LSI_write_reg(LSI, R_HIST_DMA_ADDR,  cmd->histogram_address);
+      LSI_write_reg(LSI, R_HIST_SIZE_ADDR, cmd->histogram_count*32768); // each histogram is 32kbytes
+      printk(KERN_DEBUG "LSI_USER_SET_MODE: Histogram address=0x%08x size=0x%08x\n", cmd->histogram_address, cmd->histogram_count*32768);
+   }
+
+   if (config & ADC_TEST_DATA) {
+      if (config & USE_HISTOGRAM) {
+         dma_size = cmd->histogram_count * cmd->histogram_rate * 16000;
+      } else {
+         dma_size = cmd->capture_count * 8;
+      }
+
+      if ((cmd->test_data_address + dma_size) > DMA_LENGTH) {
+         printk(KERN_DEBUG "LSI_USER_SET_MODE: Invalid test data address\n");
+         return -EFAULT;
+      }
+      LSI_write_reg(LSI, R_TEST_DMA_ADDR,  cmd->test_data_address);
+      LSI_write_reg(LSI, R_TEST_SIZE_ADDR, dma_size);
+      printk(KERN_DEBUG "LSI_USER_SET_MODE: Test Data address=0x%08x size=0x%08x\n", cmd->test_data_address, dma_size);
+   }
+
+   if (config & USE_CAPTURE) {
+      if (config & USE_HISTOGRAM) {
+         dma_size = cmd->histogram_count * cmd->histogram_rate * 16000;
+      } else {
+         dma_size = cmd->capture_count * 8;
+      }
+      if (cmd->single_channel) {
+         dma_size /= 4;
+      }
+
+      if ((cmd->capture_address + dma_size) > DMA_LENGTH) {
+         printk(KERN_DEBUG "LSI_USER_SET_MODE: Invalid test data address\n");
+         return -EFAULT;
+      }
+      LSI_write_reg(LSI, R_CAPT_DMA_ADDR,  cmd->capture_address);
+      LSI_write_reg(LSI, R_CAPT_SIZE_ADDR, dma_size);
+      printk(KERN_DEBUG "LSI_USER_SET_MODE: Capture address=0x%08x size=0x%08x\n", cmd->capture_address, dma_size);
+   }
 
    if (cmd->interrupt == ENABLE_INTERRUPT)
        LSI_write_reg(LSI, R_INTERRUPT_ADDR, K_CLEAR_INTERRUPT);
    else
        LSI_write_reg(LSI, R_INTERRUPT_ADDR, K_DISABLE_INTERRUPT);
 
-   printk(KERN_DEBUG "LSI_USER_SET_MODE: config=0x%08x address=0x%08x capture_count=0x%08x delay_count=0x%08x peak_detect_start=0x%08x peak_detect_end=0x%08X\n", cmd->config, cmd->address, cmd->capture_count, cmd->delay_count, cmd->peak_detect_start, cmd->peak_detect_end);
+   if (config & USE_HISTOGRAM) {
+      capture_count = cmd->histogram_count * cmd->histogram_rate * 2000;
+   } else {
+      capture_count = cmd->capture_count * 8;
+   }
 
-//   capture_count = cmd->capture_count;
-   capture_count = 32002048;
+   printk(KERN_DEBUG "LSI_USER_SET_MODE: capture_count=0x%08x\n", capture_count);
 
-   dma_size = capture_count * 8;
-
-//   LSI_write_reg(LSI, R_DMA_WRITE_ADDR, (LSI->dma_handle + cmd->address));
-   LSI_write_reg(LSI, R_DMA_WRITE_ADDR, (LSI->dma_handle));
-   LSI_write_reg(LSI, R_DMA_SIZE_ADDR, dma_size);
-   LSI_write_reg(LSI, R_CAPTURE_COUNT_ADDR, (capture_count));
+   LSI_write_reg(LSI, R_CAPTURE_COUNT_ADDR, capture_count);
    LSI->int_status = 0;
 
-   if (cmd->peak_detect_start > PEAK_START_DISABLE)
-      LSI_write_reg(LSI, R_PEAK_START_ADDR, PEAK_START_DISABLE);
-   else
-      LSI_write_reg(LSI, R_PEAK_START_ADDR, cmd->peak_detect_start);
-
-   if (cmd->peak_detect_end > PEAK_STOP_DISABLE)
-      LSI_write_reg(LSI, R_PEAK_END_ADDR, PEAK_STOP_DISABLE);
-   else
-      LSI_write_reg(LSI, R_PEAK_END_ADDR, cmd->peak_detect_end);
-
-   LSI->config_state &= ~(CONFIG_MODE_MASK);
-   LSI->config_state |= (cmd->config & CONFIG_MODE_MASK);
+   LSI->config_state = config;
    LSI_write_reg(LSI, R_MODE_CONFIG_ADDR, LSI->config_state);
    printk(KERN_DEBUG "LSI_USER_SET_MODE: config_state=0x%08x\n", LSI->config_state);
 
@@ -164,7 +223,7 @@ int LSI_SPI_Access(struct LSI_drvdata *LSI, void *user_ptr)
 #ifdef DEBUG
       printk(KERN_DEBUG "output to device register at address 0x%x = 0x%x\n",addr_offset,data);
 #endif
-      LMK_write_reg(LSI, addr_offset, data);
+      LSI_write_reg(LSI, addr_offset, data);
 
       // wait until SPI write completes
       i = 0;
@@ -176,7 +235,7 @@ int LSI_SPI_Access(struct LSI_drvdata *LSI, void *user_ptr)
 
       // if read then read back data
       if (rd_nwr_mode == SPI_CTRL_READ) {
-         data = LMK_read_reg(LSI,addr_offset);
+         data = LSI_read_reg(LSI,addr_offset);
 #ifdef DEBUG
          printk(KERN_DEBUG "Read data = 0x%x\n",data);
 #endif
@@ -195,62 +254,6 @@ int LSI_SPI_Access(struct LSI_drvdata *LSI, void *user_ptr)
          return -EFAULT;
       }
    }
-   return 0;
-}
-
-//
-// LSI_Maxmin_Read()
-//
-int LSI_Maxmin_Read(struct LSI_drvdata *LSI, void *user_ptr)
-{
-   struct LSI_maxmin_struct  cmd;
-
-   cmd.max_ch0_data = LSI_read_reg(LSI,R_MAX_CH0_VAL_ADDR) & 0x00ffffff;
-   cmd.max_ch0_addr = LSI_read_reg(LSI,R_MAX_CH0_LOC_ADDR) & 0x00ffffff;
-   cmd.min_ch0_data = LSI_read_reg(LSI,R_MIN_CH0_VAL_ADDR) & 0x00ffffff;
-   cmd.min_ch0_addr = LSI_read_reg(LSI,R_MIN_CH0_LOC_ADDR) & 0x00ffffff;
-   cmd.max_ch1_data = LSI_read_reg(LSI,R_MAX_CH1_VAL_ADDR) & 0x00ffffff;
-   cmd.max_ch1_addr = LSI_read_reg(LSI,R_MAX_CH1_LOC_ADDR) & 0x00ffffff;
-   cmd.min_ch1_data = LSI_read_reg(LSI,R_MIN_CH1_VAL_ADDR) & 0x00ffffff;
-   cmd.min_ch1_addr = LSI_read_reg(LSI,R_MIN_CH1_LOC_ADDR) & 0x00ffffff;
-   cmd.max_ch2_data = LSI_read_reg(LSI,R_MAX_CH2_VAL_ADDR) & 0x00ffffff;
-   cmd.max_ch2_addr = LSI_read_reg(LSI,R_MAX_CH2_LOC_ADDR) & 0x00ffffff;
-   cmd.min_ch2_data = LSI_read_reg(LSI,R_MIN_CH2_VAL_ADDR) & 0x00ffffff;
-   cmd.min_ch2_addr = LSI_read_reg(LSI,R_MIN_CH2_LOC_ADDR) & 0x00ffffff;
-
-   if (copy_to_user(user_ptr, &cmd, sizeof(cmd))) {
-      return -EFAULT;
-   }
-
-   return 0;
-}
-
-
-//
-// LSI_Run_Scan()
-//
-// Set the user operation mode
-//
-int LSI_Run_Scan(struct LSI_drvdata *LSI, void *user_ptr)
-{
-   struct LSI_cmd_struct   cmd;
-   u32                        config;
-
-   if (copy_from_user(&cmd, user_ptr, sizeof(cmd))) {
-      printk(KERN_DEBUG "LSI_Set_Run_Scan: copy failed\n");
-
-      return -EFAULT;
-   }
-
-   // set mode (dma_debug and reset disabled)
-   config = cmd.config & (ADC_TEST_DATA|PPS_DEBUG_MODE);
-
-   LSI->config_state = config;
-   LSI_write_reg(LSI, R_MODE_CONFIG_ADDR, config);
-
-   LSI_write_reg(LSI, R_DMA_READ_ADDR, cmd.address);
-
-
    return 0;
 }
 
@@ -294,10 +297,10 @@ int LSI_Write_Adc_Taps(struct LSI_drvdata *LSI, void *user_ptr)
       printk(KERN_DEBUG "LSI_Write_Adc_taps:addr_lo = 0x%x, addr_hi = 0x%x, lo_word = 0x%x, hi_word = 0x%x\n",addr_lo, addr_hi, lo_word, hi_word);
 #endif
 
-   ADC_write_reg(LSI, addr_lo, lo_word);
-   ADC_write_reg(LSI, addr_hi, hi_word);
+   LSI_write_reg(LSI, addr_lo, lo_word);
+   LSI_write_reg(LSI, addr_hi, hi_word);
    udelay(10);
-   ADC_write_reg(LSI, R_TAPS_LOAD_ADDR, (1 << taps.device));
+   LSI_write_reg(LSI, R_TAPS_LOAD_ADDR, (1 << taps.device));
    udelay(10);
 
    return 0;
@@ -324,15 +327,15 @@ int LSI_Read_Adc_Taps(struct LSI_drvdata *LSI, void *user_ptr)
 
    addr_lo = R_ADC0_L_TAPS_ADDR + taps.device*8;
    addr_hi = R_ADC0_H_TAPS_ADDR + taps.device*8;
-   lo_word = ADC_read_reg(LSI, addr_lo);
-   hi_word = ADC_read_reg(LSI, addr_hi);
+   lo_word = LSI_read_reg(LSI, addr_lo);
+   hi_word = LSI_read_reg(LSI, addr_hi);
 
 #ifdef TAPS_DEBUG
    printk(KERN_DEBUG "LSI_Read_Adc_taps:addr_lo = 0x%x, addr_hi = 0x%x, lo_word = 0x%x, hi_word = 0x%x\n",addr_lo, addr_hi, lo_word, hi_word);
 
    // dump registers
    for (i=0; i < 128; i+=4)
-      printk(KERN_DEBUG "LSI_Read_Adc_taps:addr = 0x%x, word = 0x%x\n",i, ADC_read_reg(LSI, i));
+      printk(KERN_DEBUG "LSI_Read_Adc_taps:addr = 0x%x, word = 0x%x\n",i, LSI_read_reg(LSI, i));
 #endif
 
   taps.clk_taps      = (lo_word >> 16) & 0xf;
