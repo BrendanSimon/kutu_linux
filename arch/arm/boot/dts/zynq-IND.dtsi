@@ -1,3 +1,23 @@
+/*
+** Enable second PS uart, which enumerates to /dev/ttyPS1.
+*/
+
+/ {
+    /*interrupt-parent = <&intc>;*/
+
+    aliases: aliases {
+        serial1 = &uart0;
+    };
+};
+
+&uart0 {
+    status = "okay";
+};
+
+/*
+**  Configure IND FGPA peripherals.
+*/
+
 / {
 	fpga_axi: fpga-axi@0 {
 		compatible = "simple-bus";
@@ -11,7 +31,7 @@
 		   reg = <0x43c00000 0x10000>;
 			#clock-cells = <0>;
 			clocks = <&clkc 16>;
-		   interrupt-parent = <&gic>;
+		   interrupt-parent = <&intc>;
 			interrupts = <0 59 4>;
 		   xlnx,dphase-timeout = <0x8>;
 			xlnx,s-axi-min-size = <0x00003FFF>;
@@ -26,7 +46,7 @@
 			compatible = "xlnx,axi-uart16550-1.01.a", "xlnx,xps-uart16550-2.00.a", "ns16550";
 			current-speed = <9600>;
 			device_type = "serial";
-			interrupt-parent = <&gic>;
+			interrupt-parent = <&intc>;
 			interrupts = < 0 58 4>;
 			reg = < 0x43c10000 0x10000 >;
 			reg-offset = <0x1000>;
