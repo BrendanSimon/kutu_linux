@@ -1,7 +1,6 @@
 /*
  * Wrapper Driver used to control a two-channel Xilinx DMA Engine
  */
-#include <linux/dmaengine.h>
 
 #include <linux/module.h>
 #include <linux/version.h>
@@ -17,13 +16,7 @@
 #include <linux/interrupt.h>
 #include <linux/delay.h>
 #include <linux/poll.h>
-
-#include <asm/uaccess.h>
 #include <linux/dma-mapping.h>
-#include <xen/page.h>
-
-#include <linux/slab.h>
-#include <linux/amba/xilinx_dma.h>
 #include <linux/platform_device.h>
 
 #include "IND.h"
