@@ -46,6 +46,10 @@
 #define R_TEST_DMA_ADDR          0x0028
 #define R_TEST_SIZE_ADDR         0x002C
 
+#define R_ALPHA_ADDR             0x0030
+#define R_ALPHA_SQ_ADDR          0x0034
+#define R_DDT_ADDR               0x0038
+
 #define R_OFFSET_BASE_ADDR       0x0100   // base address for 40 32-bit words
 #define R_SCALE_BASE_ADDR        0x0200   // base address for 40 32-bit words
 

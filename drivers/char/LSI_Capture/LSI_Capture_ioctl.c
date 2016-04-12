@@ -50,7 +50,7 @@ int LSI_Set_User_Mode(struct LSI_drvdata *LSI, struct LSI_cmd_struct *cmd)
       return -EFAULT;
    }
 
-   config = cmd->config & (USE_HISTOGRAM|USE_CAPTURE|USE_TEST_DATA|ADC_TEST_DATA|PPS_DEBUG_MODE);
+   config = cmd->config & (USE_PEAK_DETECT|USE_HISTOGRAM|USE_CAPTURE|USE_TEST_DATA|ADC_TEST_DATA|PPS_DEBUG_MODE|START_DMA);
    config |= cmd->capture_channel << 16;
    if (cmd->single_channel)
       config |= SINGLE_MODE;
@@ -88,7 +88,7 @@ int LSI_Set_User_Mode(struct LSI_drvdata *LSI, struct LSI_cmd_struct *cmd)
          printk(KERN_DEBUG "LSI_USER_SET_MODE: Invalid histogram address\n");
          return -EFAULT;
       }
-      LSI_write_reg(LSI, R_HIST_DMA_ADDR,  cmd->histogram_address);
+      LSI_write_reg(LSI, R_HIST_DMA_ADDR, LSI->dma_handle + cmd->histogram_address);
       LSI_write_reg(LSI, R_HIST_SIZE_ADDR, cmd->histogram_count*32768); // each histogram is 32kbytes
       printk(KERN_DEBUG "LSI_USER_SET_MODE: Histogram address=0x%08x size=0x%08x\n", cmd->histogram_address, cmd->histogram_count*32768);
    }
@@ -104,7 +104,7 @@ int LSI_Set_User_Mode(struct LSI_drvdata *LSI, struct LSI_cmd_struct *cmd)
          printk(KERN_DEBUG "LSI_USER_SET_MODE: Invalid test data address\n");
          return -EFAULT;
       }
-      LSI_write_reg(LSI, R_TEST_DMA_ADDR,  cmd->test_data_address);
+      LSI_write_reg(LSI, R_TEST_DMA_ADDR, LSI->dma_handle + cmd->test_data_address);
       LSI_write_reg(LSI, R_TEST_SIZE_ADDR, dma_size);
       printk(KERN_DEBUG "LSI_USER_SET_MODE: Test Data address=0x%08x size=0x%08x\n", cmd->test_data_address, dma_size);
    }
@@ -123,7 +123,7 @@ int LSI_Set_User_Mode(struct LSI_drvdata *LSI, struct LSI_cmd_struct *cmd)
          printk(KERN_DEBUG "LSI_USER_SET_MODE: Invalid test data address\n");
          return -EFAULT;
       }
-      LSI_write_reg(LSI, R_CAPT_DMA_ADDR,  cmd->capture_address);
+      LSI_write_reg(LSI, R_CAPT_DMA_ADDR, LSI->dma_handle + cmd->capture_address);
       LSI_write_reg(LSI, R_CAPT_SIZE_ADDR, dma_size);
       printk(KERN_DEBUG "LSI_USER_SET_MODE: Capture address=0x%08x size=0x%08x\n", cmd->capture_address, dma_size);
    }
@@ -143,6 +143,10 @@ int LSI_Set_User_Mode(struct LSI_drvdata *LSI, struct LSI_cmd_struct *cmd)
 
    LSI_write_reg(LSI, R_CAPTURE_COUNT_ADDR, capture_count);
    LSI->int_status = 0;
+
+   LSI_write_reg(LSI, R_DDT_ADDR, cmd->ddt);
+   LSI_write_reg(LSI, R_ALPHA_ADDR, cmd->alpha);
+   LSI_write_reg(LSI, R_ALPHA_SQ_ADDR, cmd->alpha_sq);
 
    LSI->config_state = config;
    LSI_write_reg(LSI, R_MODE_CONFIG_ADDR, LSI->config_state);

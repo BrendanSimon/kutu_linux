@@ -186,12 +186,12 @@ static long LSI_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          if (copy_from_user(&user_pn9, arg_ptr, sizeof(user_pn9))) {
             printk(KERN_DEBUG "LSI_USER_SET_PN9_TEST: copy failed\n");
          }
+         LSI_write_reg(LSI, R_ADC_CONTROL_ADDR, user_pn9.command);
          user_pn9.status[0] = LSI_read_reg(LSI,R_ADC_STATUS_0_ADDR);
          user_pn9.status[1] = LSI_read_reg(LSI,R_ADC_STATUS_1_ADDR);
          user_pn9.status[2] = LSI_read_reg(LSI,R_ADC_STATUS_2_ADDR);
          user_pn9.status[3] = LSI_read_reg(LSI,R_ADC_STATUS_3_ADDR);
          user_pn9.status[4] = LSI_read_reg(LSI,R_ADC_STATUS_4_ADDR);
-         LSI_write_reg(LSI, R_ADC_CONTROL_ADDR, user_pn9.command);
          user_pn9.command = LSI_read_reg(LSI,R_ADC_CONTROL_ADDR);
 
          if (copy_to_user(arg_ptr, &user_pn9, sizeof(user_pn9))) {

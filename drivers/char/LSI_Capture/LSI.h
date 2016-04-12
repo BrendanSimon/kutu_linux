@@ -27,6 +27,7 @@
 #define USE_HISTOGRAM            0x100
 #define USE_CAPTURE              0x200
 #define USE_TEST_DATA            0x400
+#define USE_PEAK_DETECT          0x800
 #define CHANNEL_SELECT           0x3f0000
 
 #define CONFIG_MODE_MASK         (START_DMA | ADC_TEST_DATA | PPS_DEBUG_MODE | CHANNEL_SELECT)
@@ -109,6 +110,9 @@ struct LSI_cmd_struct {
    __u32                            test_data_address;
    __u32                            histogram_count;
    __u32                            histogram_rate;
+   __u32                            alpha;
+   __u32                            alpha_sq;
+   __u32                            ddt;
    __u32                            capture_count;
    __u32                            capture_channel;
    __u32                            single_channel;
