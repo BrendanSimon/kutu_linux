@@ -142,6 +142,7 @@ static long LSI_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
    struct LSI_debug_struct debug_cmd;
    struct LSI_cmd_struct user_cmd;
    struct LSI_pn9_struct user_pn9;
+   struct LSI_scale_struct user_scale;
 
    //printk(KERN_DEBUG "<%s> ioctl: entered LSI_ioctl\n", MODULE_NAME);
 
@@ -303,7 +304,23 @@ static long LSI_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          }
          return 0;
 
-      case LSI_USER_WRITE_TAPS:
+       case LSI_USER_SET_INPUT_SCALE:
+
+         if (copy_from_user(&user_scale, arg_ptr, sizeof(user_scale))) {
+            printk(KERN_DEBUG "LSI_REG_DEBUG: copy failed\n");
+
+            return -EFAULT;
+         }
+
+         if (user_scale.channel > 39) {
+            return -EFAULT;
+         }
+
+         LSI_write_reg(LSI, R_OFFSET_BASE_ADDR + user_scale.channel*4, user_scale.offset);
+         LSI_write_reg(LSI, R_SCALE_BASE_ADDR + user_scale.channel*4, user_scale.gain);
+          return 0;
+
+     case LSI_USER_WRITE_TAPS:
          ret = LSI_Write_Adc_Taps(LSI, arg_ptr);
          return ret;
 

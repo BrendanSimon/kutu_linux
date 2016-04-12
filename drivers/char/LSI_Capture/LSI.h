@@ -94,7 +94,8 @@ enum LSI_Capture_user_cmds
    LSI_USER_VERSION,
    LSI_USER_FPGA_VERSION,
    LSI_USER_SET_PN9_TEST,
-   LSI_USER_READ_PN9_TEST
+   LSI_USER_READ_PN9_TEST,
+   LSI_USER_SET_INPUT_SCALE
 };
 
 /*
@@ -121,6 +122,12 @@ struct LSI_cmd_struct {
 struct LSI_pn9_struct {
    __u32                            command;
    __u32                            status[5];
+} ;
+
+struct LSI_scale_struct {
+   __u32                            channel;
+   __s32                            offset;
+   __u32                            gain;
 } ;
 
 
@@ -185,5 +192,6 @@ struct LSI_debug_struct {
 #define LSI_USER_FPGA_VERSION       _IOWR(LSI_IOCTL_BASE, 0x8f, struct LSI_cmd_struct)
 #define LSI_USER_SET_PN9_TEST       _IOWR(LSI_IOCTL_BASE, 0x90, struct LSI_pn9_struct)
 #define LSI_USER_READ_PN9_TEST      _IOWR(LSI_IOCTL_BASE, 0x91, struct LSI_pn9_struct)
+#define LSI_USER_SET_INPUT_SCALE    _IOWR(LSI_IOCTL_BASE, 0x92, struct LSI_pn9_struct)
 
 #endif /* _LSI_H */
