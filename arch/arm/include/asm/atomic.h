@@ -194,6 +194,21 @@ static inline int __atomic_add_unless(atomic_t *v, int a, int u)
 ATOMIC_OPS(add, +=, add)
 ATOMIC_OPS(sub, -=, sub)
 
+#if 1 /* Brendan Simon (Successful Endeavours), borrowed from kernel 4.4 */
+
+#define atomic_andnot atomic_andnot
+
+ATOMIC_OPS(and, &=, and)
+ATOMIC_OPS(andnot, &= ~, bic)
+
+// define this so that atomic_or is not defined in include/linux/atomic.h
+#define CONFIG_ARCH_HAS_ATOMIC_OR
+ATOMIC_OPS(or,  |=, orr)
+
+ATOMIC_OPS(xor, ^=, eor)
+
+#endif /* Brendan Simon (Successful Endeavours), borrowed from kernel 4.4 */
+
 #undef ATOMIC_OPS
 #undef ATOMIC_OP_RETURN
 #undef ATOMIC_OP
