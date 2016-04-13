@@ -1655,6 +1655,7 @@ CONFIG_ad7193_UART=y
 # CONFIG_HAWK_FOS is not set
 # CONFIG_GR1000 is not set
 CONFIG_IND=y
+# CONFIG_LSI_CAPTURE is not set
 # CONFIG_R3964 is not set
 # CONFIG_APPLICOM is not set
 # CONFIG_RAW_DRIVER is not set
