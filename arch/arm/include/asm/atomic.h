@@ -194,10 +194,10 @@ ATOMIC_OPS(sub, -=, sub)
 
 #define atomic_andnot atomic_andnot
 
-ATOMIC_OP(and, &=, and)
-ATOMIC_OP(andnot, &= ~, bic)
-ATOMIC_OP(or,  |=, orr)
-ATOMIC_OP(xor, ^=, eor)
+ATOMIC_OPS(and, &=, and)
+ATOMIC_OPS(andnot, &= ~, bic)
+ATOMIC_OPS(or,  |=, orr)
+ATOMIC_OPS(xor, ^=, eor)
 
 #undef ATOMIC_OPS
 #undef ATOMIC_OP_RETURN
