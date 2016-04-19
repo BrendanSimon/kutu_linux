@@ -125,7 +125,8 @@ enum IND_user_cmds
    IND_USER_REG_DEBUG,
    IND_USER_MODIFY_LEDS,
    IND_USER_MODIFY_CTRL,
-   IND_USER_READ_MAXMIN
+   IND_USER_READ_MAXMIN,
+   IND_USER_FPGA_VERSION
 };
 
 /*
@@ -205,5 +206,6 @@ struct IND_maxmin_struct {
 #define IND_USER_MODIFY_LEDS        _IOWR(IND_IOCTL_BASE, 0x90, struct IND_cmd_struct)
 #define IND_USER_MODIFY_CTRL        _IOWR(IND_IOCTL_BASE, 0x91, struct IND_cmd_struct)
 #define IND_USER_READ_MAXMIN        _IOWR(IND_IOCTL_BASE, 0x92, struct IND_maxmin_struct)
+#define LSI_USER_FPGA_VERSION       _IOWR(LSI_IOCTL_BASE, 0x93, struct IND_cmd_struct)
 
 #endif /* _IND_H */
