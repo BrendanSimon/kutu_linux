@@ -23,7 +23,6 @@
 #include "IND_system.h"
 
 #define DRIVER_NAME "IND"
-//#define DRIVER_NAME "IND_pdrv"
 #define MODULE_NAME "IND"
 #define IND_DEVICES 1
 
@@ -137,6 +136,7 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
    long  ret = 0;
    unsigned int s2mm_status;
    unsigned int timeout;
+   unsigned int val;
 //   struct IND_read_data_struct read_cmd;
    struct IND_debug_struct debug_cmd;
 
@@ -339,6 +339,21 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          }
 
          return 0;
+
+      case IND_USER_FPGA_VERSION:
+
+         val = IND_read_reg(IND,R_FPGA_VERSION_ADDR);
+         if ((val & 0xffff0000) != 0xaaaa0000) {
+            printk(KERN_DEBUG "<%s> : Read version failed !!!, read = 0x%x\n",MODULE_NAME,val);
+            return -EFAULT;
+         }
+         val &=0x0000ffff;
+
+         if (copy_to_user(arg_ptr, &val, sizeof(u32))) {
+            return -EFAULT;
+         }
+         return 0;
+
 
       case IND_USER_READ_MAXMIN:
          ret = IND_Maxmin_Read(IND, arg_ptr);

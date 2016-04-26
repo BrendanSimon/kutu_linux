@@ -9,7 +9,7 @@
 
 #include <linux/slab.h>
 #include <linux/dmaengine.h>
-#include <linux/amba/xilinx_dma.h>
+#include <linux/dma/xilinx_dma.h>
 
 #include <drm/drmP.h>
 #include <drm/drm_crtc_helper.h>
@@ -54,7 +54,7 @@ static int axi_dispctrl_crtc_update(struct drm_crtc *crtc)
 		axi_dispctrl_crtc->dma_config.hsize = mode->hdisplay * fb->bits_per_pixel / 8;
 		axi_dispctrl_crtc->dma_config.vsize = mode->vdisplay;
 		axi_dispctrl_crtc->dma_config.stride = fb->pitches[0];
-		
+
 //		dmaengine_device_control(axi_dispctrl_crtc->dma, DMA_SLAVE_CONFIG,
 //			(unsigned long)&axi_dispctrl_crtc->dma_config);
 		dmaengine_slave_config(axi_dispctrl_crtc->dma,
