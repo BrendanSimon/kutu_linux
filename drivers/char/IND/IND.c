@@ -341,19 +341,25 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          return 0;
 
       case IND_USER_FPGA_VERSION:
+      {
+         struct IND_fpga_version_struct fpga_version;
 
-         val = IND_read_reg(IND,R_FPGA_VERSION_ADDR);
+         val = IND_read_reg(IND, R_FPGA_VERSION_ADDR);
          if ((val & 0xffff0000) != 0xaaaa0000) {
-            printk(KERN_DEBUG "<%s> : Read version failed !!!, read = 0x%x\n",MODULE_NAME,val);
+            printk(KERN_DEBUG "<%s> : Read FPGA version failed !!!, read = 0x%08X\n", MODULE_NAME, val);
             return -EFAULT;
          }
-         val &=0x0000ffff;
 
-         if (copy_to_user(arg_ptr, &val, sizeof(u32))) {
+         fpga_version._reserved_0 = 0;
+         fpga_version.major = (val >> 8) & 0xff;
+         fpga_version.minor = val & 0xff;
+
+         if (copy_to_user(arg_ptr, &fpga_version, sizeof(fpga_version))) {
             return -EFAULT;
          }
+
          return 0;
-
+      }
 
       case IND_USER_READ_MAXMIN:
          ret = IND_Maxmin_Read(IND, arg_ptr);

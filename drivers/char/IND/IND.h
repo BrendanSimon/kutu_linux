@@ -145,10 +145,10 @@ struct IND_cmd_struct {
 } ;
 
 /*
-** Structure to set and clear bits for the following ioctl commands.
-**   IND_USER_MODIFY_LEDS
-**   IND_USER_MODIFY_CTRL
-*/
+ *  Structure to set and clear bits for the following ioctl commands.
+ *      IND_USER_MODIFY_LEDS
+ *      IND_USER_MODIFY_CTRL
+ */
 typedef struct IND_bit_flag_struct {
    __u32                            set;
    __u32                            clear;
@@ -185,6 +185,20 @@ struct IND_maxmin_struct {
    __u32                           min_ch2_addr;
 } ;
 
+/*
+ *  Structure to get the FPGA version.
+ *      reserved -- upper 16 bits.
+ *          set to zeros.
+ *      version  -- lower 16 bits.
+ *          version_major -- bits [15:8]
+ *          version_minor -- bits [7:0]
+ */
+struct IND_fpga_version_struct {
+   __u16                           _reserved_0;
+   __u8                            major;
+   __u8                            minor;
+} __packed;
+
 
 #define IND_IOCTL_BASE	't'
 
@@ -207,6 +221,6 @@ struct IND_maxmin_struct {
 #define IND_USER_MODIFY_LEDS        _IOWR(IND_IOCTL_BASE, 0x90, struct IND_bit_flag_struct)
 #define IND_USER_MODIFY_CTRL        _IOWR(IND_IOCTL_BASE, 0x91, struct IND_bit_flag_struct)
 #define IND_USER_READ_MAXMIN        _IOWR(IND_IOCTL_BASE, 0x92, struct IND_maxmin_struct)
-#define LSI_USER_FPGA_VERSION       _IOWR(LSI_IOCTL_BASE, 0x93, struct IND_cmd_struct)
+#define IND_USER_FPGA_VERSION       _IOWR(IND_IOCTL_BASE, 0x93, struct IND_fpga_version_struct)
 
 #endif /* _IND_H */
