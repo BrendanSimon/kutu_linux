@@ -50,7 +50,7 @@ int LSI_Set_User_Mode(struct LSI_drvdata *LSI, struct LSI_cmd_struct *cmd)
       return -EFAULT;
    }
 
-   config = cmd->config & (USE_PEAK_DETECT|USE_HISTOGRAM|USE_CAPTURE|USE_TEST_DATA|ADC_TEST_DATA|PPS_DEBUG_MODE|START_DMA);
+   config = cmd->config & (USE_PEAK_DETECT|USE_HISTOGRAM|USE_CAPTURE|USE_TEST_DATA|ADC_TEST_DATA|PPS_DEBUG_MODE|START_DMA|ARM_SYNC|USE_GATE);
    config |= cmd->capture_channel << 16;
    if (cmd->single_channel)
       config |= SINGLE_MODE;
@@ -146,7 +146,6 @@ int LSI_Set_User_Mode(struct LSI_drvdata *LSI, struct LSI_cmd_struct *cmd)
 
    LSI_write_reg(LSI, R_DDT_ADDR, cmd->ddt);
    LSI_write_reg(LSI, R_ALPHA_ADDR, cmd->alpha);
-   LSI_write_reg(LSI, R_ALPHA_SQ_ADDR, cmd->alpha_sq);
 
    LSI->config_state = config;
    LSI_write_reg(LSI, R_MODE_CONFIG_ADDR, LSI->config_state);

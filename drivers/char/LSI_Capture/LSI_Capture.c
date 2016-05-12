@@ -29,7 +29,6 @@
 #include "LSI_system.h"
 
 #define DRIVER_NAME "LSI"
-//#define DRIVER_NAME "LSI_pdrv"
 #define MODULE_NAME "LSI"
 #define LSI_DEVICES 1
 
@@ -143,6 +142,7 @@ static long LSI_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
    struct LSI_cmd_struct user_cmd;
    struct LSI_pn9_struct user_pn9;
    struct LSI_scale_struct user_scale;
+   struct LSI_gpio_struct user_gpio;
 
    //printk(KERN_DEBUG "<%s> ioctl: entered LSI_ioctl\n", MODULE_NAME);
 
@@ -324,9 +324,18 @@ static long LSI_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          ret = LSI_Write_Adc_Taps(LSI, arg_ptr);
          return ret;
 
-      case LSI_USER_READ_TAPS:
+     case LSI_USER_READ_TAPS:
          ret = LSI_Read_Adc_Taps(LSI, arg_ptr);
          return ret;
+
+     case LSI_USER_READ_GPIO:
+         user_gpio.data0 = LSI_read_gpio(LSI, 0x60);
+         user_gpio.data1 = LSI_read_gpio(LSI, 0x64);
+
+         if (copy_to_user(arg_ptr, &user_gpio, sizeof(user_gpio))) {
+            return -EFAULT;
+         }
+         return 0;
 
       default:
          break;
@@ -421,6 +430,9 @@ static int LSI_probe(struct platform_device *pdev)
 
    mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
    LSI->base = devm_ioremap_resource(&pdev->dev, mem);
+
+   LSI->gpio_base = ioremap(0xe000a000, 1024);
+
 
    if (IS_ERR(LSI->base))
       return PTR_ERR(LSI->base);

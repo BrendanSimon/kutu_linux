@@ -3,7 +3,7 @@
  *
  *  Greg Smart
  *
- *  Version 0.1 10/03/14
+ *  Version 0.2 29/04/16
  *
  */
 
@@ -11,7 +11,7 @@
 #define _LSI_Capture_H
 
 #define LSI_VERSION_MAJOR 0
-#define LSI_VERSION_MINOR 10
+#define LSI_VERSION_MINOR 21
 
 /*
 ** configuration constants
@@ -29,6 +29,8 @@
 #define USE_TEST_DATA            0x400
 #define USE_PEAK_DETECT          0x800
 #define CHANNEL_SELECT           0x3f0000
+#define ARM_SYNC                 0x1000000
+#define USE_GATE                 0x2000000
 
 #define CONFIG_MODE_MASK         (START_DMA | ADC_TEST_DATA | PPS_DEBUG_MODE | CHANNEL_SELECT)
 
@@ -95,7 +97,8 @@ enum LSI_Capture_user_cmds
    LSI_USER_FPGA_VERSION,
    LSI_USER_SET_PN9_TEST,
    LSI_USER_READ_PN9_TEST,
-   LSI_USER_SET_INPUT_SCALE
+   LSI_USER_SET_INPUT_SCALE,
+   LSI_USER_READ_GPIO
 };
 
 /*
@@ -112,7 +115,7 @@ struct LSI_cmd_struct {
    __u32                            histogram_count;
    __u32                            histogram_rate;
    __u32                            alpha;
-   __u32                            alpha_sq;
+   __u32                            sync_armed;
    __u32                            ddt;
    __u32                            capture_count;
    __u32                            capture_channel;
@@ -171,6 +174,12 @@ struct LSI_debug_struct {
    __u32                           data;
 } ;
 
+struct LSI_gpio_struct {
+   __u32                           data0;
+   __u32                           data1;
+} ;
+
+
 
 #define LSI_IOCTL_BASE	't'
 
@@ -193,5 +202,6 @@ struct LSI_debug_struct {
 #define LSI_USER_SET_PN9_TEST       _IOWR(LSI_IOCTL_BASE, 0x90, struct LSI_pn9_struct)
 #define LSI_USER_READ_PN9_TEST      _IOWR(LSI_IOCTL_BASE, 0x91, struct LSI_pn9_struct)
 #define LSI_USER_SET_INPUT_SCALE    _IOWR(LSI_IOCTL_BASE, 0x92, struct LSI_pn9_struct)
+#define LSI_USER_READ_GPIO          _IOWR(LSI_IOCTL_BASE, 0x93, struct LSI_gpio_struct)
 
 #endif /* _LSI_H */

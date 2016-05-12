@@ -5,7 +5,7 @@
 		#size-cells = <0x1>;
 		ranges;
 
-		axi4_IND_controller_0: axi4_IND_controller@43c00000 {
+		axi4_LSI_controller_0: axi4_LSI_controller@43c00000 {
 			compatible = "kutu,axi4-LSI-controller-1.00-a";
 		   reg = <0x43c00000 0x30000>;
 			#clock-cells = <0>;
