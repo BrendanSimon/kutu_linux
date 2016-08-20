@@ -101,8 +101,10 @@ static int xilinxphy_of_init(struct phy_device *phydev)
 	if (!IS_ENABLED(CONFIG_OF_MDIO))
 		return 0;
 
-	if (!of_node)
+	if (!of_node) {
+      printk(KERN_DEBUG "PHY init: of_node is 0 !!!!\n");
 		return -ENODEV;
+   }
 
 	if (!of_property_read_u32(of_node, "xlnx,phy-type", &phytype))
 		if (phytype == XAE_PHY_TYPE_1000BASE_X)

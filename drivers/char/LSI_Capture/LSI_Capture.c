@@ -331,7 +331,8 @@ static long LSI_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
      case LSI_USER_READ_GPIO:
          user_gpio.data0 = LSI_read_gpio(LSI, 0x60);
          user_gpio.data1 = LSI_read_gpio(LSI, 0x64);
-
+         printk(KERN_DEBUG "LSI_GPIO: 0x204 = 0x%08x\n",LSI_read_gpio(LSI, 0x204));
+         printk(KERN_DEBUG "LSI_GPIO: 0x244 = 0x%08x\n",LSI_read_gpio(LSI, 0x244));
          if (copy_to_user(arg_ptr, &user_gpio, sizeof(user_gpio))) {
             return -EFAULT;
          }
