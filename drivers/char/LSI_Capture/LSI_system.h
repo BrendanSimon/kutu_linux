@@ -213,11 +213,6 @@ static inline uint32_t LSI_read_reg(struct LSI_drvdata *LSI, unsigned int reg)
 	return(readl(LSI->base + reg));
 }
 
-static inline void LSI_write_gpio(struct LSI_drvdata *LSI, unsigned int reg, uint32_t val)
-{
-	writel(val, LSI->gpio_base + reg);
-}
-
 static inline uint32_t LSI_read_gpio(struct LSI_drvdata *LSI, unsigned int reg)
 {
 	return(readl(LSI->gpio_base + reg));

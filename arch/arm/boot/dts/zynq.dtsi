@@ -19,7 +19,7 @@
 		clock-names = "ref_clk", "aper_clk";
 		clocks = <&clkc 13>, <&clkc 30>;
 
-		xlnx,enet-clk-freq-hz = <125000000>;
+		xlnx,enet-clk-freq-hz = <0x17d7840>;
 		xlnx,enet-reset = "MIO 11";
 		xlnx,enet-slcr-1000mbps-div0 = <0x8>;
 		xlnx,enet-slcr-1000mbps-div1 = <0x1>;

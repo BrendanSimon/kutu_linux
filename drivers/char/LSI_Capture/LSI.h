@@ -11,7 +11,7 @@
 #define _LSI_Capture_H
 
 #define LSI_VERSION_MAJOR 0
-#define LSI_VERSION_MINOR 22
+#define LSI_VERSION_MINOR 21
 
 /*
 ** configuration constants
@@ -31,14 +31,6 @@
 #define CHANNEL_SELECT           0x3f0000
 #define ARM_SYNC                 0x1000000
 #define USE_GATE                 0x2000000
-
-#define DEBUG_LED                (1<<12)
-#define FPGA_ID_SHIFT            2
-#define FPGA_ID_MASK             0x03
-#define SLOT_ID_SHIFT            21
-#define SLOT_ID_MASK             0x0f
-#define SUBRACK_ID_SHIFT         25
-#define SUBRACK_ID_MASK          0x0f
 
 #define CONFIG_MODE_MASK         (START_DMA | ADC_TEST_DATA | PPS_DEBUG_MODE | CHANNEL_SELECT)
 
