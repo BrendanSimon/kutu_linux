@@ -2,7 +2,7 @@
  * AXI display controller DRM driver
  * based on Analog Devices AXI HDMI DRM driver.
  *
- * Copyright 2014 Antmicro Ltd <www.antmicro.com> 
+ * Copyright 2014 Antmicro Ltd <www.antmicro.com>
  *
  * Author(s):
  *   Karol Gugala <kgugala@antmicro.com>
@@ -56,7 +56,7 @@ static void axi_dispctrl_encoder_dpms(struct drm_encoder *encoder, int mode)
 	reg = readl(private->base + OFST_DISPLAY_CTRL);
 	switch (mode) {
 	case DRM_MODE_DPMS_ON:
-		/* start the display */    	
+		/* start the display */
 		reg |= 1 << BIT_DISPLAY_START;
 		writel(reg , private->base + OFST_DISPLAY_CTRL);
 		break;
@@ -158,9 +158,9 @@ static void axi_dispctrl_encoder_find_clock_parms(unsigned int freq, struct clk_
         for(div = 1; div < 10; div++)
         {
                 minFb = div * 6;
-                maxFb = div * 12; 
-                if (maxFb > 64) 
-                        maxFb = 64;    
+                maxFb = div * 12;
+                if (maxFb > 64)
+                        maxFb = 64;
                 currMult = minFb;
                 while (currMult <= maxFb)
                 {
@@ -198,7 +198,7 @@ static void axi_dispctrl_encoder_mode_set(struct drm_encoder *encoder,
 	struct clk_mode clk_params;
 	struct clk_config clk_regs;
 
-	if(mode->flags & DRM_MODE_FLAG_NHSYNC)  
+	if(mode->flags & DRM_MODE_FLAG_NHSYNC)
 		hpol = 0;
 	if(mode->flags & DRM_MODE_FLAG_NHSYNC)
 		vpol = 0;
@@ -207,7 +207,7 @@ static void axi_dispctrl_encoder_mode_set(struct drm_encoder *encoder,
 		/* invert pxl_clk polarization */
 		reg = readl(private->base + OFST_DISPLAY_CTRL);
 		reg |= 1 << BIT_DISPLAY_INVERT_PIX_CLOCK;
-        	writel(reg , private->base + OFST_DISPLAY_CTRL);	
+        	writel(reg , private->base + OFST_DISPLAY_CTRL);
 	}
 	/*pr_dev_info("Mode is:\nhdisplay = %d\nhsync_start = %d\nhsync_end = %d\nhtotal = %d\nhskew = %d\n vdisplay = %d\nvsync_start=%d\nvsync_end = %d\nvtotal = %d\nvscan = %d\n", mode->hdisplay,
 		     mode->hsync_start, mode->hsync_end, mode->htotal,
@@ -218,7 +218,7 @@ static void axi_dispctrl_encoder_mode_set(struct drm_encoder *encoder,
 	vgaReg[1] = (mode->hsync_start << 16) | (mode->hsync_end);
 	vgaReg[2] = (hpol << 16) | (mode->htotal);
 	vgaReg[3] = (mode->vsync_start << 16) | (mode->vsync_end);
-	vgaReg[4] = (vpol << 16) | (mode->vtotal);  
+	vgaReg[4] = (vpol << 16) | (mode->vtotal);
 
     	for (i = 0; i < 5; i++) {
 		writel(vgaReg[i], private->base + OFST_DISPLAY_VIDEO_START + (i * 4) );
@@ -293,7 +293,7 @@ struct drm_encoder *axi_dispctrl_encoder_create(struct drm_device *dev)
 	encoder->possible_crtcs = 1;
 
 	drm_encoder_init(dev, encoder, &axi_dispctrl_encoder_funcs,
-			DRM_MODE_ENCODER_TMDS);
+			DRM_MODE_ENCODER_TMDS,NULL);
 	drm_encoder_helper_add(encoder, &axi_dispctrl_encoder_helper_funcs);
 
 	connector = &axi_dispctrl_encoder->connector;
@@ -312,7 +312,7 @@ static int axi_dispctrl_connector_get_modes(struct drm_connector *connector)
 	/* If we are in lcd mode use fixed modes */
 	if ( private->lcd_mode ) {
 		mode = drm_mode_duplicate(connector->dev, private->lcd_fixed_mode);
-		if(!mode) 
+		if(!mode)
 			return 0;
 		drm_mode_set_name(mode);
 		drm_mode_probed_add(connector, mode);
@@ -320,7 +320,7 @@ static int axi_dispctrl_connector_get_modes(struct drm_connector *connector)
 	}
 	/* Get edid otherwise */
 	else {
-		//XXX: Use real edid 
+		//XXX: Use real edid
 		drm_mode_connector_update_edid_property(connector, (struct edid *) samsung_edid);
 		count = drm_add_edid_modes(connector, (struct edid *) samsung_edid);
 	}
@@ -356,7 +356,7 @@ static enum drm_connector_status axi_dispctrl_connector_detect(
 {
 	enum drm_connector_status status = connector_status_connected;
 
-	//XXX: add connection detect	
+	//XXX: add connection detect
 	//Always connected?
 	return status;
 }
