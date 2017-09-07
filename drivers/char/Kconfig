@@ -435,6 +435,14 @@ config LSI_CAPTURE
 	help
 	  Choose this if you have a LSI CAPTURE system.
 
+config LXS_CAPTURE
+	tristate "LXS_SWIFT support"
+	depends on ARCH_ZYNQ || COMPILE_TEST
+	depends on HAS_IOMEM
+	select GENERIC_IRQ_CHIP
+	help
+	  Choose this if you have a LXS SWIFT system.
+
 config R3964
 	tristate "Siemens R3964 line discipline"
 	depends on TTY
