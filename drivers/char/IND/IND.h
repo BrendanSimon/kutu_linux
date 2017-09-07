@@ -14,93 +14,116 @@
 /*
 ** configuration constants
 */
-#define GENERATE_PPS             0x01
-#define DEBUG_START_DMA          0x02
-#define DMA_HALT                 0x04
-#define DMA_RESET                0x08
-#define FPGA_RESET               0x10
-#define ADC_TEST_DATA            0x20
-#define PPS_DEBUG_MODE           0x40
-#define DMA_DEBUG_MODE           0x80
-#define DEBUG_SELECT_CH0         0x000
-#define DEBUG_SELECT_CH1         0x100
-#define DEBUG_SELECT_CH2         0x200
-#define DEBUG_SELECT_CH_OFF      0x300
-#define DEBUG_SELECT_ACTIVE      0x800
-#define SIGNED_DATA              0x1000
+#define GENERATE_PPS             (0x0001)
+#define DEBUG_START_DMA          (0x0002)
+#define DMA_HALT                 (0x0004)
+#define DMA_RESET                (0x0008)
+#define FPGA_RESET               (0x0010)
+#define ADC_TEST_DATA            (0x0020)
+#define PPS_DEBUG_MODE           (0x0040)
+#define DMA_DEBUG_MODE           (0x0080)
+#define DEBUG_SELECT_CH0         (0x0000)
+#define DEBUG_SELECT_CH1         (0x0100)
+#define DEBUG_SELECT_CH2         (0x0200)
+#define DEBUG_SELECT_CH_OFF      (0x0300)
+#define DEBUG_SELECT_ACTIVE      (0x0800)
+#define SIGNED_DATA              (0x1000)
 
 #define CONFIG_MODE_MASK         (ADC_TEST_DATA | PPS_DEBUG_MODE | DMA_DEBUG_MODE | DEBUG_SELECT_CH_OFF | DEBUG_SELECT_ACTIVE | SIGNED_DATA)
 
 
-#define MODE_NORMAL              0x00
+#define MODE_NORMAL              (0x00)
 #define MODE_DMA_DEBUG           (DMA_DEBUG_MODE)
-#define MODE_TRIGGER_DMA         (DMA_DEBUG_MODE|DEBUG_START_DMA)
+#define MODE_TRIGGER_DMA         (DMA_DEBUG_MODE | DEBUG_START_DMA)
 #define MODE_PPS_DEBUG           (PPS_DEBUG_MODE)
-#define MODE_TRIGGER_PPS         (PPS_DEBUG_MODE|GENERATE_PPS)
+#define MODE_TRIGGER_PPS         (PPS_DEBUG_MODE | GENERATE_PPS)
 #define MODE_SYSTEM_HALT         (PPS_DEBUG_MODE)
 
-#define MODE_CH_AUTO             0x00
-#define MODE_CH_AUTO_INV         ~(DEBUG_SELECT_ACTIVE|DEBUG_SELECT_CH_OFF)
-#define MODE_CH_0                (DEBUG_SELECT_ACTIVE|DEBUG_SELECT_CH0)
-#define MODE_CH_1                (DEBUG_SELECT_ACTIVE|DEBUG_SELECT_CH1)
-#define MODE_CH_2                (DEBUG_SELECT_ACTIVE|DEBUG_SELECT_CH2)
-#define MODE_CH_OFF              (DEBUG_SELECT_ACTIVE|DEBUG_SELECT_CH_OFF)
+#define MODE_CH_AUTO             (0x00)
+#define MODE_CH_AUTO_INV         (~(DEBUG_SELECT_ACTIVE | DEBUG_SELECT_CH_OFF))
+#define MODE_CH_0                (DEBUG_SELECT_ACTIVE | DEBUG_SELECT_CH0)
+#define MODE_CH_1                (DEBUG_SELECT_ACTIVE | DEBUG_SELECT_CH1)
+#define MODE_CH_2                (DEBUG_SELECT_ACTIVE | DEBUG_SELECT_CH2)
+#define MODE_CH_OFF              (DEBUG_SELECT_ACTIVE | DEBUG_SELECT_CH_OFF)
 
 #define MODE_SIGNED              (SIGNED_DATA)
 
-#define PEAK_START_DISABLE       0x00ffffff
-#define PEAK_STOP_DISABLE        0x00ffffff
+#define PEAK_START_DISABLE       (0x00ffffff)
+#define PEAK_STOP_DISABLE        (0x00ffffff)
 
 
-#define DISABLE_INTERRUPT        0
-#define ENABLE_INTERRUPT         1
+#define DISABLE_INTERRUPT       (0)
+#define ENABLE_INTERRUPT       	(1)
+
+#define DMA_LENGTH				(128*1024*1024)
+
+#define IND_DEBUG_READ        	(1)
+#define IND_DEBUG_WRITE       	(2)
+#define IND_DEBUG_DMA_READ    	(3)
+#define IND_DEBUG_DMA_WRITE   	(4)
 
 /*
 ** Status constants
 */
-#define BIT_SPI_BUSY             0x01
-#define BIT_S2MM_ERR             0x02
-#define BIT_MM2S_RD_CMPLT        0x04
-#define BIT_MM2S_ERR             0x08
-#define BIT_SPI_ERR              0x10
-#define BIT_INTERRUPT_ACTIVE     0x20
-#define BIT_FPGA_RESET_STATUS    0x40
-#define BIT_ADC_TEST_STATUS      0x80
-#define BIT_PPS_DEBUG_STATUS     0x100
-#define BIT_DMA_RESET_STATUS     0x200
-#define BIT_DMA_DEBUG_STATUS     0x400
-#define BIT_INTERRUPT_EN_STATUS  0x800
-#define BIT_BAT_LOW_STATUS       0x1000
-#define BIT_AC_OK_STATUS         0x2000
+#define BIT_SPI_BUSY            (0x01)
+#define BIT_S2MM_ERR            (0x02)
+#define BIT_MM2S_RD_CMPLT       (0x04)
+#define BIT_MM2S_ERR            (0x08)
+#define BIT_SPI_ERR             (0x10)
+#define BIT_INTERRUPT_ACTIVE    (0x20)
+#define BIT_FPGA_RESET_STATUS   (0x40)
+#define BIT_ADC_TEST_STATUS     (0x80)
+#define BIT_PPS_DEBUG_STATUS    (0x100)
+#define BIT_DMA_RESET_STATUS    (0x200)
+#define BIT_DMA_DEBUG_STATUS    (0x400)
+#define BIT_INTERRUPT_EN_STATUS (0x800)
+#define BIT_BAT_LOW_STATUS      (0x1000)
+#define BIT_AC_OK_STATUS        (0x2000)
 
-#define DMA_LENGTH	(128*1024*1024)
+#define STAT_NOT_OS_RUNNING     (0x00010000)        // unused -- could be used as feedback?
+#define STAT_NOT_RESTART_REQ    (0x00020000)        // PM MCU has requested a restart
+#define STAT_NOT_SHUTDOWN_REQ   (0x00040000)        // PM MCU has requested a shutdown
+#define STAT_NOT_SPARE_MCU      (0x00080000)        // a spare signal to PM MCU (could be input or output)?
 
-#define IND_DEBUG_READ        1
-#define IND_DEBUG_WRITE       2
-#define IND_DEBUG_DMA_READ    3
-#define IND_DEBUG_DMA_WRITE   4
+#define STAT_SPARE_1            (0x00100000)        // spare signal to IND3 RF board (assume output for now -- could be used for feedback)?
+#define STAT_SPARE_2            (0x00200000)        // spare signal to IND3 RF board (assume output for now -- could be used for feedback)?
+#define STAT_SPARE_3            (0x00300000)        // spare signal to IND3 RF board (assume output for now -- could be used for feedback)?
+#define STAT_SPARE_4            (0x00400000)        // spare signal to IND3 RF board (assume output for now -- could be used for feedback)?
 
-/* LED definitions
- * */
-#define LED_RUNNING           0x01
-#define LED_ALERT             0x02
-#define LED_SPARE             0x04
-#define LED_PPS_OK            0x08
-#define LED_3G_OK             0x10
-#define LED_WS_OK             0x20
+/*
+ * CTRL bit definitions
+ */
+#define CTRL_RESET_3G         	(0x01)
+#define CTRL_POWER_3G         	(0x02)
+#define CTRL_EN_SELECT        	(0x04)
 
-/* CTRL bit definitions
- * */
-#define CTRL_RESET_3G         0x01
-#define CTRL_POWER_3G         0x02
-#define CTRL_EN_SELECT        0x04
+#define CTRL_NOT_OS_RUNNING     (0x00010000)        // output low to inidcate to PM MCU that we aer up and running ok
+#define CTRL_NOT_RESTART_REQ    (0x00020000)
+#define CTRL_NOT_SHUTDOWN_REQ   (0x00040000)
+#define CTRL_NOT_SPARE_MCU      (0x00080000)        // a spare signal to PM MCU (could be input or output)?
 
-/* SPI definitions
-*/
-#define SPI_CTRL_WRITE        0x0
-#define SPI_CTRL_READ         0x20000
-#define SPI_DEVICE_AD9467     0x0
-#define SPI_DEVICE_AD9517     0x10000
+#define CTRL_SPARE_1            (0x00100000)        // spare signal to IND3 RF board (assume output for now !!)
+#define CTRL_SPARE_2            (0x00200000)        // spare signal to IND3 RF board (assume output for now !!)
+#define CTRL_SPARE_3            (0x00400000)        // spare signal to IND3 RF board (assume output for now !!)
+#define CTRL_SPARE_4            (0x00800000)        // spare signal to IND3 RF board (assume output for now !!)
+
+/*
+ * LED definitions
+ */
+#define LED_RUNNING           	(0x01)
+#define LED_ALERT             	(0x02)
+#define LED_SPARE             	(0x04)
+#define LED_PPS_OK            	(0x08)
+#define LED_3G_OK             	(0x10)
+#define LED_WS_OK             	(0x20)
+
+/*
+ * SPI definitions
+ */
+#define SPI_CTRL_WRITE        	(0x0)
+#define SPI_CTRL_READ         	(0x20000)
+#define SPI_DEVICE_AD9467     	(0x0)
+#define SPI_DEVICE_AD9517     	(0x10000)
 
 
 

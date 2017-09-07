@@ -77,20 +77,6 @@
 #define SPI_CAPTURE_COUNT_ADDR   (IND_BASE + R_CAPTURE_COUNT_ADDR)
 
 /*
-** configuration constants
-*/
-#define GENERATE_PPS             0x01
-#define DEBUG_START_DMA          0x02
-#define PPS_DEBUG_MODE           0x40
-#define DMA_DEBUG_MODE           0x80
-
-#define MODE_NORMAL              0x00
-#define MODE_DMA_DEBUG           (DMA_DEBUG_MODE)
-#define MODE_TRIGGER_DMA         (DMA_DEBUG_MODE|DEBUG_START_DMA)
-#define MODE_PPS_DEBUG           (PPS_DEBUG_MODE)
-#define MODE_TRIGGER_PPS         (PPS_DEBUG_MODE|GENERATE_PPS)
-
-/*
  * interrupt constants
  */
 #define K_ENABLE_INTERRUPT       0x01
@@ -104,19 +90,6 @@
 #define SPI_PORT_HIGH            0x02
 #define SPI_PORT_BOTH            0x03
 */
-
-/*
-** Status constants
-*/
-#define BIT_SPI_BUSY             0x01
-#define BIT_S2MM_ERR             0x02
-#define BIT_MM2S_RD_CMPLT        0x04
-#define BIT_MM2S_ERR             0x08
-#define BIT_SPI_ERR              0x10
-#define BIT_INTERRUPT_ACTIVE     0x20
-#define BIT_S2MM_ERR_STATUS      0x40
-#define BIT_MM2S_RD_CMPLT_STATUS 0x80
-#define BIT_MM2S_ERR_STATUS      0x100
 
 #define SPI_MAX_WAIT_COUNT 1000000
 #define MAX_WAIT_COUNT     10000
@@ -197,12 +170,12 @@ struct IND_drvdata {
 
 static inline void IND_write_reg(struct IND_drvdata *IND, unsigned int reg, uint32_t val)
 {
-	writel(val, IND->base + reg);
+    writel(val, IND->base + reg);
 }
 
 static inline uint32_t IND_read_reg(struct IND_drvdata *IND, unsigned int reg)
 {
-	return(readl(IND->base + reg));
+    return(readl(IND->base + reg));
 }
 
 //
@@ -216,7 +189,7 @@ static inline u32 IND_Status(struct IND_drvdata *IND)
 {
    u32 status;
 
-   status = IND_read_reg(IND, R_IND_STATUS)|IND->int_status;
+   status = IND_read_reg(IND, R_IND_STATUS) | IND->int_status;
 //   status &= 0x000001ff;
 
    return status;

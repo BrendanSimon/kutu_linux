@@ -606,12 +606,12 @@ static struct platform_driver IND_driver = {
    .probe = IND_probe,
    .remove = IND_remove,
    .driver = {
-      .name = "IND",
-      .of_match_table = IND_of_match_table,
+   .name = "IND",
+   .of_match_table = IND_of_match_table,
    },
 };
 module_platform_driver(IND_driver);
 
-MODULE_AUTHOR("Greg Smart <Greg.Smart@kutu.com.au>");
+MODULE_AUTHOR("Successful Endeavours Pty Ltd <ray@successful.com.au>");
 MODULE_DESCRIPTION("IND Linux driver");
 MODULE_LICENSE("GPL v2");
