@@ -65,20 +65,20 @@
 /*
 ** Status constants
 */
-#define BIT_SPI_BUSY            (0x01)
-#define BIT_S2MM_ERR            (0x02)
-#define BIT_MM2S_RD_CMPLT       (0x04)
-#define BIT_MM2S_ERR            (0x08)
-#define BIT_SPI_ERR             (0x10)
-#define BIT_INTERRUPT_ACTIVE    (0x20)
-#define BIT_FPGA_RESET_STATUS   (0x40)
-#define BIT_ADC_TEST_STATUS     (0x80)
-#define BIT_PPS_DEBUG_STATUS    (0x100)
-#define BIT_DMA_RESET_STATUS    (0x200)
-#define BIT_DMA_DEBUG_STATUS    (0x400)
-#define BIT_INTERRUPT_EN_STATUS (0x800)
-#define BIT_BAT_LOW_STATUS      (0x1000)
-#define BIT_AC_OK_STATUS        (0x2000)
+#define BIT_SPI_BUSY            (0x00000001)
+#define BIT_S2MM_ERR            (0x00000002)
+#define BIT_MM2S_RD_CMPLT       (0x00000004)
+#define BIT_MM2S_ERR            (0x00000008)
+#define BIT_SPI_ERR             (0x00000010)
+#define BIT_INTERRUPT_ACTIVE    (0x00000020)
+#define BIT_FPGA_RESET_STATUS   (0x00000040)
+#define BIT_ADC_TEST_STATUS     (0x00000080)
+#define BIT_PPS_DEBUG_STATUS    (0x00000100)
+#define BIT_DMA_RESET_STATUS    (0x00000200)
+#define BIT_DMA_DEBUG_STATUS    (0x00000400)
+#define BIT_INTERRUPT_EN_STATUS (0x00000800)
+#define BIT_BAT_LOW_STATUS      (0x00001000)
+#define BIT_AC_OK_STATUS        (0x00002000)
 
 #define STAT_NOT_OS_RUNNING     (0x00010000)        // unused -- could be used as feedback?
 #define STAT_NOT_RESTART_REQ    (0x00020000)        // PM MCU has requested a restart
@@ -87,17 +87,17 @@
 
 #define STAT_SPARE_1            (0x00100000)        // spare signal to IND3 RF board (assume output for now -- could be used for feedback)?
 #define STAT_SPARE_2            (0x00200000)        // spare signal to IND3 RF board (assume output for now -- could be used for feedback)?
-#define STAT_SPARE_3            (0x00300000)        // spare signal to IND3 RF board (assume output for now -- could be used for feedback)?
-#define STAT_SPARE_4            (0x00400000)        // spare signal to IND3 RF board (assume output for now -- could be used for feedback)?
+#define STAT_SPARE_3            (0x00400000)        // spare signal to IND3 RF board (assume output for now -- could be used for feedback)?
+#define STAT_SPARE_4            (0x00800000)        // spare signal to IND3 RF board (assume output for now -- could be used for feedback)?
 
 /*
  * CTRL bit definitions
  */
-#define CTRL_RESET_3G         	(0x01)
-#define CTRL_POWER_3G         	(0x02)
-#define CTRL_EN_SELECT        	(0x04)
+#define CTRL_RESET_3G         	(0x00000001)
+#define CTRL_POWER_3G         	(0x00000002)
+#define CTRL_EN_SELECT        	(0x00000004)
 
-#define CTRL_NOT_OS_RUNNING     (0x00010000)        // output low to inidcate to PM MCU that we aer up and running ok
+#define CTRL_NOT_OS_RUNNING     (0x00010000)        // output low to indicate to PM MCU that we are up and running ok
 #define CTRL_NOT_RESTART_REQ    (0x00020000)
 #define CTRL_NOT_SHUTDOWN_REQ   (0x00040000)
 #define CTRL_NOT_SPARE_MCU      (0x00080000)        // a spare signal to PM MCU (could be input or output)?
@@ -110,21 +110,20 @@
 /*
  * LED definitions
  */
-#define LED_RUNNING           	(0x01)
-#define LED_ALERT             	(0x02)
-#define LED_SPARE             	(0x04)
-#define LED_PPS_OK            	(0x08)
-#define LED_3G_OK             	(0x10)
-#define LED_WS_OK             	(0x20)
+#define LED_RUNNING           	(0x00000001)
+#define LED_ALERT             	(0x00000002)
+#define LED_SPARE             	(0x00000004)
+#define LED_PPS_OK            	(0x00000008)
+#define LED_3G_OK             	(0x00000010)
+#define LED_WS_OK             	(0x00000020)
 
 /*
  * SPI definitions
  */
-#define SPI_CTRL_WRITE        	(0x0)
-#define SPI_CTRL_READ         	(0x20000)
-#define SPI_DEVICE_AD9467     	(0x0)
-#define SPI_DEVICE_AD9517     	(0x10000)
-
+#define SPI_CTRL_WRITE        	(0x00000000)
+#define SPI_CTRL_READ         	(0x00020000)
+#define SPI_DEVICE_AD9467     	(0x00000000)
+#define SPI_DEVICE_AD9517     	(0x00010000)
 
 
 
