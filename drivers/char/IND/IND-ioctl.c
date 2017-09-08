@@ -50,7 +50,7 @@ int IND_Set_User_Mode(struct IND_drvdata *IND, void *user_ptr)
 
    arg = cmd.config;
 
-//   if (arg & (~(ADC_TEST_DATA|PPS_DEBUG_MODE|DMA_DEBUG_MODE))) {
+//   if (arg & (~(ADC_TEST_DATA | PPS_DEBUG_MODE | DMA_DEBUG_MODE))) {
 //      printk(KERN_DEBUG "IND_USER_SET_MODE: invalid argument\n");
 //      return -EFAULT;
 //   }
@@ -140,7 +140,7 @@ int IND_SPI_Access(struct IND_drvdata *IND, void *user_ptr)
       if (cmd.port_addr[j] > 0x1fff)
          return -EFAULT;
 
-      data = rd_nwr_mode|cmd.port_device[j]; // write to AD9467
+      data = rd_nwr_mode | cmd.port_device[j]; // write to AD9467
       data |= cmd.port_addr[j];
 #ifdef DEBUG
       printk(KERN_DEBUG "output to device register = 0x%x\n",data);
@@ -239,7 +239,7 @@ int IND_Run_Scan(struct IND_drvdata *IND, void *user_ptr)
    }
 
    // set mode (dma_debug and reset disabled)
-   config = cmd.config & (ADC_TEST_DATA|PPS_DEBUG_MODE);
+   config = cmd.config & (ADC_TEST_DATA | PPS_DEBUG_MODE);
 
    IND->config_state = config;
    IND_write_reg(IND, R_MODE_CONFIG_ADDR, config);

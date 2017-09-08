@@ -158,7 +158,7 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          return 0;
 
       case IND_USER_DMA_RESET:
-         IND_write_reg(IND, R_MODE_CONFIG_ADDR, IND->config_state|DMA_RESET);
+         IND_write_reg(IND, R_MODE_CONFIG_ADDR, IND->config_state | DMA_RESET);
          udelay(10);
          IND_write_reg(IND, R_MODE_CONFIG_ADDR, IND->config_state);
          udelay(10);
@@ -179,9 +179,9 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
             return -EFAULT;
 
          s2mm_status = IND_Status(IND);
-         if (s2mm_status & (BIT_S2MM_ERR|BIT_MM2S_ERR)) {
+         if (s2mm_status & (BIT_S2MM_ERR | BIT_MM2S_ERR)) {
             // DMA error so reset DMA
-            IND_write_reg(IND, R_MODE_CONFIG_ADDR, DMA_RESET|MODE_DMA_DEBUG);
+            IND_write_reg(IND, R_MODE_CONFIG_ADDR, DMA_RESET | MODE_DMA_DEBUG);
             IND_write_reg(IND, R_MODE_CONFIG_ADDR, MODE_DMA_DEBUG);
             printk(KERN_DEBUG "<%s> : clearing dma error\n",MODULE_NAME);
          }
@@ -201,7 +201,7 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          IND_write_reg(IND, R_CAPTURE_COUNT_ADDR, (arg>>3));
 
          // start dma into loopback mode
-         IND_write_reg(IND, R_MODE_CONFIG_ADDR, (DMA_DEBUG_MODE|DEBUG_START_DMA));
+         IND_write_reg(IND, R_MODE_CONFIG_ADDR, (DMA_DEBUG_MODE | DEBUG_START_DMA));
 
          s2mm_status = IND_Status(IND);
          printk(KERN_DEBUG "<%s> : started dma, status = 0x%x\n",MODULE_NAME,s2mm_status);
@@ -229,7 +229,7 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          if ((arg != MODE_TRIGGER_PPS) && (arg != GENERATE_PPS))
             return -1;
 
-         IND_write_reg(IND, R_MODE_CONFIG_ADDR, (IND->config_state|arg));
+         IND_write_reg(IND, R_MODE_CONFIG_ADDR, (IND->config_state | arg));
 
          return ret;
 
@@ -398,7 +398,7 @@ static irqreturn_t IND_isr(int irq, void *data)
 
    spin_lock(&IND->lock);
 
-   IND->int_status = IND_read_reg(IND, R_IND_STATUS) & (BIT_S2MM_ERR|BIT_MM2S_RD_CMPLT|BIT_MM2S_ERR);
+   IND->int_status = IND_read_reg(IND, R_IND_STATUS) & (BIT_S2MM_ERR | BIT_MM2S_RD_CMPLT | BIT_MM2S_ERR);
 
    // clear interrupt
    IND_write_reg(IND, R_INTERRUPT_ADDR,K_CLEAR_INTERRUPT);
