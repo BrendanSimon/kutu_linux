@@ -798,7 +798,8 @@ dtb-$(CONFIG_ARCH_ZYNQ) += \
 	zynq-zybo.dtb \
 	zynq-zed-adv7511-fmcomms1.dtb \
 	zynq-zed-adv7511-ad9467-fmc-250ebz.dtb \
-	zynq-IND.dtb
+	zynq-IND1.dtb \
+	zynq-IND2.dtb
 dtb-$(CONFIG_MACH_ARMADA_370) += \
 	armada-370-db.dtb \
 	armada-370-dlink-dns327l.dtb \
