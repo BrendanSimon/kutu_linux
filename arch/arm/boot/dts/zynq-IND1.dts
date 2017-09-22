@@ -1,4 +1,11 @@
 /dts-v1/;
 
+// Gen 1 system uses ZedBoard controller.
 /include/ "zynq-zed.dtsi"
-/include/ "zynq-IND.dtsi"
+
+// Include common setup for all IND systems (TBD).
+// /include/ "zynq-IND.dtsi"
+
+// Gen 1 system specific features (TBD: currently includes common features).
+/include/ "zynq-IND1.dtsi"
+

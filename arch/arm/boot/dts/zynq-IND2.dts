@@ -1,4 +1,11 @@
 /dts-v1/;
 
+// Gen 2 system uses proprietary zynq controller.
 /include/ "zynq-IND2-base.dtsi"
-/include/ "zynq-IND.dtsi"
+
+// Include common setup for all IND systems (TBD).
+// /include/ "zynq-IND.dtsi"
+
+// Gen 2 system specific features (TBD: currently includes common features).
+/include/ "zynq-IND2.dtsi"
+
