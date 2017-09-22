@@ -61,7 +61,7 @@ static int IND_open(struct inode *i, struct file *filp)
 
    //init_waitqueue_head(&IND->irq_wait_queue);
 
-   printk(KERN_DEBUG "<%s> file: open()\n", MODULE_NAME);
+//   printk(KERN_DEBUG "<%s> file: open()\n", MODULE_NAME);
    filp->private_data = IND;
    return 0;
 }
@@ -75,7 +75,7 @@ static int IND_release(struct inode *i, struct file *f)
 //   IND_write_reg(IND, R_INTERRUPT_ADDR, K_DISABLE_INTERRUPT);
 //   IND_write_reg(IND, R_MODE_CONFIG_ADDR, MODE_PPS_DEBUG);
 
-   printk(KERN_DEBUG "<%s> file: close()\n", MODULE_NAME);
+//   printk(KERN_DEBUG "<%s> file: close()\n", MODULE_NAME);
    return 0;
 }
 
