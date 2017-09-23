@@ -107,8 +107,25 @@
 			xlnx,use-user-ports = <0x0>;
 		};
 
-    //FIXME: add another uart !!
-
+      axi_uart3: axi_uart1: serial@43c20000 {
+			clock-frequency = <100000000>;
+			compatible = "xlnx,axi-uart16550-1.01.a", "xlnx,xps-uart16550-2.00.a", "ns16550";
+			current-speed = <115200>;
+			device_type = "serial";
+			interrupt-parent = <&intc>;
+			interrupts = < 0 57 4>;
+			reg = < 0x43c20000 0x10000 >;
+			reg-offset = <0x1000>;
+			reg-shift = <2>;
+			xlnx,external-xin-clk-hz = <0x5F5E100>;
+			xlnx,family = "zynq";
+			xlnx,has-external-rclk = <0x0>;
+			xlnx,has-external-xin = <0x0>;
+			xlnx,is-a-16550 = <0x1>;
+			xlnx,s-axi-aclk-freq-hz = <0x5F5E100>;
+			xlnx,use-modem-ports = <0x0>;
+			xlnx,use-user-ports = <0x0>;
+		};
    };
 };
 
