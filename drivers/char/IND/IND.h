@@ -110,12 +110,25 @@
 /*
  * LED definitions
  */
+#if 0 // IND1 definitions
+
 #define LED_RUNNING           	(0x00000001)
 #define LED_ALERT             	(0x00000002)
 #define LED_SPARE             	(0x00000004)
 #define LED_PPS_OK            	(0x00000008)
 #define LED_3G_OK             	(0x00000010)
 #define LED_WS_OK             	(0x00000020)
+
+#else // IND2 definitions.  FIXME: these should be harmonised with IND1 defintions !!
+
+//#define LED_RUNNING           	(0x00000001)
+//#define LED_ALERT             	(0x00000002)
+//#define LED_SPARE             	(0x00000004)
+#define LED_PPS_OK            	(0x00010000)
+//#define LED_3G_OK             	(0x00000010)
+//#define LED_WS_OK             	(0x00000020)
+
+#endif // IND2 definitions
 
 /*
  * SPI definitions

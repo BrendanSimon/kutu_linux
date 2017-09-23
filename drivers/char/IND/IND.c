@@ -263,14 +263,15 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
             return -EFAULT;
          }
 
-         IND->led_status |= bit_flags.set;
+         IND->led_status |=  bit_flags.set;
          IND->led_status &= ~bit_flags.clear;
-         IND->led_status ^= bit_flags.toggle;
+         IND->led_status ^=  bit_flags.toggle;
 
          IND_write_reg(IND, R_GPIO_LED_ADDR, (IND->led_status));
 
          return 0;
       }
+
       case IND_USER_SET_CTRL:
          IND->ctrl_status |= arg;
          IND_write_reg(IND, R_GPIO_CTRL_ADDR, (IND->ctrl_status));
@@ -290,9 +291,9 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
             return -EFAULT;
          }
 
-         IND->ctrl_status |= bit_flags.set;
+         IND->ctrl_status |=  bit_flags.set;
          IND->ctrl_status &= ~bit_flags.clear;
-         IND->ctrl_status ^= bit_flags.toggle;
+         IND->ctrl_status ^=  bit_flags.toggle;
 
          IND_write_reg(IND, R_GPIO_CTRL_ADDR, (IND->ctrl_status));
 
