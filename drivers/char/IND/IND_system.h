@@ -25,7 +25,6 @@
 #define R_IND_REG_BASE        0x0000
 #define R_IND_SPI_BASE        0x0800
 #define R_IND_MINMAX_BASE     0x1000
-#define R_FPGA_VERSION_ADDR   0x1800
 
 #define R_IND_STATUS          0x0000
 #define R_SPI_READ_ADDR       0x0800
@@ -60,6 +59,9 @@
 #define R_MIN_CH2_VAL_ADDR       0x1028
 #define R_MIN_CH2_LOC_ADDR       0x102C
 
+#define R_CLOCK_COUNT_PER_PPS_ADDR  (0x1100)
+
+#define R_FPGA_VERSION_ADDR         (0x1800)
 
 
 #define IND_REG_BASE          (IND_BASE + R_IND_REG_BASE)

@@ -341,6 +341,10 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 
          return 0;
 
+      case IND_USER_READ_MAXMIN:
+         ret = IND_Maxmin_Read(IND, arg_ptr);
+         return ret;
+
       case IND_USER_FPGA_VERSION:
       {
          struct IND_fpga_version_struct fpga_version;
@@ -362,9 +366,15 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          return 0;
       }
 
-      case IND_USER_READ_MAXMIN:
-         ret = IND_Maxmin_Read(IND, arg_ptr);
-         return ret;
+      case IND_USER_ADC_CLOCK_COUNT_PER_PPS:
+	 // R_CLOCK_COUNT_PER_PPS register not implemented in FPGA yet !!
+	 // Use nominal value of 250,000,000 for now.
+//         val = IND_read_reg(IND, R_CLOCK_COUNT_PER_PPS_ADDR);
+         val = 250 * 1000 * 1000;
+         if (copy_to_user(arg_ptr, &val, sizeof(val))) {
+            return -EFAULT;
+         }
+         return 0;
 
       default:
          break;
