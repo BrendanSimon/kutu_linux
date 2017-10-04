@@ -137,6 +137,8 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
    unsigned int s2mm_status;
    unsigned int timeout;
    unsigned int val;
+   unsigned int val2;
+   int i;
 //   struct IND_read_data_struct read_cmd;
    struct IND_debug_struct debug_cmd;
 
@@ -367,18 +369,32 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
       }
 
       case IND_USER_ADC_CLOCK_COUNT_PER_PPS:
-	 // R_CLOCK_COUNT_PER_PPS register not implemented in FPGA yet !!
-	 // Use nominal value of 250,000,000 for now.
-//         val = IND_read_reg(IND, R_CLOCK_COUNT_PER_PPS_ADDR);
-         val = 250 * 1000 * 1000;
-         if (copy_to_user(arg_ptr, &val, sizeof(val))) {
-            return -EFAULT;
-         }
-         return 0;
+	      // R_CLOCK_COUNT_PER_PPS register not implemented in FPGA yet !!
+	      // Use nominal value of 250,000,000 for now.
+//	      val = 250 * 1000 * 1000;
+
+	      // Standard register logic used in FPGA to store clock counts per pps !!
+	      // Read multiple times to ensure not reading during an update.
+	      // Alternative solution is to use dual port RAM in FPGA to cross clock domains.
+	      val = IND_read_reg(IND, R_CLOCK_COUNT_PER_PPS_ADDR);
+	      for (i = 3; i > 0; i--) {
+		      val2 = IND_read_reg(IND, R_CLOCK_COUNT_PER_PPS_ADDR);
+		      if (val2 == val)
+			      break;
+		      val = val2;
+	      } // for
+	      if (i == 0)
+		      return -EFAULT;
+
+	      if (copy_to_user(arg_ptr, &val, sizeof(val)))
+		      return -EFAULT;
+
+	      return 0;
 
       default:
-         break;
-   }
+	      break;
+
+   } // switch
 
    return ret;
 }
