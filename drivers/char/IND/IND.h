@@ -77,18 +77,11 @@
 #define BIT_DMA_RESET_STATUS    (0x00000200)
 #define BIT_DMA_DEBUG_STATUS    (0x00000400)
 #define BIT_INTERRUPT_EN_STATUS (0x00000800)
-#define BIT_BAT_LOW_STATUS      (0x00001000)
-#define BIT_AC_OK_STATUS        (0x00002000)
 
-#define STAT_NOT_OS_RUNNING     (0x00010000)        // unused -- could be used as feedback?
-#define STAT_NOT_RESTART_REQ    (0x00020000)        // PM MCU has requested a restart
-#define STAT_NOT_SHUTDOWN_REQ   (0x00040000)        // PM MCU has requested a shutdown
-#define STAT_NOT_SPARE_MCU      (0x00080000)        // a spare signal to PM MCU (could be input or output)?
-
-#define STAT_SPARE_1            (0x00100000)        // spare signal to IND3 RF board (assume output for now -- could be used for feedback)?
-#define STAT_SPARE_2            (0x00200000)        // spare signal to IND3 RF board (assume output for now -- could be used for feedback)?
-#define STAT_SPARE_3            (0x00400000)        // spare signal to IND3 RF board (assume output for now -- could be used for feedback)?
-#define STAT_SPARE_4            (0x00800000)        // spare signal to IND3 RF board (assume output for now -- could be used for feedback)?
+#define STAT_BAT_LOW_STATUS     (0x00001000)
+#define STAT_AC_OK_STATUS       (0x00002000)
+#define STAT_NOT_RESTART_REQ    (0x00004000)        // PM MCU has requested a restart
+#define STAT_NOT_SHUTDOWN_REQ   (0x00008000)        // PM MCU has requested a shutdown
 
 /*
  * CTRL bit definitions
@@ -97,38 +90,37 @@
 #define CTRL_POWER_3G         	(0x00000002)
 #define CTRL_EN_SELECT        	(0x00000004)
 
-#define CTRL_NOT_OS_RUNNING     (0x00010000)        // output low to indicate to PM MCU that we are up and running ok
-#define CTRL_NOT_RESTART_REQ    (0x00020000)
-#define CTRL_NOT_SHUTDOWN_REQ   (0x00040000)
-#define CTRL_NOT_SPARE_MCU      (0x00080000)        // a spare signal to PM MCU (could be input or output)?
+#define CTRL_NOT_OS_RUNNING     (0x00000008)        // output low to indicate to PM MCU that we are up and running ok
+#define CTRL_NOT_SPARE_MCU      (0x00000010)        // a spare signal to PM MCU (could be input or output)?
 
-#define CTRL_SPARE_1            (0x00100000)        // spare signal to IND3 RF board (assume output for now !!)
-#define CTRL_SPARE_2            (0x00200000)        // spare signal to IND3 RF board (assume output for now !!)
-#define CTRL_SPARE_3            (0x00400000)        // spare signal to IND3 RF board (assume output for now !!)
-#define CTRL_SPARE_4            (0x00800000)        // spare signal to IND3 RF board (assume output for now !!)
 
 /*
  * LED definitions
  */
-#if 0 // IND1 definitions
-
 #define LED_RUNNING           	(0x00000001)
 #define LED_ALERT             	(0x00000002)
-#define LED_SPARE             	(0x00000004)
+#define LED_SPARE_IND1        	(0x00000004)    // Spare LED on IND1 3G board.
 #define LED_PPS_OK            	(0x00000008)
 #define LED_3G_OK             	(0x00000010)
 #define LED_WS_OK             	(0x00000020)
+#define LED_POWER_OK            (0x00000040)
+#define LED_BATTERY_OK          (0x00000080)
 
-#else // IND2 definitions.  FIXME: these should be harmonised with IND1 defintions !!
+#define LED_SPARE1_3G_IND2      (0x00000100)
+#define LED_SPARE2_3G_IND2      (0x00000200)    // Spare LED on IND2 3G board.
+#define LED_SPARE3_3G_IND2      (0x00000400)
+#define LED_SPARE4_3G_IND2      (0x00000800)
+#define LED_SPARE1_RF_IND2      (0x00001000)
+#define LED_SPARE2_RF_IND2      (0x00002000)
+#define LED_SPARE3_RF_IND2      (0x00004000)
+#define LED_SPARE4_RF_IND2      (0x00008000)
 
-//#define LED_RUNNING           	(0x00000001)
-//#define LED_ALERT             	(0x00000002)
-//#define LED_SPARE             	(0x00000004)
-#define LED_PPS_OK            	(0x00010000)
-//#define LED_3G_OK             	(0x00000010)
-//#define LED_WS_OK             	(0x00000020)
+#define LED_DEBUG0_IND2         (0x10000000)
+#define LED_DEBUG1_IND2         (0x20000000)
+#define LED_DEBUG2_IND2         (0x40000000)
+#define LED_DEBUG3_IND2         (0x80000000)
 
-#endif // IND2 definitions
+#define LED_SPARE             	((LED_SPARE_IND1) | (LED_SPARE2_3G_IND2))
 
 /*
  * SPI definitions
@@ -161,7 +153,8 @@ enum IND_user_cmds
    IND_USER_MODIFY_LEDS,
    IND_USER_MODIFY_CTRL,
    IND_USER_READ_MAXMIN,
-   IND_USER_FPGA_VERSION
+   IND_USER_FPGA_VERSION,
+   IND_USER_ADC_CLOCK_COUNT_PER_PPS
 };
 
 /*

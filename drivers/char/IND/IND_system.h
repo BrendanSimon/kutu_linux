@@ -60,15 +60,12 @@
 #define R_MIN_CH2_LOC_ADDR       0x102C
 
 #define R_FPGA_VERSION_ADDR         (0x1800)
-
 #define R_CLOCK_COUNT_PER_PPS_ADDR  (0x2000)
 
+#define IND_REG_BASE             (IND_BASE + R_IND_REG_BASE)
+#define IND_SPI_BASE             (IND_BASE + R_IND_SPI_BASE)
 
-#define IND_REG_BASE          (IND_BASE + R_IND_REG_BASE)
-#define IND_SPI_BASE          (IND_BASE + R_IND_SPI_BASE)
-#define IND_BRAM_BASE         (IND_BASE + R_IND_BRAM_BASE)
-
-#define IND_STATUS            (IND_BASE + R_IND_STATUS)
+#define IND_STATUS               (IND_BASE + R_IND_STATUS)
 
 #define DMA_WRITE_ADDR           (IND_BASE + R_DMA_WRITE_ADDR)
 #define DMA_READ_ADDR            (IND_BASE + R_DMA_READ_ADDR)

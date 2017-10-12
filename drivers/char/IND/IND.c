@@ -354,7 +354,7 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          val = IND_read_reg(IND, R_FPGA_VERSION_ADDR);
          if ((val & 0xffff0000) != 0xaaaa0000) {
             printk(KERN_DEBUG "<%s> : Read FPGA version failed !!!, read = 0x%08X\n", MODULE_NAME, val);
-            return -EFAULT;
+//            return -EFAULT;
          }
 
          fpga_version._reserved_0 = 0;
