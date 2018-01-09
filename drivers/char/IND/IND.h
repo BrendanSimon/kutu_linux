@@ -158,21 +158,6 @@ enum IND_user_cmds
 };
 
 /*
- *  struct IND_registers.
- *  This structure points to the first block where the registers are located
- */
-
-struct IND_cmd_struct {
-   __u32                            config;
-   __u32                            interrupt;
-   __u32                            address;
-   __u32                            capture_count;
-   __u32                            delay_count;
-   __u32                            peak_detect_start;
-   __u32                            peak_detect_end;
-} ;
-
-/*
  *  Structure to set and clear bits for the following ioctl commands.
  *      IND_USER_MODIFY_LEDS
  *      IND_USER_MODIFY_CTRL
@@ -227,6 +212,22 @@ struct IND_fpga_version_struct {
    __u8                            minor;
 } __packed;
 
+/*
+ *  struct IND_registers.
+ *  This structure points to the first block where the registers are located
+ */
+
+struct IND_cmd_struct {
+   __u32                            config;
+   __u32                            interrupt;
+   __u32                            address;
+   __u32                            capture_count;
+   __u32                            delay_count;
+   __u32                            peak_detect_start;
+   __u32                            peak_detect_end;
+   __s32                            adc_offset;
+} ;
+
 
 #define IND_IOCTL_BASE	't'
 
@@ -251,5 +252,7 @@ struct IND_fpga_version_struct {
 #define IND_USER_READ_MAXMIN                _IOWR(IND_IOCTL_BASE, 0x92, struct IND_maxmin_struct)
 #define IND_USER_FPGA_VERSION               _IOWR(IND_IOCTL_BASE, 0x93, struct IND_fpga_version_struct)
 #define IND_USER_ADC_CLOCK_COUNT_PER_PPS    _IOWR(IND_IOCTL_BASE, 0x94, __u32)
+#define IND_USER_ADC_OFFSET_SET             _IOW( IND_IOCTL_BASE, 0x95, __s32)
+#define IND_USER_ADC_OFFSET_GET             _IOR( IND_IOCTL_BASE, 0x96, __s32)
 
 #endif /* _IND_H */

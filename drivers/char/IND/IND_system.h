@@ -29,13 +29,15 @@
 #define R_IND_STATUS          0x0000
 #define R_SPI_READ_ADDR       0x0800
 
+// FPGA user read/write registers.
+// address decoder uses bits 5..2 => address offsets of 0x00..0x3C
 #define R_DMA_WRITE_ADDR         0x0000
 #define R_DMA_READ_ADDR          0x0004
 #define R_DMA_SIZE_ADDR          0x0008
 #define R_MODE_CONFIG_ADDR       0x000C
 #define R_INTERRUPT_ADDR         0x0010
 
-#define R_SPI_DATA_ADDR          0x0014   // read address on 64 byte boundaries
+#define R_SPI_DATA_ADDR          0x0014   	// read address on 64 byte boundaries
 #define R_SPI_DEVICE_ADDR        0x0018
 #define R_CAPTURE_COUNT_ADDR     0x001C
 #define R_DELAY_COUNT_ADDR       0x0020
@@ -43,6 +45,9 @@
 #define R_GPIO_LED_ADDR          0x0028
 #define R_PEAK_START_ADDR        0x002C
 #define R_PEAK_END_ADDR          0x0030
+#define R_ADC_OFFSET             0x0034
+#define R_RESERVED_0038          0x0038		// reserved/available for future use
+#define R_RESERVED_003C          0x003C		// reserved/available for future use
 
 #define R_MAX_CH0_VAL_ADDR       0x1000
 #define R_MAX_CH0_LOC_ADDR       0x1004

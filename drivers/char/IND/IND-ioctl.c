@@ -61,13 +61,20 @@ int IND_Set_User_Mode(struct IND_drvdata *IND, void *user_ptr)
    else
        IND_write_reg(IND, R_INTERRUPT_ADDR, K_DISABLE_INTERRUPT);
 
-   printk(KERN_DEBUG "IND_USER_SET_MODE: interrupt=0x%08x config=0x%08x address=0x%08x capture_count=0x%08x delay_count=0x%08x peak_detect_start=0x%08x peak_detect_end=0x%08X\n", cmd.interrupt, cmd.config, cmd.address, cmd.capture_count, cmd.delay_count, cmd.peak_detect_start, cmd.peak_detect_end);
+   printk(KERN_DEBUG "IND_USER_SET_MODE: interrupt=0x%08x config=0x%08x address=0x%08x"
+		   " capture_count=0x%08x delay_count=0x%08x"
+		   " peak_detect_start=0x%08x peak_detect_end=0x%08X"
+		   " adc_offset=%d(0x%08X)\n",
+		   cmd.interrupt, cmd.config, cmd.address,
+		   cmd.capture_count, cmd.delay_count,
+		   cmd.peak_detect_start, cmd.peak_detect_end,
+		   cmd.adc_offset, cmd.adc_offset);
 
    dma_size = cmd.capture_count * 6;
    IND_write_reg(IND, R_DMA_WRITE_ADDR, (IND->dma_handle + cmd.address));
    IND_write_reg(IND, R_DMA_SIZE_ADDR, dma_size);
-   IND_write_reg(IND, R_CAPTURE_COUNT_ADDR, (cmd.capture_count));
-   IND_write_reg(IND, R_DELAY_COUNT_ADDR, (cmd.delay_count));
+   IND_write_reg(IND, R_CAPTURE_COUNT_ADDR, cmd.capture_count);
+   IND_write_reg(IND, R_DELAY_COUNT_ADDR, cmd.delay_count);
 
    if (cmd.peak_detect_start > PEAK_START_DISABLE)
       IND_write_reg(IND, R_PEAK_START_ADDR, PEAK_START_DISABLE);
@@ -78,6 +85,8 @@ int IND_Set_User_Mode(struct IND_drvdata *IND, void *user_ptr)
       IND_write_reg(IND, R_PEAK_END_ADDR, PEAK_STOP_DISABLE);
    else
       IND_write_reg(IND, R_PEAK_END_ADDR, cmd.peak_detect_end);
+
+   IND_write_reg(IND, R_ADC_OFFSET, cmd.adc_offset);
 
    IND->config_state &= ~(CONFIG_MODE_MASK);
    IND->config_state |= (arg & CONFIG_MODE_MASK);
@@ -230,7 +239,7 @@ int IND_Maxmin_Read(struct IND_drvdata *IND, void *user_ptr)
 int IND_Run_Scan(struct IND_drvdata *IND, void *user_ptr)
 {
    struct IND_cmd_struct   cmd;
-   u32                        config;
+   u32                     config;
 
    if (copy_from_user(&cmd, user_ptr, sizeof(cmd))) {
       printk(KERN_DEBUG "IND_Set_Run_Scan: copy failed\n");

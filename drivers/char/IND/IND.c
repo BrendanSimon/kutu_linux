@@ -391,6 +391,16 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 
 	      return 0;
 
+      case IND_USER_ADC_OFFSET_SET:
+	      IND_write_reg(IND, R_ADC_OFFSET, arg);
+	      return 0;
+
+      case IND_USER_ADC_OFFSET_GET:
+	      val = IND_read_reg(IND, R_ADC_OFFSET);
+	      if (copy_to_user(arg_ptr, &val, sizeof(val)))
+		      return -EFAULT;
+	      return 0;
+
       default:
 	      break;
 
