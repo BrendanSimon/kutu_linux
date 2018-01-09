@@ -1,7 +1,7 @@
 /include/ "zynq.dtsi"
 
 / {
-	model = "Xilinx Zynq LSI";
+	model = "Xilinx Zynq IND-EFD-2";
 	memory {
 		device_type = "memory";
 		reg = <0x000000000 0x40000000>;
