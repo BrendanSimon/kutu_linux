@@ -20,52 +20,71 @@
 
 /* general register memory location */
 
-#define IND_BASE              0x43C00000
+#define IND_BASE			0x43C00000
 
-#define R_IND_REG_BASE        0x0000
-#define R_IND_SPI_BASE        0x0800
-#define R_IND_MINMAX_BASE     0x1000
+#define R_IND_REG_BASE			0x0000
+#define R_IND_SPI_BASE			0x0800
+#define R_IND_MAXMIN_BASE		0x1000
+#define R_IND_MAXMIN_NORMAL_BASE	(0x1000)	// base address for min/max normal (voltage) signals.
+#define R_IND_MAXMIN_SQUARED_BASE	(0x1080)	// base address for min/max squared ("energy") signals.
 
-#define R_IND_STATUS          0x0000
-#define R_SPI_READ_ADDR       0x0800
+#define R_IND_STATUS			0x0000
+#define R_SPI_READ_ADDR			0x0800
 
 // FPGA user read/write registers.
 // address decoder uses bits 5..2 => address offsets of 0x00..0x3C
-#define R_DMA_WRITE_ADDR         0x0000
-#define R_DMA_READ_ADDR          0x0004
-#define R_DMA_SIZE_ADDR          0x0008
-#define R_MODE_CONFIG_ADDR       0x000C
-#define R_INTERRUPT_ADDR         0x0010
+#define R_DMA_WRITE_ADDR		0x0000
+#define R_DMA_READ_ADDR			0x0004
+#define R_DMA_SIZE_ADDR			0x0008
+#define R_MODE_CONFIG_ADDR		0x000C
+#define R_INTERRUPT_ADDR		0x0010
 
-#define R_SPI_DATA_ADDR          0x0014   	// read address on 64 byte boundaries
-#define R_SPI_DEVICE_ADDR        0x0018
-#define R_CAPTURE_COUNT_ADDR     0x001C
-#define R_DELAY_COUNT_ADDR       0x0020
-#define R_GPIO_CTRL_ADDR         0x0024
-#define R_GPIO_LED_ADDR          0x0028
-#define R_PEAK_START_ADDR        0x002C
-#define R_PEAK_END_ADDR          0x0030
-#define R_ADC_OFFSET             0x0034
-#define R_RESERVED_0038          0x0038		// reserved/available for future use
-#define R_RESERVED_003C          0x003C		// reserved/available for future use
+#define R_SPI_DATA_ADDR			0x0014   	// read address on 64 byte boundaries
+#define R_SPI_DEVICE_ADDR		0x0018
+#define R_CAPTURE_COUNT_ADDR		0x001C
+#define R_DELAY_COUNT_ADDR		0x0020
+#define R_GPIO_CTRL_ADDR		0x0024
+#define R_GPIO_LED_ADDR			0x0028
+#define R_PEAK_START_ADDR		0x002C
+#define R_PEAK_END_ADDR			0x0030
+#define R_ADC_OFFSET			0x0034
+#define R_RESERVED_0038			0x0038		// reserved/available for future use
+#define R_RESERVED_003C			0x003C		// reserved/available for future use
 
-#define R_MAX_CH0_VAL_ADDR       0x1000
-#define R_MAX_CH0_LOC_ADDR       0x1004
-#define R_MIN_CH0_VAL_ADDR       0x1008
-#define R_MIN_CH0_LOC_ADDR       0x100C
+//----------------------------------------------------------------------------
+// field offsets for maxmin structure.
+//----------------------------------------------------------------------------
 
-#define R_MAX_CH1_VAL_ADDR       0x1010
-#define R_MAX_CH1_LOC_ADDR       0x1014
-#define R_MIN_CH1_VAL_ADDR       0x1018
-#define R_MIN_CH1_LOC_ADDR       0x101C
+#define R_MAX_CH0_VAL_OFFSET		(0x0000)
+#define R_MAX_CH0_LOC_OFFSET		(0x0004)
+#define R_MIN_CH0_VAL_OFFSET		(0x0008)
+#define R_MIN_CH0_LOC_OFFSET		(0x000C)
 
-#define R_MAX_CH2_VAL_ADDR       0x1020
-#define R_MAX_CH2_LOC_ADDR       0x1024
-#define R_MIN_CH2_VAL_ADDR       0x1028
-#define R_MIN_CH2_LOC_ADDR       0x102C
+#define R_MAX_CH1_VAL_OFFSET		(0x0010)
+#define R_MAX_CH1_LOC_OFFSET		(0x0014)
+#define R_MIN_CH1_VAL_OFFSET		(0x0018)
+#define R_MIN_CH1_LOC_OFFSET		(0x001C)
 
-#define R_FPGA_VERSION_ADDR         (0x1800)
-#define R_CLOCK_COUNT_PER_PPS_ADDR  (0x2000)
+#define R_MAX_CH2_VAL_OFFSET		(0x0020)
+#define R_MAX_CH2_LOC_OFFSET		(0x0024)
+#define R_MIN_CH2_VAL_OFFSET		(0x0028)
+#define R_MIN_CH2_LOC_OFFSET		(0x002C)
+
+#define R_MIN_CH0_COUNT_OFFSET		(0x0040)
+#define R_MAX_CH0_COUNT_OFFSET		(0x0044)
+
+#define R_MIN_CH1_COUNT_OFFSET		(0x0050)
+#define R_MAX_CH1_COUNT_OFFSET		(0x0054)
+
+#define R_MIN_CH2_COUNT_OFFSET		(0x0060)
+#define R_MAX_CH2_COUNT_OFFSET		(0x0064)
+
+//----------------------------------------------------------------------------
+
+#define R_FPGA_VERSION_ADDR		(0x1800)
+#define R_CLOCK_COUNT_PER_PPS_ADDR	(0x2000)
+
+//----------------------------------------------------------------------------
 
 #define IND_REG_BASE             (IND_BASE + R_IND_REG_BASE)
 #define IND_SPI_BASE             (IND_BASE + R_IND_SPI_BASE)
@@ -172,14 +191,14 @@ struct IND_drvdata {
    wait_queue_head_t irq_wait_queue;
 };
 
-static inline void IND_write_reg(struct IND_drvdata *IND, unsigned int reg, uint32_t val)
+static inline void IND_write_reg(struct IND_drvdata *IND, size_t reg, uint32_t val)
 {
     writel(val, IND->base + reg);
 }
 
-static inline uint32_t IND_read_reg(struct IND_drvdata *IND, unsigned int reg)
+static inline uint32_t IND_read_reg(struct IND_drvdata *IND, size_t reg)
 {
-    return(readl(IND->base + reg));
+    return readl(IND->base + reg);
 }
 
 //
@@ -254,6 +273,6 @@ int IND_SPI_Access(struct IND_drvdata *IND, void *user_ptr);
 //
 // IND_Maxmin_Read()
 //
-int IND_Maxmin_Read(struct IND_drvdata *IND, void *user_ptr);
+int IND_Maxmin_Read(struct IND_drvdata *IND, size_t base, void *user_ptr);
 
 #endif /* _IND_SYSTEM_H */

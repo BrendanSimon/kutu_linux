@@ -142,19 +142,22 @@ enum IND_user_cmds
    IND_USER_TRIG_PPS,
    IND_USER_SPI_ACCESS,
    IND_USER_STATUS,
-   IND_USER_SET_LEDS,       /* use IND_USER_MODIFY_LEDS to set and clear */
-   IND_USER_CLEAR_LEDS,     /* use IND_USER_MODIFY_LEDS to set and clear */
-   IND_USER_SET_CTRL,       /* use IND_USER_MODIFY_CTRL to set and clear */
-   IND_USER_CLEAR_CTRL,     /* use IND_USER_MODIFY_CTRL to set and clear */
+   IND_USER_SET_LEDS,			/* use IND_USER_MODIFY_LEDS to set and clear */
+   IND_USER_CLEAR_LEDS,			/* use IND_USER_MODIFY_LEDS to set and clear */
+   IND_USER_SET_CTRL,			/* use IND_USER_MODIFY_CTRL to set and clear */
+   IND_USER_CLEAR_CTRL,			/* use IND_USER_MODIFY_CTRL to set and clear */
    IND_USER_SET_INTERRUPT,
    IND_USER_GET_SEM,
    IND_USER_SET_SEM,
    IND_USER_REG_DEBUG,
    IND_USER_MODIFY_LEDS,
    IND_USER_MODIFY_CTRL,
-   IND_USER_READ_MAXMIN,
+   IND_USER_READ_MAXMIN,		/* IND_USER_READ_MAXMIN_NORMAL */
    IND_USER_FPGA_VERSION,
-   IND_USER_ADC_CLOCK_COUNT_PER_PPS
+   IND_USER_ADC_CLOCK_COUNT_PER_PPS,
+   IND_USER_ADC_OFFSET_SET,
+   IND_USER_ADC_OFFSET_GET,
+   IND_USER_READ_MAXMIN_SQUARED,
 };
 
 /*
@@ -184,18 +187,26 @@ struct IND_debug_struct {
 } ;
 
 struct IND_maxmin_struct {
-   __u32                           max_ch0_data;
+   // version 1 : peak values and indices.
+   __s32                           max_ch0_data;
    __u32                           max_ch0_addr;
-   __u32                           min_ch0_data;
+   __s32                           min_ch0_data;
    __u32                           min_ch0_addr;
-   __u32                           max_ch1_data;
+   __s32                           max_ch1_data;
    __u32                           max_ch1_addr;
-   __u32                           min_ch1_data;
+   __s32                           min_ch1_data;
    __u32                           min_ch1_addr;
-   __u32                           max_ch2_data;
+   __s32                           max_ch2_data;
    __u32                           max_ch2_addr;
-   __u32                           min_ch2_data;
+   __s32                           min_ch2_data;
    __u32                           min_ch2_addr;
+   // version 2 : add peak counts.
+   __u32                           max_ch0_count;
+   __u32                           min_ch0_count;
+   __u32                           max_ch1_count;
+   __u32                           min_ch1_count;
+   __u32                           max_ch2_count;
+   __u32                           min_ch2_count;
 } ;
 
 /*
@@ -249,10 +260,12 @@ struct IND_cmd_struct {
 #define IND_USER_REG_DEBUG                  _IOWR(IND_IOCTL_BASE, 0x8f, struct IND_cmd_struct)
 #define IND_USER_MODIFY_LEDS                _IOWR(IND_IOCTL_BASE, 0x90, struct IND_bit_flag_struct)
 #define IND_USER_MODIFY_CTRL                _IOWR(IND_IOCTL_BASE, 0x91, struct IND_bit_flag_struct)
-#define IND_USER_READ_MAXMIN                _IOWR(IND_IOCTL_BASE, 0x92, struct IND_maxmin_struct)
+#define IND_USER_READ_MAXMIN                _IOR( IND_IOCTL_BASE, 0x92, struct IND_maxmin_struct)
+//#define IND_USER_READ_MAXMIN_NORMAL         _IOR( IND_IOCTL_BASE, 0x92, struct IND_maxmin_struct)
 #define IND_USER_FPGA_VERSION               _IOWR(IND_IOCTL_BASE, 0x93, struct IND_fpga_version_struct)
 #define IND_USER_ADC_CLOCK_COUNT_PER_PPS    _IOWR(IND_IOCTL_BASE, 0x94, __u32)
 #define IND_USER_ADC_OFFSET_SET             _IOW( IND_IOCTL_BASE, 0x95, __s32)
 #define IND_USER_ADC_OFFSET_GET             _IOR( IND_IOCTL_BASE, 0x96, __s32)
+#define IND_USER_READ_MAXMIN_SQUARED        _IOR( IND_IOCTL_BASE, 0x97, struct IND_maxmin_struct)
 
 #endif /* _IND_H */

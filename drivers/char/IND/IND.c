@@ -344,7 +344,11 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
          return 0;
 
       case IND_USER_READ_MAXMIN:
-         ret = IND_Maxmin_Read(IND, arg_ptr);
+         ret = IND_Maxmin_Read(IND, R_IND_MAXMIN_NORMAL_BASE, arg_ptr);
+         return ret;
+
+      case IND_USER_READ_MAXMIN_SQUARED:
+         ret = IND_Maxmin_Read(IND, R_IND_MAXMIN_SQUARED_BASE, arg_ptr);
          return ret;
 
       case IND_USER_FPGA_VERSION:
