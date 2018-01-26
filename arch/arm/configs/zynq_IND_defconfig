@@ -1778,16 +1778,7 @@ CONFIG_SPI_SPIDEV=y
 #
 # PPS support
 #
-CONFIG_PPS=y
-CONFIG_PPS_DEBUG=y
-CONFIG_NTP_PPS=y
-
-#
-# PPS clients support
-#
-# CONFIG_PPS_CLIENT_KTIMER is not set
-CONFIG_PPS_CLIENT_LDISC=y
-# CONFIG_PPS_CLIENT_GPIO is not set
+# CONFIG_PPS is not set
 
 #
 # PPS generators support
