@@ -223,7 +223,7 @@ int IND_Maxmin_Read(struct IND_drvdata *IND, size_t base, void *user_ptr)
    maxmin.max_ch2_count	= IND_read_reg(IND, base + R_MAX_CH2_COUNT_OFFSET);
    maxmin.min_ch2_count	= IND_read_reg(IND, base + R_MIN_CH2_COUNT_OFFSET);
 
-#if 0
+#ifdef DEBUG
    printk(KERN_DEBUG "IND_Maxmin_Read: ch0_max: addr=0x%08x data=0x%08x count=0x%08x\n", maxmin.max_ch0_addr, maxmin.max_ch0_data, maxmin.max_ch0_count);
    printk(KERN_DEBUG "IND_Maxmin_Read: ch0_min: addr=0x%08x data=0x%08x count=0x%08x\n", maxmin.min_ch0_addr, maxmin.min_ch0_data, maxmin.min_ch0_count);
    printk(KERN_DEBUG "IND_Maxmin_Read: ch1_max: addr=0x%08x data=0x%08x count=0x%08x\n", maxmin.max_ch1_addr, maxmin.max_ch1_data, maxmin.max_ch1_count);
