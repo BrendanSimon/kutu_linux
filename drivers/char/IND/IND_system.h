@@ -189,6 +189,9 @@ struct IND_drvdata {
    dma_addr_t dma_handle;
    struct list_head dev_list;
    wait_queue_head_t irq_wait_queue;
+   struct IND_cmd_struct command;
+   uint32_t bank;
+   struct IND_capture_info capture_info[2];	/* bank 0, 1 */
 };
 
 static inline void IND_write_reg(struct IND_drvdata *IND, size_t reg, uint32_t val)
@@ -270,9 +273,20 @@ int IND_Run_Scan(struct IND_drvdata *IND, void *user_ptr);
 //
 int IND_SPI_Access(struct IND_drvdata *IND, void *user_ptr);
 
-//
-// IND_Maxmin_Read()
-//
-int IND_Maxmin_Read(struct IND_drvdata *IND, size_t base, void *user_ptr);
+/*
+ * IOCTL to read maxmin registers and copy to user memory.
+ */
+int IND_Maxmin_Read( struct IND_drvdata *IND, void *user_ptr, size_t base );
+
+/*
+ * Read maxmin registers and populate a IND_maxmin structure.
+ *
+ */
+void _ind_maxmin_read( struct IND_maxmin_struct *maxmin, struct IND_drvdata *IND, size_t base );
+
+/*
+ * IOCTL to read capture information and copy to user memory.
+ */
+int IND_capture_info_get( struct IND_drvdata *IND, void *user_ptr, uint32_t bank );
 
 #endif /* _IND_SYSTEM_H */

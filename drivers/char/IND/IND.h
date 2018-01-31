@@ -153,11 +153,14 @@ enum IND_user_cmds
    IND_USER_MODIFY_LEDS,
    IND_USER_MODIFY_CTRL,
    IND_USER_READ_MAXMIN,		/* IND_USER_READ_MAXMIN_NORMAL */
+   IND_USER_READ_MAXMIN_NORMAL,		/* IND_USER_READ_MAXMIN_NORMAL */
    IND_USER_FPGA_VERSION,
    IND_USER_ADC_CLOCK_COUNT_PER_PPS,
    IND_USER_ADC_OFFSET_SET,
    IND_USER_ADC_OFFSET_GET,
    IND_USER_READ_MAXMIN_SQUARED,
+   IND_USER_CAPTURE_INFO_0_GET,
+   IND_USER_CAPTURE_INFO_1_GET,
 };
 
 /*
@@ -224,7 +227,7 @@ struct IND_fpga_version_struct {
 } __packed;
 
 /*
- *  struct IND_registers.
+ *  struct IND_cmd_struct.
  *  This structure points to the first block where the registers are located
  */
 
@@ -239,6 +242,25 @@ struct IND_cmd_struct {
    __s32                            adc_offset;
 } ;
 
+/*
+ *  struct IND_capture_info.
+ *  This structure contains info regarding a capture bank (address).
+ */
+
+struct IND_capture_info {
+	struct timespec			irq_time;
+	__u32				int_status;
+	__u32				irq_count;
+	__u32				semaphore;
+	__u32				adc_clock_count_per_pps;
+	__u32				bank;
+	struct IND_maxmin_struct	maxmin_normal;
+	struct IND_maxmin_struct	maxmin_squared;
+} ;
+
+/*
+ *  IOCTL definitions.
+ */
 
 #define IND_IOCTL_BASE	't'
 
@@ -261,11 +283,13 @@ struct IND_cmd_struct {
 #define IND_USER_MODIFY_LEDS                _IOWR(IND_IOCTL_BASE, 0x90, struct IND_bit_flag_struct)
 #define IND_USER_MODIFY_CTRL                _IOWR(IND_IOCTL_BASE, 0x91, struct IND_bit_flag_struct)
 #define IND_USER_READ_MAXMIN                _IOR( IND_IOCTL_BASE, 0x92, struct IND_maxmin_struct)
-//#define IND_USER_READ_MAXMIN_NORMAL         _IOR( IND_IOCTL_BASE, 0x92, struct IND_maxmin_struct)
+#define IND_USER_READ_MAXMIN_NORMAL         _IOR( IND_IOCTL_BASE, 0x92, struct IND_maxmin_struct)
 #define IND_USER_FPGA_VERSION               _IOWR(IND_IOCTL_BASE, 0x93, struct IND_fpga_version_struct)
 #define IND_USER_ADC_CLOCK_COUNT_PER_PPS    _IOWR(IND_IOCTL_BASE, 0x94, __u32)
 #define IND_USER_ADC_OFFSET_SET             _IOW( IND_IOCTL_BASE, 0x95, __s32)
 #define IND_USER_ADC_OFFSET_GET             _IOR( IND_IOCTL_BASE, 0x96, __s32)
 #define IND_USER_READ_MAXMIN_SQUARED        _IOR( IND_IOCTL_BASE, 0x97, struct IND_maxmin_struct)
+#define IND_USER_CAPTURE_INFO_0_GET         _IOR( IND_IOCTL_BASE, 0x98, struct IND_capture_info)
+#define IND_USER_CAPTURE_INFO_1_GET         _IOR( IND_IOCTL_BASE, 0x99, struct IND_capture_info)
 
 #endif /* _IND_H */
