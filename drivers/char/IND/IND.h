@@ -14,48 +14,54 @@
 /*
 ** configuration constants
 */
-#define GENERATE_PPS             (0x0001)
-#define DEBUG_START_DMA          (0x0002)
-#define DMA_HALT                 (0x0004)
-#define DMA_RESET                (0x0008)
-#define FPGA_RESET               (0x0010)
-#define ADC_TEST_DATA            (0x0020)
-#define PPS_DEBUG_MODE           (0x0040)
-#define DMA_DEBUG_MODE           (0x0080)
-#define DEBUG_SELECT_CH0         (0x0000)
-#define DEBUG_SELECT_CH1         (0x0100)
-#define DEBUG_SELECT_CH2         (0x0200)
-#define DEBUG_SELECT_CH_OFF      (0x0300)
-#define DEBUG_SELECT_ACTIVE      (0x0800)
-#define SIGNED_DATA              (0x1000)
+#define GENERATE_PPS			(0x0001)
+#define DEBUG_START_DMA			(0x0002)
+#define DMA_HALT			(0x0004)
+#define DMA_RESET			(0x0008)
+#define FPGA_RESET			(0x0010)
+#define ADC_TEST_DATA_POST_FIFO		(0x0020)
+#define PPS_DEBUG_MODE			(0x0040)
+#define DMA_DEBUG_MODE			(0x0080)
+#define DEBUG_SELECT_CH0		(0x0000)
+#define DEBUG_SELECT_CH1		(0x0100)
+#define DEBUG_SELECT_CH2		(0x0200)
+#define DEBUG_SELECT_CH_OFF		(0x0300)
+#define DEBUG_SELECT_ACTIVE		(0x0800)
+#define SIGNED_DATA			(0x1000)
+#define ADC_TEST_DATA_PRE_FIFO		(0x2000)
 
-#define CONFIG_MODE_MASK         (ADC_TEST_DATA | PPS_DEBUG_MODE | DMA_DEBUG_MODE | DEBUG_SELECT_CH_OFF | DEBUG_SELECT_ACTIVE | SIGNED_DATA)
+#define CONFIG_MODE_MASK		( ~( GENERATE_PPS	\
+					   | DEBUG_START_DMA	\
+					   | DMA_HALT		\
+					   | DMA_RESET		\
+					   | FPGA_RESET		\
+					) )
+
+#define MODE_NORMAL			(0x00)
+#define MODE_DMA_DEBUG			(DMA_DEBUG_MODE)
+#define MODE_TRIGGER_DMA		(DMA_DEBUG_MODE | DEBUG_START_DMA)
+#define MODE_PPS_DEBUG			(PPS_DEBUG_MODE)
+#define MODE_TRIGGER_PPS		(PPS_DEBUG_MODE | GENERATE_PPS)
+#define MODE_SYSTEM_HALT		(PPS_DEBUG_MODE)
+
+#define MODE_CH_AUTO			(0x00)
+#define MODE_CH_AUTO_INV		(~(DEBUG_SELECT_ACTIVE | DEBUG_SELECT_CH_OFF))
+#define MODE_CH_0			(DEBUG_SELECT_ACTIVE | DEBUG_SELECT_CH0)
+#define MODE_CH_1			(DEBUG_SELECT_ACTIVE | DEBUG_SELECT_CH1)
+#define MODE_CH_2			(DEBUG_SELECT_ACTIVE | DEBUG_SELECT_CH2)
+#define MODE_CH_OFF			(DEBUG_SELECT_ACTIVE | DEBUG_SELECT_CH_OFF)
+
+#define MODE_UNSIGNED			(0)
+#define MODE_SIGNED			(SIGNED_DATA)
+
+#define PEAK_START_DISABLE		(0x00ffffff)
+#define PEAK_STOP_DISABLE		(0x00ffffff)
 
 
-#define MODE_NORMAL              (0x00)
-#define MODE_DMA_DEBUG           (DMA_DEBUG_MODE)
-#define MODE_TRIGGER_DMA         (DMA_DEBUG_MODE | DEBUG_START_DMA)
-#define MODE_PPS_DEBUG           (PPS_DEBUG_MODE)
-#define MODE_TRIGGER_PPS         (PPS_DEBUG_MODE | GENERATE_PPS)
-#define MODE_SYSTEM_HALT         (PPS_DEBUG_MODE)
+#define DISABLE_INTERRUPT		(0)
+#define ENABLE_INTERRUPT		(1)
 
-#define MODE_CH_AUTO             (0x00)
-#define MODE_CH_AUTO_INV         (~(DEBUG_SELECT_ACTIVE | DEBUG_SELECT_CH_OFF))
-#define MODE_CH_0                (DEBUG_SELECT_ACTIVE | DEBUG_SELECT_CH0)
-#define MODE_CH_1                (DEBUG_SELECT_ACTIVE | DEBUG_SELECT_CH1)
-#define MODE_CH_2                (DEBUG_SELECT_ACTIVE | DEBUG_SELECT_CH2)
-#define MODE_CH_OFF              (DEBUG_SELECT_ACTIVE | DEBUG_SELECT_CH_OFF)
-
-#define MODE_SIGNED              (SIGNED_DATA)
-
-#define PEAK_START_DISABLE       (0x00ffffff)
-#define PEAK_STOP_DISABLE        (0x00ffffff)
-
-
-#define DISABLE_INTERRUPT       (0)
-#define ENABLE_INTERRUPT       	(1)
-
-#define DMA_LENGTH				(128*1024*1024)
+#define DMA_LENGTH			(128*1024*1024)
 
 #define IND_DEBUG_READ        	(1)
 #define IND_DEBUG_WRITE       	(2)

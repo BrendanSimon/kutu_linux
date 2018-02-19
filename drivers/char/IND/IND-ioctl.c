@@ -50,7 +50,7 @@ int IND_Set_User_Mode(struct IND_drvdata *IND, void *user_ptr)
 
    arg = cmd->config;
 
-//   if (arg & (~(ADC_TEST_DATA | PPS_DEBUG_MODE | DMA_DEBUG_MODE))) {
+//   if (arg & (~(ADC_TEST_DATA_POST_FIFO | PPS_DEBUG_MODE | DMA_DEBUG_MODE))) {
 //      printk(KERN_DEBUG "IND_USER_SET_MODE: invalid argument\n");
 //      return -EFAULT;
 //   }
@@ -92,7 +92,7 @@ int IND_Set_User_Mode(struct IND_drvdata *IND, void *user_ptr)
    IND->config_state &= ~(CONFIG_MODE_MASK);
    IND->config_state |= (arg & CONFIG_MODE_MASK);
    IND_write_reg(IND, R_MODE_CONFIG_ADDR, IND->config_state);
-   //printk(KERN_DEBUG "IND_USER_SET_MODE: config_state=0x%08x\n", IND->config_state);
+   printk(KERN_DEBUG "IND_USER_SET_MODE: config_state=0x%08x\n", IND->config_state);
 
    return 0;
 }
@@ -292,7 +292,7 @@ int IND_Run_Scan(struct IND_drvdata *IND, void *user_ptr)
    }
 
    // set mode (dma_debug and reset disabled)
-   config = cmd->config & (ADC_TEST_DATA | PPS_DEBUG_MODE);
+   config = cmd->config & (ADC_TEST_DATA_POST_FIFO | PPS_DEBUG_MODE);
 
    IND->config_state = config;
    IND_write_reg(IND, R_MODE_CONFIG_ADDR, config);
