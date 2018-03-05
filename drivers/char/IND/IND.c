@@ -27,6 +27,18 @@
 #define MODULE_NAME "IND"
 #define IND_DEVICES 1
 
+#if 1 // NEW: non-coherent config => asynchronous => faster (uses mem cache)
+	#define USE_DMA_ALLOC_COHERENT		0	/* 0 => asynchronous, 1 => synchronous  */
+	#define USE_DMA_ALLOC_NONCOHERENT	1	/* 0 => synchronous,  1 => asynchronous */
+	#define USE_DMA_MAPPING_SINGLE		0
+	#define USE_PGPROT_CACHED		1
+#else // ORIG: coherent config => synchronousv=> slower (doesn't use mem cache)
+	#define USE_DMA_ALLOC_COHERENT		1	/* 0 => asynchronous, 1 => synchronous  */
+	#define USE_DMA_ALLOC_NONCOHERENT	0	/* 0 => synchronous,  1 => asynchronous */
+	#define USE_DMA_MAPPING_SINGLE		0
+	#define USE_PGPROT_CACHED		0
+#endif
+
 LIST_HEAD( IND_full_dev_list );
 
 /*
@@ -100,7 +112,13 @@ static int IND_mmap(struct file *filp, struct vm_area_struct *vma)
       return -EAGAIN;
    }
 
+#if ! USE_PGPROT_CACHED
    vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
+#else
+   vma->vm_page_prot = __pgprot_modify(vma->vm_page_prot,
+		                       L_PTE_MT_MASK,
+                                       L_PTE_MT_WRITEALLOC | L_PTE_XN);
+#endif
 
    result = remap_pfn_range(vma, vma->vm_start,IND->dma_handle >> PAGE_SHIFT, requested_size, vma->vm_page_prot);
 
@@ -483,6 +501,13 @@ static irqreturn_t IND_isr(int irq, void *data)
 	_ind_maxmin_read(&capture_info->maxmin_normal, IND, R_IND_MAXMIN_NORMAL_BASE);
 	_ind_maxmin_read(&capture_info->maxmin_squared, IND, R_IND_MAXMIN_SQUARED_BASE);
 
+#if USE_PGPROT_CACHED
+	/* dma_sync_single_for_cpu(dev, dma_handle, size, direction); */
+//	dma_sync_single_for_cpu(NULL, IND->dma_handle, DMA_LENGTH, DMA_BIDIRECTIONAL);
+	dma_addr_t dma_handle = IND->dma_handle + (IND->bank * (DMA_LENGTH / 2));
+	dma_sync_single_for_cpu(NULL, dma_handle, (DMA_LENGTH / 2), DMA_BIDIRECTIONAL);
+#endif
+
 	// wake up the irq wait queue to notify processes using select/poll/epoll.
 	wake_up_interruptible(&IND->irq_wait_queue);
 
@@ -618,6 +643,8 @@ static int IND_probe(struct platform_device *pdev)
    //
    // allocate mmap area
    //
+#if USE_DMA_ALLOC_COHERENT
+
    IND->dma_addr = dma_alloc_coherent(NULL, DMA_LENGTH, &IND->dma_handle, GFP_KERNEL);
 
    dev_info(&pdev->dev, "dma_addr = 0x%x, dma_handle = 0x%x\n",(u32)IND->dma_addr,(u32)IND->dma_handle);
@@ -630,6 +657,41 @@ static int IND_probe(struct platform_device *pdev)
       goto failed8;
    }
    dev_info(&pdev->dev, "Successfully allocated dma memory\n");
+
+#elif USE_DMA_ALLOC_NONCOHERENT
+
+   IND->dma_addr = dma_alloc_noncoherent(NULL, DMA_LENGTH, &IND->dma_handle, GFP_KERNEL);
+
+   dev_info(&pdev->dev, "dma_addr = 0x%x, dma_handle = 0x%x\n",(u32)IND->dma_addr,(u32)IND->dma_handle);
+   dev_info(&pdev->dev, "IND base = 0x%x\n",(u32)IND->base);
+
+   if (!IND->dma_addr) {
+      printk(KERN_ERR "<%s> Error: allocating dma memory failed\n", MODULE_NAME);
+
+      ret = -ENOMEM;
+      goto failed8;
+   }
+   dev_info(&pdev->dev, "Successfully allocated dma memory\n");
+
+#else
+
+   /* dma_handle = dma_map_single(dev, addr, size, direction); */
+   IND->dma_handle = dma_map_single(NULL, NULL, DMA_LENGTH, DMA_BIDIRECTIONAL);
+
+//   dev_info(&pdev->dev, "dma_addr = 0x%x, dma_handle = 0x%x\n",(u32)IND->dma_addr,(u32)IND->dma_handle);
+//   dev_info(&pdev->dev, "dma_addr   = 0x%x\n",(u32)IND->dma_addr);
+   dev_info(&pdev->dev, "dma_handle = 0x%x\n",(u32)IND->dma_handle);
+   dev_info(&pdev->dev, "IND base   = 0x%x\n",(u32)IND->base);
+
+   /* dma_mapping_error(dev, dma_handle) */
+   if (dma_mapping_error(NULL, IND->dma_handle)) {
+      printk(KERN_ERR "<%s> Error: allocating dma memory failed\n", MODULE_NAME);
+      ret = -ENOMEM;
+      goto failed8;
+   }
+   dev_info(&pdev->dev, "Successfully allocated dma memory\n");
+
+#endif
 
    init_waitqueue_head(&IND->irq_wait_queue);
 
@@ -669,9 +731,18 @@ static int IND_remove(struct platform_device *pdev)
    clk_unprepare(IND->clk);
 
    /* free mmap area */
+#if USE_DMA_ALLOC_COHERENT
    if (IND->dma_addr) {
       dma_free_coherent(NULL, DMA_LENGTH, IND->dma_addr, IND->dma_handle);
    }
+#elif USE_DMA_ALLOC_NONCOHERENT
+   if (IND->dma_addr) {
+      dma_free_noncoherent(NULL, DMA_LENGTH, IND->dma_addr, IND->dma_handle);
+   }
+#else
+   /* dma_unmap_single(dev, dma_handle, size, direction); */
+   dma_unmap_single(NULL, IND->dma_handle, DMA_LENGTH, DMA_BIDIRECTIONAL);
+#endif
 
    return 0;
 }
