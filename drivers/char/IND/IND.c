@@ -309,6 +309,7 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
       case IND_USER_SET_ADDRESS:
          IND_write_reg(IND, R_DMA_WRITE_ADDR, (IND->dma_handle + arg));
 	 IND->bank = (arg == 0) ? 0 : 1;
+//         printk(KERN_DEBUG "<%s> : IND_USER_SET_ADDRESS: offset=0x%08X, bank=%u\n",MODULE_NAME, arg, IND->bank);
          return 0;
 
       case IND_USER_DMA_TEST:
@@ -428,10 +429,12 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 
       case IND_USER_ADC_OFFSET_SET:
 	      IND_write_reg(IND, R_ADC_OFFSET, arg);
+              printk(KERN_DEBUG "<%s> : IND_USER_ADC_OFFSET_SET: %d (0x%08X)\n", MODULE_NAME, arg, arg);
 	      return 0;
 
       case IND_USER_ADC_OFFSET_GET:
 	      val = IND_read_reg(IND, R_ADC_OFFSET);
+              printk(KERN_DEBUG "<%s> : IND_USER_ADC_OFFSET_GET: %d (0x%08X)\n", MODULE_NAME, val, val);
 	      if (copy_to_user(arg_ptr, &val, sizeof(val)))
 		      return -EFAULT;
 	      return 0;
