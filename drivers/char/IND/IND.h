@@ -11,6 +11,8 @@
 #define _IND_H
 
 
+#define	BANK_COUNT			(2)
+
 /*
 ** configuration constants
 */
@@ -167,6 +169,9 @@ enum IND_user_cmds
    IND_USER_READ_MAXMIN_SQUARED,
    IND_USER_CAPTURE_INFO_0_GET,
    IND_USER_CAPTURE_INFO_1_GET,
+   IND_USER_CAPTURE_INFO_0_GET,		/* get capture info for bank 0 */
+   IND_USER_CAPTURE_INFO_1_GET,		/* get capture info for bank 1 */
+   IND_USER_CAPTURE_INFO_LIST_GET,	/* get capture info list structure */   
 };
 
 /*
@@ -264,6 +269,10 @@ struct IND_capture_info {
 	struct IND_maxmin_struct	maxmin_squared;
 } ;
 
+struct IND_capture_info_list {
+	struct IND_capture_info		ci[BANK_COUNT];
+} ;
+
 /*
  *  IOCTL definitions.
  */
@@ -297,5 +306,6 @@ struct IND_capture_info {
 #define IND_USER_READ_MAXMIN_SQUARED        _IOR( IND_IOCTL_BASE, 0x97, struct IND_maxmin_struct)
 #define IND_USER_CAPTURE_INFO_0_GET         _IOR( IND_IOCTL_BASE, 0x98, struct IND_capture_info)
 #define IND_USER_CAPTURE_INFO_1_GET         _IOR( IND_IOCTL_BASE, 0x99, struct IND_capture_info)
+#define IND_USER_CAPTURE_INFO_LIST_GET      _IOR( IND_IOCTL_BASE, 0x9A, struct IND_capture_info_list)
 
 #endif /* _IND_H */

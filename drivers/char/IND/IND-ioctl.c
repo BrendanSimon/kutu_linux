@@ -264,12 +264,25 @@ int IND_Maxmin_Read( struct IND_drvdata *IND, void *user_ptr, size_t base )
  */
 int IND_capture_info_get( struct IND_drvdata *IND, void *user_ptr, uint32_t bank )
 {
-	// NOTE: no bounds checking for `bank` argument.
-	//       is only called via IOCTLs so should be safe.
+	if (bank >= BANK_COUNT)
+		return -EFAULT;
 
-	struct IND_capture_info  *capture_info = &IND->capture_info[bank];
+	struct IND_capture_info  *ci = &IND->capture_info_list.ci[bank];
 
-	if (copy_to_user(user_ptr, capture_info, sizeof(*capture_info)))
+	if (copy_to_user(user_ptr, ci, sizeof(*ci)))
+		return -EFAULT;
+
+	return 0;
+}
+
+/*
+ * IND_capture_info_list_get()
+ */
+int IND_capture_info_list_get( struct IND_drvdata *IND, void *user_ptr )
+{
+	struct IND_capture_info_list  *ci_list = &IND->capture_info_list;
+
+	if (copy_to_user(user_ptr, ci_list, sizeof(*ci_list)))
 		return -EFAULT;
 
 	return 0;

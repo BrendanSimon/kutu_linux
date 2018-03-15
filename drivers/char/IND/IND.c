@@ -168,13 +168,19 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
        * time critical IOCTLs first (assumes switch statement is executed in order).
        */
 
+      case IND_USER_CAPTURE_INFO_LIST_GET:
+      {
+		ret = IND_capture_info_list_get(IND, arg_ptr);
+		return ret;
+      }
+
       case IND_USER_CAPTURE_INFO_0_GET:
-	      ret = IND_capture_info_get(IND, arg_ptr, 0);
-	      return ret;
+		ret = IND_capture_info_get(IND, arg_ptr, 0);
+		return ret;
 
       case IND_USER_CAPTURE_INFO_1_GET:
-	      ret = IND_capture_info_get(IND, arg_ptr, 1);
-	      return ret;
+		ret = IND_capture_info_get(IND, arg_ptr, 1);
+		return ret;
 
       case IND_USER_ADC_CLOCK_COUNT_PER_PPS:
 	      // Standard register logic used in FPGA to store clock counts per pps !!
@@ -429,12 +435,13 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 
       case IND_USER_ADC_OFFSET_SET:
 	      IND_write_reg(IND, R_ADC_OFFSET, arg);
-              printk(KERN_DEBUG "<%s> : IND_USER_ADC_OFFSET_SET: %d (0x%08X)\n", MODULE_NAME, arg, arg);
+	      val = arg;
+              printk(KERN_DEBUG "<%s> : IND_USER_ADC_OFFSET_SET: %d (0x%08X)\n", MODULE_NAME, (int32_t)val, val);
 	      return 0;
 
       case IND_USER_ADC_OFFSET_GET:
 	      val = IND_read_reg(IND, R_ADC_OFFSET);
-              printk(KERN_DEBUG "<%s> : IND_USER_ADC_OFFSET_GET: %d (0x%08X)\n", MODULE_NAME, val, val);
+              printk(KERN_DEBUG "<%s> : IND_USER_ADC_OFFSET_GET: %d (0x%08X)\n", MODULE_NAME, (int32_t)val, val);
 	      if (copy_to_user(arg_ptr, &val, sizeof(val)))
 		      return -EFAULT;
 	      return 0;
@@ -490,7 +497,7 @@ static irqreturn_t IND_isr(int irq, void *data)
 	IND->int_status = int_status;
 
 	// which bank has been captured?
-	capture_info = &IND->capture_info[IND->bank];
+	capture_info = &IND->capture_info_list.ci[IND->bank];
 
 	/*
 	 *  fill out capture_info structure

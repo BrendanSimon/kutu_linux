@@ -191,7 +191,8 @@ struct IND_drvdata {
    wait_queue_head_t irq_wait_queue;
    struct IND_cmd_struct command;
    uint32_t bank;
-   struct IND_capture_info capture_info[2];	/* bank 0, 1 */
+//   struct IND_capture_info capture_info[BANK_COUNT];	/* bank 0, 1 */
+   struct IND_capture_info_list capture_info_list;
 };
 
 static inline void IND_write_reg(struct IND_drvdata *IND, size_t reg, uint32_t val)
@@ -288,5 +289,10 @@ void _ind_maxmin_read( struct IND_maxmin_struct *maxmin, struct IND_drvdata *IND
  * IOCTL to read capture information and copy to user memory.
  */
 int IND_capture_info_get( struct IND_drvdata *IND, void *user_ptr, uint32_t bank );
+
+/*
+ * IOCTL to read capture information list and copy to user memory.
+ */
+int IND_capture_info_list_get( struct IND_drvdata *IND, void *user_ptr );
 
 #endif /* _IND_SYSTEM_H */
