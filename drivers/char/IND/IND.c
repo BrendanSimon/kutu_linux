@@ -182,6 +182,30 @@ static long IND_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 		ret = IND_capture_info_get(IND, arg_ptr, 1);
 		return ret;
 
+      case IND_USER_DMA_MEM_SYNC_ALL:
+      {
+#if USE_PGPROT_CACHED
+		/* dma_sync_single_for_cpu(dev, dma_handle, size, direction); */
+		dma_sync_single_for_cpu(NULL, IND->dma_handle, DMA_LENGTH, DMA_BIDIRECTIONAL);
+#endif
+		return 0;
+      }
+
+      case IND_USER_DMA_MEM_SYNC_BANK:
+      {
+#if USE_PGPROT_CACHED
+		uint32_t bank = arg;
+
+		if (bank >= BANK_COUNT)
+			return -EFAULT;
+
+		/* dma_sync_single_for_cpu(dev, dma_handle, size, direction); */
+		dma_addr_t dma_handle = IND->dma_handle + (IND->bank * (DMA_LENGTH / BANK_COUNT));
+		dma_sync_single_for_cpu(NULL, dma_handle, (DMA_LENGTH / BANK_COUNT), DMA_BIDIRECTIONAL);
+#endif
+		return 0;
+      }
+
       case IND_USER_ADC_CLOCK_COUNT_PER_PPS:
 	      // Standard register logic used in FPGA to store clock counts per pps !!
 	      // Read multiple times to ensure not reading during an update.
@@ -510,13 +534,6 @@ static irqreturn_t IND_isr(int irq, void *data)
 	capture_info->bank = IND->bank;
 	_ind_maxmin_read(&capture_info->maxmin_normal, IND, R_IND_MAXMIN_NORMAL_BASE);
 	_ind_maxmin_read(&capture_info->maxmin_squared, IND, R_IND_MAXMIN_SQUARED_BASE);
-
-#if USE_PGPROT_CACHED
-	/* dma_sync_single_for_cpu(dev, dma_handle, size, direction); */
-//	dma_sync_single_for_cpu(NULL, IND->dma_handle, DMA_LENGTH, DMA_BIDIRECTIONAL);
-	dma_addr_t dma_handle = IND->dma_handle + (IND->bank * (DMA_LENGTH / 2));
-	dma_sync_single_for_cpu(NULL, dma_handle, (DMA_LENGTH / 2), DMA_BIDIRECTIONAL);
-#endif
 
 	// wake up the irq wait queue to notify processes using select/poll/epoll.
 	wake_up_interruptible(&IND->irq_wait_queue);

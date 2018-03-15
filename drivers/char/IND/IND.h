@@ -167,11 +167,11 @@ enum IND_user_cmds
    IND_USER_ADC_OFFSET_SET,
    IND_USER_ADC_OFFSET_GET,
    IND_USER_READ_MAXMIN_SQUARED,
-   IND_USER_CAPTURE_INFO_0_GET,
-   IND_USER_CAPTURE_INFO_1_GET,
    IND_USER_CAPTURE_INFO_0_GET,		/* get capture info for bank 0 */
    IND_USER_CAPTURE_INFO_1_GET,		/* get capture info for bank 1 */
-   IND_USER_CAPTURE_INFO_LIST_GET,	/* get capture info list structure */   
+   IND_USER_CAPTURE_INFO_LIST_GET,	/* get capture info list structure */
+   IND_USER_DMA_MEM_SYNC_ALL,		/* syncrhonise all DMA memory by invalidating the memory cache */
+   IND_USER_DMA_MEM_SYNC_BANK,		/* syncrhonise a bank of DMA memory by invalidating the memory cache */
 };
 
 /*
@@ -307,5 +307,6 @@ struct IND_capture_info_list {
 #define IND_USER_CAPTURE_INFO_0_GET         _IOR( IND_IOCTL_BASE, 0x98, struct IND_capture_info)
 #define IND_USER_CAPTURE_INFO_1_GET         _IOR( IND_IOCTL_BASE, 0x99, struct IND_capture_info)
 #define IND_USER_CAPTURE_INFO_LIST_GET      _IOR( IND_IOCTL_BASE, 0x9A, struct IND_capture_info_list)
-
+#define IND_USER_DMA_MEM_SYNC_ALL           _IOW( IND_IOCTL_BASE, 0x9B, __u32)
+#define IND_USER_DMA_MEM_SYNC_BANK          _IOW( IND_IOCTL_BASE, 0x9C, __u32)
 #endif /* _IND_H */
