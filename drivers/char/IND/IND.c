@@ -32,7 +32,7 @@
 	#define USE_DMA_ALLOC_NONCOHERENT	1	/* 0 => synchronous,  1 => asynchronous */
 	#define USE_DMA_MAPPING_SINGLE		0
 	#define USE_PGPROT_CACHED		1
-#else // ORIG: coherent config => synchronousv=> slower (doesn't use mem cache)
+#else // ORIG: coherent config => synchronous => slower (doesn't use mem cache)
 	#define USE_DMA_ALLOC_COHERENT		1	/* 0 => asynchronous, 1 => synchronous  */
 	#define USE_DMA_ALLOC_NONCOHERENT	0	/* 0 => synchronous,  1 => asynchronous */
 	#define USE_DMA_MAPPING_SINGLE		0

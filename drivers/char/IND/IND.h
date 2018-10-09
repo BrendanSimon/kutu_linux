@@ -31,6 +31,8 @@
 #define DEBUG_SELECT_ACTIVE		(0x0800)
 #define SIGNED_DATA			(0x1000)
 #define ADC_TEST_DATA_PRE_FIFO		(0x2000)
+#define CONFIG_PHASE_MODE_LO          	(0x4000)
+#define CONFIG_PHASE_MODE_HI          	(0x8000)
 
 #define CONFIG_MODE_MASK		( ~( GENERATE_PPS	\
 					   | DEBUG_START_DMA	\
@@ -73,23 +75,27 @@
 /*
 ** Status constants
 */
-#define BIT_SPI_BUSY            (0x00000001)
-#define BIT_S2MM_ERR            (0x00000002)
-#define BIT_MM2S_RD_CMPLT       (0x00000004)
-#define BIT_MM2S_ERR            (0x00000008)
-#define BIT_SPI_ERR             (0x00000010)
-#define BIT_INTERRUPT_ACTIVE    (0x00000020)
-#define BIT_FPGA_RESET_STATUS   (0x00000040)
-#define BIT_ADC_TEST_STATUS     (0x00000080)
-#define BIT_PPS_DEBUG_STATUS    (0x00000100)
-#define BIT_DMA_RESET_STATUS    (0x00000200)
-#define BIT_DMA_DEBUG_STATUS    (0x00000400)
-#define BIT_INTERRUPT_EN_STATUS (0x00000800)
+#define BIT_SPI_BUSY            	(0x00000001)
+#define BIT_S2MM_ERR            	(0x00000002)
+#define BIT_MM2S_RD_CMPLT       	(0x00000004)
+#define BIT_MM2S_ERR            	(0x00000008)
+#define BIT_SPI_ERR             	(0x00000010)
+#define BIT_INTERRUPT_ACTIVE    	(0x00000020)
+#define BIT_FPGA_RESET_STATUS   	(0x00000040)
+#define BIT_ADC_TEST_STATUS     	(0x00000080)
+#define BIT_PPS_DEBUG_STATUS    	(0x00000100)
+#define BIT_DMA_RESET_STATUS    	(0x00000200)
+#define BIT_DMA_DEBUG_STATUS    	(0x00000400)
+#define BIT_INTERRUPT_EN_STATUS 	(0x00000800)
 
-#define STAT_BAT_LOW_STATUS     (0x00001000)
-#define STAT_AC_OK_STATUS       (0x00002000)
-#define STAT_NOT_RESTART_REQ    (0x00004000)        // PM MCU has requested a restart
-#define STAT_NOT_SHUTDOWN_REQ   (0x00008000)        // PM MCU has requested a shutdown
+#define STAT_BAT_LOW_STATUS     	(0x00001000)
+#define STAT_AC_OK_STATUS       	(0x00002000)
+#define STAT_NOT_RESTART_REQ    	(0x00004000)        // PM MCU has requested a restart
+#define STAT_NOT_SHUTDOWN_REQ   	(0x00008000)        // PM MCU has requested a shutdown
+
+#define STAT_ADC_TEST_DATA_PRE_FIFO	(0x00010000)
+#define STAT_PHASE_MODE_LO		(0x00020000)
+#define STAT_PHASE_MODE_HI		(0x00040000)
 
 /*
  * CTRL bit definitions

@@ -89,8 +89,8 @@ int IND_Set_User_Mode(struct IND_drvdata *IND, void *user_ptr)
 
    IND_write_reg(IND, R_ADC_OFFSET, cmd->adc_offset);
 
-   IND->config_state &= ~(CONFIG_MODE_MASK);
-   IND->config_state |= (arg & CONFIG_MODE_MASK);
+   IND->config_state &= ~(CONFIG_MODE_MASK);			// clear all bits     - except the config mode special bits
+   IND->config_state |= (arg & CONFIG_MODE_MASK);		// set bits specified - except the config mode special bits
    IND_write_reg(IND, R_MODE_CONFIG_ADDR, IND->config_state);
    printk(KERN_DEBUG "IND_USER_SET_MODE: config_state=0x%08x\n", IND->config_state);
 
