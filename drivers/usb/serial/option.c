@@ -616,6 +616,19 @@ static const struct option_blacklist_info telit_le920_blacklist = {
 };
 
 static const struct usb_device_id option_ids[] = {
+#if 1 //Added by Quectel
+// https://www.quectel.com/UploadImage/Downlad/Quectel_WCDMA&LTE_Linux_USB_Driver_User_Guide_V1.8.pdf
+	{ USB_DEVICE(0x05C6, 0x9090) }, /* Quectel UC15 */
+	{ USB_DEVICE(0x05C6, 0x9003) }, /* Quectel UC20 */
+	{ USB_DEVICE(0x2C7C, 0x0125) }, /* Quectel EC25 */
+	{ USB_DEVICE(0x2C7C, 0x0121) }, /* Quectel EC21 */
+	{ USB_DEVICE(0x05C6, 0x9215) }, /* Quectel EC20 */
+	{ USB_DEVICE(0x2C7C, 0x0191) }, /* Quectel EG9 1 */
+	{ USB_DEVICE(0x2C7C, 0x0195) }, /* Quectel EG95 */
+	{ USB_DEVICE(0x2C7C, 0x0306) }, /* Quectel EG06/EP06/EM06 */
+	{ USB_DEVICE(0x2C7C, 0x0296) }, /* Quectel BG96   */
+	{ USB_DEVICE(0x2C7C, 0x0435) }, /* Quectel AG35 */
+#endif
 	{ USB_DEVICE(OPTION_VENDOR_ID, OPTION_PRODUCT_COLT) },
 	{ USB_DEVICE(OPTION_VENDOR_ID, OPTION_PRODUCT_RICOLA) },
 	{ USB_DEVICE(OPTION_VENDOR_ID, OPTION_PRODUCT_RICOLA_LIGHT) },
@@ -1682,7 +1695,7 @@ static const struct usb_device_id option_ids[] = {
 	{ USB_DEVICE(CINTERION_VENDOR_ID, CINTERION_PRODUCT_AHXX) },
 	{ USB_DEVICE(CINTERION_VENDOR_ID, CINTERION_PRODUCT_PLXX),
 		.driver_info = (kernel_ulong_t)&net_intf4_blacklist },
-	{ USB_DEVICE(CINTERION_VENDOR_ID, CINTERION_PRODUCT_HC28_MDM) }, 
+	{ USB_DEVICE(CINTERION_VENDOR_ID, CINTERION_PRODUCT_HC28_MDM) },
 	{ USB_DEVICE(CINTERION_VENDOR_ID, CINTERION_PRODUCT_HC28_MDMNET) },
 	{ USB_DEVICE(SIEMENS_VENDOR_ID, CINTERION_PRODUCT_HC25_MDM) },
 	{ USB_DEVICE(SIEMENS_VENDOR_ID, CINTERION_PRODUCT_HC25_MDMNET) },
@@ -1827,6 +1840,10 @@ static struct usb_serial_driver option_1port_device = {
 #ifdef CONFIG_PM
 	.suspend           = usb_wwan_suspend,
 	.resume            = usb_wwan_resume,
+#if 1 //Added by Quectel
+// https://www.quectel.com/UploadImage/Downlad/Quectel_WCDMA&LTE_Linux_USB_Driver_User_Guide_V1.8.pdf
+	.reset_resume      = usb_wwan_resume,
+#endif
 #endif
 };
 
@@ -1865,6 +1882,25 @@ static int option_probe(struct usb_serial *serial,
 	    dev_desc->idProduct == cpu_to_le16(SAMSUNG_PRODUCT_GT_B3730) &&
 	    iface_desc->bInterfaceClass != USB_CLASS_CDC_DATA)
 		return -ENODEV;
+
+	#if 1 //Added by Quectel
+	// https://www.quectel.com/UploadImage/Downlad/Quectel_WCDMA&LTE_Linux_USB_Driver_User_Guide_V1.8.pdf
+
+	//Quectel UC20's interface 4 can be used as USB network device
+	if (serial->dev->descriptor.idVendor == cpu_to_le16(0x05C6) &&
+	    serial->dev->descriptor.idProduct == cpu_to_le16(0x9003) &&
+	    serial->interface->cur_altsetting->desc.bInterfaceNumber >= 4)
+		return -ENODEV;
+	//Quectel EC20's interface 4 can be used as USB network device
+	if (serial->dev->descriptor.idVendor == cpu_to_le16(0x05C6) &&
+	    serial->dev->descriptor.idProduct == cpu_to_le16(0x9215) &&
+	    serial->interface->cur_altsetting->desc.bInterfaceNumber >= 4)
+		return -ENODEV;
+	//Quectel EC25&EC21&EG91&EG95&EG06&EP06&EM06&BG96/AG35's interface 4 can be used as USB network device
+	if (serial->dev->descriptor.idVendor == cpu_to_le16(0x2C7C) &&
+	    serial->interface->cur_altsetting->desc.bInterfaceNumber >= 4)
+		return -ENODEV;
+	#endif
 
 	/* Store the blacklist info so we can use it during attach. */
 	usb_set_serial_data(serial, (void *)blacklist);
